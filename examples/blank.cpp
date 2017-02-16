@@ -212,6 +212,8 @@ void initBadge() { //initialize the badge
   delay(100);
 
   tft.begin(); //initialize the tft. This also sets up SPI to 80MHz Mode 0
+  tft.setRotation(2);
+  tft.scroll(32);
 
   analogWrite(GPIO_LCD_BL, 1023); //switch on LCD backlight
 
