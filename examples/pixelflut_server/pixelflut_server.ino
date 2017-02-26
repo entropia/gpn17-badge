@@ -80,7 +80,7 @@ byte shiftConfig = 0; //stores the 74HC595 config
 void setup() {
   initBadge();
   connectBadge();
-  
+
   setGPIO(VIBRATOR, HIGH);
   delay(500);
   setGPIO(VIBRATOR, LOW);
