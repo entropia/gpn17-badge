@@ -70,7 +70,7 @@ int infoboxColor = 0xEF5D;
 TFT_ILI9163C tft = TFT_ILI9163C(GPIO_LCD_CS, GPIO_LCD_DC);
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUM_LEDS, GPIO_WS2813, NEO_GRB + NEO_KHZ800);
 
-#define SAMPLECNT 64     //number of samples to take for the final measurement
+#define SAMPLECNT 32     //number of samples to take for the final measurement
 
 float readyValue = 0.8;  // value when the Sensor is ready (debugging = 2.75, Usecase = 0.42)
 
@@ -90,6 +90,10 @@ bool ready = false;     // ready flag
 bool running = false;   // running flag
 bool readyOld = true;   // compare flags
 bool runningOld = true;
+int r, g, b;            //colorvalues
+int cr, cg, cb;
+float brightness = 0.2; //brightnesscontrol
+int deltaval = 10 * brightness;
 
 byte shiftConfig = 0; //stores the 74HC595 config
 
@@ -158,6 +162,7 @@ void loop() {
   }
 
   updateValues(16, v, PPM, BACsum, samples); //update all values in the upper csreen half
+  updateLEDs(ready, running);
 
   if (runningOld != running || readyOld != ready) updateStatus(ready, running, 60); // update the sensor Stats if aviable
   if (oldBACsumLatch != BACsumLatch) updateBACandPPM(BACsumLatch, PPM, 80); // update the sums
@@ -168,7 +173,35 @@ void loop() {
 
 }
 
-void updateValues(int offset, float v, float PPM, float BACsum, float samples) {
+void updateLEDs(bool ready, bool running) {
+  b = 0;  // blus is not used, so it is static
+  if (ready == false && running == false) { //set colors accordingly to the status
+    r = 255;
+    g = 0;
+  }
+  else if (ready == true && running == false) {
+    r = 0;
+    g = 255;
+  }
+  else if (ready == true && running == true) {
+    r = 255;
+    g = 255;
+  }
+  if (cr <= r) cr += deltaval;  // fade
+  if (cr >= r) cr -= deltaval;
+  if (cg <= g) cg += deltaval;
+  if (cg >= g) cg -= deltaval;
+
+  int fcr = int(cr * brightness); // brightness
+  int fcg = int(cg * brightness);
+
+  for (int i = 0; i < NUM_LEDS; i++) {  //set color
+    pixels.setPixelColor(i, fcr, fcg, b);
+  }
+  pixels.show();
+}
+
+void updateValues(int offset, float v, float PPM, float BACsum, int samples) {
   tft.setTextColor(textColor, bgColor);
   tft.setTextSize(1);
   tft.setCursor(0, offset);
@@ -244,11 +277,9 @@ double getVoltage() {
   long analog = 0;
   for (int i = 0; i <= 63; i++) {
     analog = analog + analogRead(A0);
-    delayMicroseconds(10);
+    delayMicroseconds(1);
   }
-  //253 = 0.7
-  voltage = (analog / 64.0) * 0.00276679841897233;
-  //voltage = analog / 64.0;
+  voltage = (analog / 64.0) * 0.004535-0.5;
   return voltage;
 }
 

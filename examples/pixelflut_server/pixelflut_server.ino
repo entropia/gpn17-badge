@@ -87,8 +87,7 @@ void setup() {
 }
 
 void loop() {
-  //  pixels.show();
-  if (server.hasClient()) { // slot handler
+   if (server.hasClient()) { // slot handler
     for (i = 0; i < MAX_SRV_CLIENTS; i++) {
       if (!serverClients[i] || !serverClients[i].connected()) {
         if (serverClients[i]) serverClients[i].stop();
