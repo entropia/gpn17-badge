@@ -1,0 +1,65 @@
+##############################################################
+gpnbadge.name=GPN Badge 2017
+ 
+gpnbadge.upload.tool=esptool
+gpnbadge.upload.speed=921600
+gpnbadge.upload.resetmethod=nodemcu
+gpnbadge.upload.maximum_size=1044464
+gpnbadge.upload.maximum_data_size=81920
+gpnbadge.upload.wait_for_upload_port=true
+gpnbadge.serial.disableDTR=true
+gpnbadge.serial.disableRTS=true
+ 
+gpnbadge.build.mcu=esp8266
+gpnbadge.build.f_cpu=80000000L
+gpnbadge.build.board=ESP8266_NODEMCU
+gpnbadge.build.core=esp8266
+gpnbadge.build.variant=nodemcu
+gpnbadge.build.flash_mode=dio
+gpnbadge.build.flash_size=4M
+gpnbadge.build.flash_freq=40
+gpnbadge.build.debug_port=
+gpnbadge.build.debug_level=
+ 
+gpnbadge.menu.CpuFrequency.80=80 MHz
+gpnbadge.menu.CpuFrequency.80.build.f_cpu=80000000L
+gpnbadge.menu.CpuFrequency.160=160 MHz
+gpnbadge.menu.CpuFrequency.160.build.f_cpu=160000000L
+ 
+gpnbadge.menu.UploadSpeed.115200=115200
+gpnbadge.menu.UploadSpeed.115200.upload.speed=115200
+gpnbadge.menu.UploadSpeed.9600=9600
+gpnbadge.menu.UploadSpeed.9600.upload.speed=9600
+gpnbadge.menu.UploadSpeed.57600=57600
+gpnbadge.menu.UploadSpeed.57600.upload.speed=57600
+gpnbadge.menu.UploadSpeed.256000.windows=256000
+gpnbadge.menu.UploadSpeed.256000.upload.speed=256000
+gpnbadge.menu.UploadSpeed.230400.linux=230400
+gpnbadge.menu.UploadSpeed.230400.macosx=230400
+gpnbadge.menu.UploadSpeed.230400.macosx=230400
+gpnbadge.menu.UploadSpeed.230400.upload.speed=230400
+gpnbadge.menu.UploadSpeed.460800.linux=460800
+gpnbadge.menu.UploadSpeed.460800.macosx=460800
+gpnbadge.menu.UploadSpeed.460800.upload.speed=460800
+gpnbadge.menu.UploadSpeed.512000.windows=512000
+gpnbadge.menu.UploadSpeed.512000.upload.speed=512000
+gpnbadge.menu.UploadSpeed.921600=921600
+gpnbadge.menu.UploadSpeed.921600.upload.speed=921600
+ 
+## irom0_0_seg :                         org = 0x40201010, len = 0xb9ff0
+gpnbadge.menu.FlashSize.e1M256=eboot: 1M (256K SPIFFS)
+gpnbadge.menu.FlashSize.e1M256.build.flash_size=1M
+gpnbadge.menu.FlashSize.e1M256.build.flash_ld=eagle.flash.1m256.eboot.ld
+gpnbadge.menu.FlashSize.e1M256.build.spiffs_start=0xBB000
+gpnbadge.menu.FlashSize.e1M256.build.spiffs_end=0xFB000
+gpnbadge.menu.FlashSize.e1M256.build.spiffs_blocksize=4096
+gpnbadge.menu.FlashSize.e1M256.upload.maximum_size=761840
+ 
+## irom0_0_seg :                         org = 0x40202010, len = 0xb9ff0
+gpnbadge.menu.FlashSize.r1M256=rboot: 1M (256K SPIFFS)
+gpnbadge.menu.FlashSize.r1M256.build.flash_size=1M
+gpnbadge.menu.FlashSize.r1M256.build.flash_ld=eagle.flash.1m256.rboot.ld
+gpnbadge.menu.FlashSize.r1M256.build.spiffs_start=0xBB000
+gpnbadge.menu.FlashSize.r1M256.build.spiffs_end=0xFB000
+gpnbadge.menu.FlashSize.r1M256.build.spiffs_blocksize=4096
+gpnbadge.menu.FlashSize.r1M256.upload.maximum_size=76184
