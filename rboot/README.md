@@ -1,4 +1,5 @@
-#GPN-Badge Port
+GPN-Badge Port
+--------------------------------------------------
 
 HowTo:
 
@@ -19,9 +20,6 @@ esptool2 -bin -boot2 /tmp/arduino_build_xxxxxx/sketch.ino.elf rom.bin .text .dat
 
 7. flashing
 esptool.py --port /dev/ttyUSB0 -b 921600 write_flash --flash_size 4MB --flash_mode dio 0x0 rboot.bin 0x02000 rom0.bin 0x102000 rom1.bin 0x202000 rom2.bin 0x302000 rom3.bin
-
-
-#rboot
 
 rBoot - An open source boot loader for the ESP8266
 --------------------------------------------------
