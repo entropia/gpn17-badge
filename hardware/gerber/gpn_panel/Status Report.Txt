@@ -1,0 +1,33 @@
+Source PCB Design gpn_panel.PcbDoc contains embedded board array. It is recomended to generate individual BOM for each embedded board PCB design.
+
+Output: Gerber X2 Files
+Type  : GerberX2
+From  : Project [gpn-badge.PrjPcb]
+   Generated File[gpn_panel_Copper_Signal_Top.gbr]
+   Generated File[gpn_panel_Copper_Signal_Bot.gbr]
+   Generated File[gpn_panel_Pads_Bot.gbr]
+   Generated File[gpn_panel_Pads_Top.gbr]
+   Generated File[gpn_panel_Soldermask_Top.gbr]
+   Generated File[gpn_panel_Paste_Top.gbr]
+   Generated File[gpn_panel_Paste_Bot.gbr]
+   Generated File[gpn_panel_Legend_Bot.gbr]
+   Generated File[gpn_panel_Legend_Top.gbr]
+   Generated File[gpn_panel_Soldermask_Bot.gbr]
+   Generated File[gpn_panel_Keep-out.gbr]
+   Generated File[gpn_panel_Mechanical_31.gbr]
+   Generated File[gpn_panel_Mechanical_30.gbr]
+   Generated File[gpn_panel_Mechanical_1.gbr]
+   Generated File[gpn_panel_Profile.gbr]
+   Generated File[gpn_panel_NPTH_Drill.gbr]
+   Generated File[gpn_panel_PTH_Drill.gbr]
+   Generated File[gpn_panel_Drawing_1.gbr]
+   Generated File[gpn_panel_Drillmap_1.gbr]
+   Generated File[gpn_panel.RUL]
+   Generated File[gpn_panel.EXTREP]
+   Generated File[gpn_panel.REP]
+
+
+Files Generated   : 22
+Documents Printed : 0
+
+Finished Output Generation At 5:34:37 PM On 4/16/2017

@@ -1,0 +1,9 @@
+G04 Layer_Color=0*
+%FSLAX25Y25*%
+%MOIN*%
+%TF.FileFunction,Plated,1,2,PTH,Drill*%
+%TF.Part,CustomerPanel*%
+G01*
+G75*
+%TF.MD5,d5af676646fd2a2019622899441306c4*%
+M02*

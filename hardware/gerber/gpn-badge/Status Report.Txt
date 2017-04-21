@@ -1,0 +1,31 @@
+Output: Gerber X2 Files
+Type  : GerberX2
+From  : Project [gpn-badge.PrjPcb]
+   Generated File[gpn-badge_Copper_Signal_Top.gbr]
+   Generated File[gpn-badge_Copper_Signal_Bot.gbr]
+   Generated File[gpn-badge_Pads_Bot.gbr]
+   Generated File[gpn-badge_Pads_Top.gbr]
+   Generated File[gpn-badge_Soldermask_Top.gbr]
+   Generated File[gpn-badge_Paste_Top.gbr]
+   Generated File[gpn-badge_Paste_Bot.gbr]
+   Generated File[gpn-badge_Legend_Bot.gbr]
+   Generated File[gpn-badge_Legend_Top.gbr]
+   Generated File[gpn-badge_Soldermask_Bot.gbr]
+   Generated File[gpn-badge_Keep-out.gbr]
+   Generated File[gpn-badge_Mechanical_31.gbr]
+   Generated File[gpn-badge_Mechanical_30.gbr]
+   Generated File[gpn-badge_Mechanical_1.gbr]
+   Generated File[gpn-badge_Profile.gbr]
+   Generated File[gpn-badge_NPTH_Drill.gbr]
+   Generated File[gpn-badge_PTH_Drill.gbr]
+   Generated File[gpn-badge_Drawing_1.gbr]
+   Generated File[gpn-badge_Drillmap_1.gbr]
+   Generated File[gpn-badge.RUL]
+   Generated File[gpn-badge.EXTREP]
+   Generated File[gpn-badge.REP]
+
+
+Files Generated   : 22
+Documents Printed : 0
+
+Finished Output Generation At 6:47:13 AM On 4/21/2017

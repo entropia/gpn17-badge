@@ -1,0 +1,25 @@
+G04 Layer_Color=128*
+%FSLAX25Y25*%
+%MOIN*%
+%TF.FileFunction,Paste,Bot*%
+%TF.Part,Single*%
+G01*
+G75*
+%TA.AperFunction,SMDPad,CuDef*%
+G04:AMPARAMS|DCode=78|XSize=275.59mil|YSize=196.85mil|CornerRadius=49.21mil|HoleSize=0mil|Usage=FLASHONLY|Rotation=180.000|XOffset=0mil|YOffset=0mil|HoleType=Round|Shape=RoundedRectangle|*
+%AMROUNDEDRECTD78*
+21,1,0.27559,0.09842,0,0,180.0*
+21,1,0.17716,0.19685,0,0,180.0*
+1,1,0.09842,-0.08858,0.04921*
+1,1,0.09842,0.08858,0.04921*
+1,1,0.09842,0.08858,-0.04921*
+1,1,0.09842,-0.08858,-0.04921*
+%
+%ADD78ROUNDEDRECTD78*%
+D78*
+X0Y484842D02*
+D03*
+Y160039D02*
+D03*
+%TF.MD5,131589dc378371d019a11bf1511b5a25*%
+M02*
