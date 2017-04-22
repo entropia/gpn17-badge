@@ -3,53 +3,59 @@
 #include <Adafruit_GFX.h>
 #include <TFT_ILI9163C.h>
 #include <Adafruit_NeoPixel.h>
+#include <Wire.h>
 
 #include <ESP8266WiFi.h>
 
-#define VERSION 1
+#include <IRremoteESP8266.h>
+
+
+#define VERSION 2
 #define USEWIFI
 
-const char* ssid = "MyLittleWiFi"; // Put your SSID here
-const char* password = "WoonaBestPony"; // Put your PASSWORD here
+const char* ssid = "ssid"; // Put your SSID here
+const char* password = "password"; // Put your PASSWORD here
 
-#if (VERSION == 1)
+#if (VERSION == 2)
 #define GPIO_LCD_DC 0
 #define GPIO_TX     1
-#define GPIO_WS2813 2
+#define GPIO_WS2813 4
 #define GPIO_RX     3
-#define GPIO_DN     4
+#define GPIO_DN     2
 #define GPIO_DP     5
-#define GPIO_LATCH  9
-#define GPIO_LCD_BL 10
-#define GPIO_MISO   12
+
+#define GPIO_BOOT   16
 #define GPIO_MOSI   13
 #define GPIO_CLK    14
 #define GPIO_LCD_CS 15
-#define GPIO_MPU_CS 16
+#define GPIO_BNO    12
 
 #define MUX_JOY 0
 #define MUX_BAT 1
 #define MUX_LDR 2
-#define MUX_NTC 3
 #define MUX_ALK 4
 #define MUX_IN1 5
-#define MUX_IN2 6
-#define MUX_IN3 7
 
 #define VIBRATOR 3
 #define MQ3_EN   4
-#define OUT1     5
-#define OUT2     6
-#define OUT3     7
+#define LCD_LED  5
+#define IR_EN    6
+#define OUT1     7
 
-#define UP      660
-#define DOWN    580
-#define RIGHT   500
-#define LEFT    800
-#define CENTER  1020
-#define OFFSET  25
+#define UP      730
+#define DOWN    590
+#define RIGHT   496
+#define LEFT    970
+#define OFFSET  30
+
+#define I2C_PCA 0x25
 
 #define NUM_LEDS    4
+
+#define BAT_CRITICAL 3300
+
+IRsend irsend(GPIO_DP); //an IR led is connected to GPIO pin 4 (D2)
+IRrecv irrecv(GPIO_DN);
 #endif
 
 // Color definitions
@@ -68,38 +74,47 @@ Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUM_LEDS, GPIO_WS2813, NEO_GRB + NE
 //global variables
 byte shiftConfig = 0; //stores the 74HC595 config
 
-
 void setup() {
   initBadge();
   Serial.println("Mau!"); //useful debug message
 
-  tft.setTextColor(RED);
+  setGPIO(LCD_LED, HIGH);
+  
+  tft.setTextColor(WHITE);
+  tft.setTextSize(2);
   tft.setCursor(2, 2);
-  tft.print("Mau!");
+  tft.print("Hack me!");
+  tft.setTextSize(1);
+  tft.setTextColor(RED);
+  tft.setCursor(2, 50);
+  tft.print("https://entropia.de/GPN17:Hack_the_Badge");
+
+  delay(2000);
 
   #ifdef USEWIFI //connect to WiFi
-  connectBadge();
+  //connectBadge();
   #endif
 
-  Serial.print("Battery Level:  ");
-  Serial.println(getBatLvl());
+  Serial.print("Battery Voltage:  ");
+  Serial.println(getBatVoltage());
   delay(500);
 
   Serial.print("Light LDR Level:  ");
   Serial.println(getLDRLvl());
   delay(500);
 
-  Serial.print("NTC Level:  ");
-  Serial.println(getNTCLvl());
-  delay(500);
+  pixels.setPixelColor(0, pixels.Color(30, 0, 0));
+  pixels.setPixelColor(1, pixels.Color(30, 0, 0));
+  pixels.setPixelColor(2, pixels.Color(30, 0, 0));
+  pixels.setPixelColor(3, pixels.Color(30, 0, 0));
+  pixels.show();
 
-  Serial.print("Temperature:  ");
-  Serial.println(getTemp());
-  delay(500);
-
+  
   setGPIO(VIBRATOR, HIGH);
   delay(500);
   setGPIO(VIBRATOR, LOW);
+
+  setGPIO(IR_EN, LOW);
 
   setAnalogMUX(MUX_JOY);
 }
@@ -107,7 +122,7 @@ void setup() {
 void loop() {
   uint16_t adc = analogRead(A0);
   Serial.println(adc);
-
+  
   if (adc < UP + OFFSET && adc > UP - OFFSET) {
     pixels.setPixelColor(0, pixels.Color(0, 50, 50));
   }
@@ -115,41 +130,42 @@ void loop() {
   else if (adc < DOWN + OFFSET && adc > DOWN - OFFSET) {
     pixels.setPixelColor(3, pixels.Color(0, 50, 50));
   }
-
+    
   else if (adc < RIGHT + OFFSET && adc > RIGHT - OFFSET) {
     pixels.setPixelColor(2, pixels.Color(0, 50, 50));
   }
-
+    
   else if (adc < LEFT + OFFSET && adc > LEFT - OFFSET) {
     pixels.setPixelColor(1, pixels.Color(0, 50, 50));
   }
 
-  else if (adc < CENTER + OFFSET && adc > CENTER - OFFSET) {
+  else if (digitalRead(GPIO_BOOT) == HIGH) {
     setGPIO(VIBRATOR, HIGH);
   }
-
+  
   else {
     setGPIO(VIBRATOR, LOW);
     pixels.clear();
   }
-
   pixels.show();
-  delay(50);
+
+  //Serial.println("Scanning");
+  
 }
 
 void setGPIO(byte channel, boolean level) {
   bitWrite(shiftConfig, channel, level);
-  SPI.transfer(shiftConfig);
-  digitalWrite(GPIO_LATCH, LOW);
-  digitalWrite(GPIO_LATCH, HIGH);
+  Wire.beginTransmission(I2C_PCA);
+  Wire.write(shiftConfig);
+  Wire.endTransmission();
 }
 
 void setAnalogMUX(byte channel) {
   shiftConfig = shiftConfig & 0b11111000;
   shiftConfig = shiftConfig | channel;
-  SPI.transfer(shiftConfig);
-  digitalWrite(GPIO_LATCH, LOW);
-  digitalWrite(GPIO_LATCH, HIGH);
+  Wire.beginTransmission(I2C_PCA);
+  Wire.write(shiftConfig);
+  Wire.endTransmission();
 }
 
 uint16_t getBatLvl() {
@@ -161,17 +177,13 @@ uint16_t getBatLvl() {
   return (avg / 10);
 }
 
-uint16_t getLDRLvl() {
-  setAnalogMUX(MUX_LDR);
-  uint16_t avg = 0;
-  for (byte i = 0; i < 10; i++) {
-    avg += analogRead(A0);
-  }
-  return avg / 10;
+uint16_t getBatVoltage() { //battery voltage in mV
+  return (getBatLvl() * 4.4);
 }
 
-uint16_t getNTCLvl() {
-  setAnalogMUX(MUX_NTC);
+
+uint16_t getLDRLvl() {
+  setAnalogMUX(MUX_LDR);
   uint16_t avg = 0;
   for (byte i = 0; i < 10; i++) {
     avg += analogRead(A0);
@@ -179,34 +191,33 @@ uint16_t getNTCLvl() {
   return (avg / 10);
 }
 
-uint16_t getTemp() {
-  //TODO
-  return getNTCLvl();
-}
-
 
 void initBadge() { //initialize the badge
-
+  
   #ifdef USEWIFI
-  // Next 2 line seem to be needed to connect to wifi after Wake up
+  // Next 2 line seem to be needed to connect to wifi after Wake up 
   WiFi.disconnect();
   WiFi.mode(WIFI_OFF);
   delay(20);
   #endif
 
-  pinMode(GPIO_LATCH, OUTPUT);
-  pinMode(GPIO_LCD_BL, OUTPUT);
+  Wire.begin(9, 10);
+  
+  pinMode(GPIO_BOOT, INPUT_PULLDOWN_16);
   pinMode(GPIO_WS2813, OUTPUT);
 
   //the ESP is very power-sensitive during startup, so...
-  digitalWrite(GPIO_LCD_BL, LOW);                //...switch off the LCD backlight
-  shiftOut(GPIO_MOSI, GPIO_CLK, MSBFIRST, 0x00); //...clear the shift register
-  digitalWrite(GPIO_LATCH, HIGH);
+  Wire.beginTransmission(I2C_PCA);
+  Wire.write(0b00000000); //...clear the I2C extender to switch off vobrator and LCD backlight
+  Wire.endTransmission();
+
 
   pixels.begin(); //initialize the WS2813
   pixels.clear();
   pixels.show();
 
+  irsend.begin();
+  irrecv.enableIRIn();
   Serial.begin(115200);
 
   delay(100);
@@ -214,9 +225,7 @@ void initBadge() { //initialize the badge
   tft.begin(); //initialize the tft. This also sets up SPI to 80MHz Mode 0
   tft.setRotation(2);
   tft.scroll(32);
-
-  analogWrite(GPIO_LCD_BL, 1023); //switch on LCD backlight
-
+  
   pixels.clear(); //clear the WS2813 another time, in case they catched up some noise
   pixels.show();
 }
@@ -228,7 +237,7 @@ void connectBadge() {
   tft.print("Connecting");
   tft.setCursor(63, 22);
   uint8_t cnt = 0;
-  while (WiFi.status() != WL_CONNECTED) {
+  while (WiFi.status() != WL_CONNECTED) {   
     Serial.print(".");
     tft.print(".");
     cnt++;
@@ -248,3 +257,5 @@ void connectBadge() {
   tft.setCursor(2, 52);
   tft.print(WiFi.localIP());
 }
+
+
