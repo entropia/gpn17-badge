@@ -47,10 +47,10 @@ void setup() {
   Serial.print("Light LDR Level:  ");
   Serial.println(badge.getLDRLvl());
 
-  pixels.setPixelColor(0, pixels.Color(30, 0, 0));
-  pixels.setPixelColor(1, pixels.Color(30, 0, 0));
-  pixels.setPixelColor(2, pixels.Color(30, 0, 0));
-  pixels.setPixelColor(3, pixels.Color(30, 0, 0));
+  pixels.setPixelColor(0, pixels.Color(20, 0, 0));
+  pixels.setPixelColor(1, pixels.Color(20, 0, 0));
+  pixels.setPixelColor(2, pixels.Color(20, 0, 0));
+  pixels.setPixelColor(3, pixels.Color(20, 0, 0));
   pixels.show();
 
 
@@ -165,6 +165,7 @@ void initialConfig() {
       if (r == '\n') {
         if (headBuf.startsWith("GET")) {
           getValue = headBuf.substring(4, headBuf.length() - 10);
+          getValue.trim();
           Serial.print("GET::");
           Serial.println(getValue);
           Serial.flush();
@@ -176,10 +177,10 @@ void initialConfig() {
     }
     headBuf = String();
     if (getValue == "/api/scan") {
-      pixels.setPixelColor(0, pixels.Color(0, 0, 60));
-      pixels.setPixelColor(1, pixels.Color(0, 0, 60));
-      pixels.setPixelColor(2, pixels.Color(0, 0, 60));
-      pixels.setPixelColor(3, pixels.Color(0, 0, 60));
+      pixels.setPixelColor(0, pixels.Color(0, 0, 20));
+      pixels.setPixelColor(1, pixels.Color(0, 0, 20));
+      pixels.setPixelColor(2, pixels.Color(0, 0, 20));
+      pixels.setPixelColor(3, pixels.Color(0, 0, 20));
       pixels.show();
       int n = WiFi.scanNetworks();
       pixels.setPixelColor(0, pixels.Color(0, 0, 0));
@@ -233,6 +234,7 @@ void initialConfig() {
         currentClient.write("Hallo welt");
       }
     }
+    getValue = String();
     currentClient.stop();
 
   }
@@ -250,10 +252,10 @@ void connectWizard(char* ssid, char* pw, FullScreenBMPStatus* webStatus) {
   while (true) {
     if (millis() - last_b > 1000) {
       b_state = !b_state;
-      pixels.setPixelColor(0, pixels.Color(0, b_state ? 0 : 30, 0));
-      pixels.setPixelColor(1, pixels.Color(0, b_state ? 0 : 30, 0));
-      pixels.setPixelColor(2, pixels.Color(0, b_state ? 0 : 30, 0));
-      pixels.setPixelColor(3, pixels.Color(0, b_state ? 0 : 30, 0));
+      pixels.setPixelColor(0, pixels.Color(0, b_state ? 0 : 20, 0));
+      pixels.setPixelColor(1, pixels.Color(0, b_state ? 0 : 20, 0));
+      pixels.setPixelColor(2, pixels.Color(0, b_state ? 0 : 20, 0));
+      pixels.setPixelColor(3, pixels.Color(0, b_state ? 0 : 20, 0));
       pixels.show();
       last_b = millis();
     }
