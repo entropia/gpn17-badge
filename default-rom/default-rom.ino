@@ -10,7 +10,6 @@
 #include <BadgeUI.h>
 
 
-
 const char* ssid = "entropia"; // Put your SSID here
 const char* password = "pw"; // Put your PASSWORD here
 
