@@ -9,10 +9,8 @@
 #include <FS.h>
 #include <BadgeUI.h>
 
-
 #include "rboot.h"
 #include "rboot-api.h"
-
 
 const char* ssid = "entropia"; // Put your SSID here
 const char* password = "pw"; // Put your PASSWORD here
@@ -110,7 +108,7 @@ void loop() {
 
 void connectBadge() {
   WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid, password);
+  //WiFi.begin(ssid, password);
   tft.setCursor(2, 22);
   tft.print("Connecting");
   tft.setCursor(63, 22);
@@ -166,7 +164,7 @@ void initialConfig() {
       char r = char(currentClient.read());
       if (r == '\n') {
         if (headBuf.startsWith("GET")) {
-          getValue = headBuf.substring(4, headBuf.length() - 10);//.strip();
+          getValue = headBuf.substring(4, headBuf.length() - 10);
           Serial.print("GET::");
           Serial.println(getValue);
           Serial.flush();
