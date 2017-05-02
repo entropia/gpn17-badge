@@ -4,17 +4,15 @@
 #include <GPNBadge.h>
 #include <ArduinoJson.h>
 
-#include <FS.h>
-#include <ESP8266WebServer.h>
-#include <BadgeUI.h>
-//#define HTTP_DOWNLOAD_UNIT_SIZE 1
+#define WEB_SERVER_BUFFER_SIZE 20
 
-//const char* ssid = "warpzone"; // Put your SSID here
-//const char* password = "Er20TUp+13soS"; // Put your PASSWORD here
+#include <FS.h>
+#include <BadgeUI.h>
+
 
 
 const char* ssid = "entropia"; // Put your SSID here
-const char* password = "foobar2342"; // Put your PASSWORD here
+const char* password = "pw"; // Put your PASSWORD here
 
 // Color definitions
 #define BLACK   0x0000
@@ -29,21 +27,6 @@ const char* password = "foobar2342"; // Put your PASSWORD here
 Badge badge;
 WindowSystem* ui = new WindowSystem(&tft);
 
-class MyESP8266WebServer: public ESP8266WebServer {
-public:
-  using ESP8266WebServer::ESP8266WebServer;
-  
-  size_t writeDirect(char* data) {
-    return _currentClient.write((uint8_t*)data, strlen(data));
-  }
-  size_t writeDirect(String data) {
-    return writeDirect(data.c_str());
-  }
-  void setContentLength(size_t contentLength) {
-    _contentLength = CONTENT_LENGTH_UNKNOWN;
-  }
-};
-MyESP8266WebServer server(80);
 
 void setup() {
   badge.init();
@@ -57,7 +40,7 @@ void setup() {
   ui->root->setBmp("/system/load.bmp", 40, 12);
   ui->root->setSub("");
   ui->draw();
-  
+
   Serial.print("Battery Voltage:  ");
   Serial.println(badge.getBatVoltage());
   Serial.print("Light LDR Level:  ");
@@ -149,9 +132,49 @@ void connectBadge() {
   tft.setCursor(2, 52);
   tft.print(WiFi.localIP());
 }
-StaticJsonBuffer<600> jsonBuffer;
+StaticJsonBuffer<200> jsonBuffer;
 void initialConfig() {
-  server.on("/api/scan", HTTP_GET, [](){
+  WiFi.mode(WIFI_AP_STA);
+  WiFi.softAPConfig(IPAddress (10, 0, 0, 1), IPAddress(10, 0, 0, 1), IPAddress(255, 255, 255, 0));
+  char pw[20];
+  char ssid[20];
+  sprintf(pw, "%d", random(10000000, 100000000)); // TODO richtig machen
+  sprintf(ssid, "ESP%d", ESP.getChipId());
+#ifdef DEBUG
+  sprintf(pw, "%s", "hallohallo");
+#endif
+  Serial.println(WiFi.softAP(ssid, pw));
+  FullScreenBMPStatus* webStatus = new FullScreenBMPStatus();
+  connectWizard(ssid, pw, webStatus);
+  WiFiServer server(80);
+  server.begin();
+  // Own Webserver. _slow_ but memory efficient
+  while (true) {
+    if (WiFi.softAPgetStationNum() == 0) {
+      connectWizard(ssid, pw, webStatus);
+    }
+    WiFiClient currentClient = server.available();
+    if (!currentClient)  {
+      continue;
+    }
+    String headBuf;
+    String getValue;
+    while (currentClient.available()) {
+      char r = char(currentClient.read());
+      if (r == '\n') {
+        if (headBuf.startsWith("GET")) {
+          getValue = headBuf.substring(4, headBuf.length() - 10).strip();
+          Serial.print("GET::");
+          Serial.println(getValue);
+          Serial.flush();
+          break;
+        }
+      } else {
+        headBuf += r;
+      }
+    }
+    headBuf = String();
+    if (getValue == "/api/scan") {
       pixels.setPixelColor(0, pixels.Color(0, 0, 60));
       pixels.setPixelColor(1, pixels.Color(0, 0, 60));
       pixels.setPixelColor(2, pixels.Color(0, 0, 60));
@@ -167,8 +190,8 @@ void initialConfig() {
       File scanDump = SPIFFS.open("/system/web/ls.js", "w+");
       //server.send(200, "application/json", "");
       //server.writeDirect("[");
-      
-      
+
+
       JsonArray& root = jsonBuffer.createArray();
       for (int i = 0; i < n; ++i)
       {
@@ -176,7 +199,7 @@ void initialConfig() {
         ssid["ssid"] = WiFi.SSID(i);
         ssid["rssi"] = WiFi.RSSI(i);
         ssid["encType"] = WiFi.encryptionType(i);
-        //server.writeDirect("{ssid: \""); 
+        //server.writeDirect("{ssid: \"");
         //server.writeDirect(WiFi.SSID(i));
         //server.writeDirect("\", rssi: ");
         //server.writeDirect(String(WiFi.RSSI(i)));
@@ -187,45 +210,45 @@ void initialConfig() {
         //  server.writeDirect(",");
         //}
       }
-      Serial.println("Creating json done.");
-      root.printTo(scanDump);
-      Serial.println("Print json done.");
-      scanDump.flush();
-      Serial.println("flush json done.");
-      scanDump.close();
-      scanDump = SPIFFS.open("/system/web/ls.js","r");
-      Serial.println("last dump open json done.");
-      server.streamFile(scanDump, "application/json");
-      Serial.println("stream json done.");
-      scanDump.close();
-      Serial.println("close json done.");
-      //delete &jsonBuffer;
-      //server.send(200, "application/json",  out);
-  });
-  server.onNotFound([](){
-    char url[40];
-    sprintf(url, "/system/web%s", server.uri().c_str());
-    if(!handleFileRead(url))
-      server.send(404, "text/plain", url);
-  });
-  WiFi.mode(WIFI_AP_STA);
-  WiFi.softAPConfig(IPAddress(10,0,0,1), IPAddress(10,0,0,1), IPAddress(255,255,255,0));
-  char pw[20];
-  char ssid[20];
-  sprintf(pw, "%d", random(10000000, 100000000)); // TODO richtig machen
-  sprintf(ssid, "ESP%d", ESP.getChipId());
-  #ifdef DEBUG
-  sprintf(pw, "%s", "hallohallo");
-  #endif
-  Serial.println(WiFi.softAP(ssid, pw));
-  FullScreenBMPStatus* webStatus = new FullScreenBMPStatus();
-  connectWizard(ssid, pw, webStatus);
-  server.begin();
-  while (true) {
-    if (WiFi.softAPgetStationNum() == 0) {
-      connectWizard(ssid, pw, webStatus);
+      currentClient.write("HTTP/1.1 200\r\n");
+      currentClient.write("Content-Type: application/json");
+      currentClient.write("\r\n\r\n");
+      root.printTo(currentClient);
+    } else {
+      if (getValue == "/") {
+        getValue = "/index.html";
+      }
+      String path = "/system/web" + getValue;
+      if (SPIFFS.exists(path) || SPIFFS.exists(path + ".gz")) {
+        currentClient.write("HTTP/1.1 200\r\n");
+        currentClient.write("Content-Type: ");
+        currentClient.write(getContentType(path).c_str());
+        if (SPIFFS.exists(path + ".gz")) {
+          path += ".gz";
+          currentClient.write("\r\nContent-Encoding: gzip");
+        }
+        currentClient.write("\r\n\r\n");
+        File file = SPIFFS.open(path, "r");
+        path = String();
+        char writeBuf[WEB_SERVER_BUFFER_SIZE];
+        int pos = 0;
+        while (file.available()) {
+          writeBuf[pos++] = char(file.read());
+          if (pos == WEB_SERVER_BUFFER_SIZE) {
+            currentClient.write(&writeBuf[0], size_t(WEB_SERVER_BUFFER_SIZE));
+            pos = 0;
+          }
+        }
+        // Flush the remaining bytes
+        currentClient.write(&writeBuf[0], size_t(pos));
+      } else {
+        currentClient.write("HTTP/1.1 200");
+        currentClient.write("\r\n\r\n");
+        currentClient.write("Hallo welt");
+      }
     }
-    server.handleClient();
+    currentClient.stop();
+
   }
   server.close();
   ui->closeCurrent();
@@ -268,37 +291,21 @@ void connectWizard(char* ssid, char* pw, FullScreenBMPStatus* webStatus) {
   pixels.show();
 }
 
-String getContentType(String filename){
-  if(server.hasArg("download")) return "application/octet-stream";
-  else if(filename.endsWith(".htm")) return "text/html";
-  else if(filename.endsWith(".html")) return "text/html";
-  else if(filename.endsWith(".css")) return "text/css";
-  else if(filename.endsWith(".js")) return "application/javascript";
-  else if(filename.endsWith(".png")) return "image/png";
-  else if(filename.endsWith(".gif")) return "image/gif";
-  else if(filename.endsWith(".jpg")) return "image/jpeg";
-  else if(filename.endsWith(".ico")) return "image/x-icon";
-  else if(filename.endsWith(".xml")) return "text/xml";
-  else if(filename.endsWith(".pdf")) return "application/x-pdf";
-  else if(filename.endsWith(".zip")) return "application/x-zip";
-  else if(filename.endsWith(".gz")) return "application/x-gzip";
+String getContentType(String filename) {
+  if (filename.endsWith(".htm")) return "text/html";
+  else if (filename.endsWith(".html")) return "text/html";
+  else if (filename.endsWith(".css")) return "text/css";
+  else if (filename.endsWith(".js")) return "application/javascript";
+  else if (filename.endsWith(".png")) return "image/png";
+  else if (filename.endsWith(".gif")) return "image/gif";
+  else if (filename.endsWith(".jpg")) return "image/jpeg";
+  else if (filename.endsWith(".ico")) return "image/x-icon";
+  else if (filename.endsWith(".xml")) return "text/xml";
+  else if (filename.endsWith(".pdf")) return "application/x-pdf";
+  else if (filename.endsWith(".zip")) return "application/x-zip";
+  else if (filename.endsWith(".gz")) return "application/x-gzip";
+  else if (filename.endsWith(".json")) return "application/json";
   return "text/plain";
-}
-
-bool handleFileRead(String path){
-  Serial.println("handleFileRead: " + path);
-  if(path.endsWith("/")) path += "index.html";
-  String contentType = getContentType(path);
-  String pathWithGz = path + ".gz";
-  if(SPIFFS.exists(pathWithGz) || SPIFFS.exists(path)){
-    if(SPIFFS.exists(pathWithGz))
-      path += ".gz";
-    File file = SPIFFS.open(path, "r");
-    size_t sent = server.streamFile(file, contentType);
-    file.close();
-    return true;
-  }
-  return false;
 }
 
 
