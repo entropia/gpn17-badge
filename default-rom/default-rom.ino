@@ -10,7 +10,6 @@
 #include <BadgeUI.h>
 
 
-
 #include "rboot.h"
 #include "rboot-api.h"
 
