@@ -190,11 +190,6 @@ void initialConfig() {
       pixels.setPixelColor(3, pixels.Color(0, 0, 0));
       pixels.show();
 
-      File scanDump = SPIFFS.open("/system/web/ls.js", "w+");
-      //server.send(200, "application/json", "");
-      //server.writeDirect("[");
-
-
       JsonArray& root = jsonBuffer.createArray();
       for (int i = 0; i < n; ++i)
       {
@@ -202,16 +197,6 @@ void initialConfig() {
         ssid["ssid"] = WiFi.SSID(i);
         ssid["rssi"] = WiFi.RSSI(i);
         ssid["encType"] = WiFi.encryptionType(i);
-        //server.writeDirect("{ssid: \"");
-        //server.writeDirect(WiFi.SSID(i));
-        //server.writeDirect("\", rssi: ");
-        //server.writeDirect(String(WiFi.RSSI(i)));
-        //server.writeDirect(", encType: \"");
-        //server.writeDirect(String(WiFi.encryptionType(i)));
-        //server.writeDirect("}");
-        //if(i-1 < n) {
-        //  server.writeDirect(",");
-        //}
       }
       currentClient.write("HTTP/1.1 200\r\n");
       currentClient.write("Content-Type: application/json");
