@@ -14,7 +14,7 @@ def index():
 def scan():
     # Simulate scan
     sleep(5)
-    return json.dumps([{'ssid': 'Net' + str(i), 'rssi': '-20', 'encType': 4 if i%2 == 0 else 7} for i in range(1, 10)])
+    return json.dumps([{'id': i, 'ssid': 'Net' + str(i), 'rssi': '-20', 'encType': 4 if i%2 == 0 else 7} for i in range(0, 10)])
 
 
 if __name__ == '__main__':
