@@ -191,6 +191,7 @@ void initialConfig() {
       for (int i = 0; i < n; ++i)
       {
         JsonObject& ssid = root.createNestedObject();
+        ssid["id"] = i;
         ssid["ssid"] = WiFi.SSID(i);
         ssid["rssi"] = WiFi.RSSI(i);
         ssid["encType"] = WiFi.encryptionType(i);
