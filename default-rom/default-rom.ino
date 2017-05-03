@@ -133,7 +133,7 @@ void connectBadge() {
   tft.setCursor(2, 52);
   tft.print(WiFi.localIP());
 }
-StaticJsonBuffer<200> jsonBuffer;
+DynamicJsonBuffer jsonBuffer;
 void initialConfig() {
   WiFi.mode(WIFI_AP_STA);
   WiFi.softAPConfig(IPAddress (10, 0, 0, 1), IPAddress(10, 0, 0, 1), IPAddress(255, 255, 255, 0));
