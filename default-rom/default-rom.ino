@@ -135,6 +135,7 @@ void connectBadge() {
 }
 DynamicJsonBuffer jsonBuffer;
 void initialConfig() {
+  char writeBuf[WEB_SERVER_BUFFER_SIZE];
   WiFi.mode(WIFI_AP_STA);
   WiFi.softAPConfig(IPAddress (10, 0, 0, 1), IPAddress(10, 0, 0, 1), IPAddress(255, 255, 255, 0));
   char pw[20];
@@ -217,7 +218,6 @@ void initialConfig() {
         currentClient.write("\r\n\r\n");
         File file = SPIFFS.open(path, "r");
         path = String();
-        char writeBuf[WEB_SERVER_BUFFER_SIZE];
         int pos = 0;
         while (file.available()) {
           writeBuf[pos++] = char(file.read());
