@@ -28,8 +28,11 @@
     <h2>Select Network</h2>
     <div class="alert alert-info" id="info-box">Please wait...</div>
 	<select id="net-select" name="net-select">
-		<option>No network selected...</option>
-	</select><button id="scan-btn" class="btn btn-primary">Scan</button>
+		<option value="-1">No network selected...</option>
+	</select>
+    <button id="scan-btn" class="btn btn-primary">Scan</button>
+    <input type="text" name="wifi-pw" id="wifi-pw" class="hidden">
+    <button id="connect-btn" class="btn btn-success disabled" disabled>Connect</button>
 </div>
 <script src="/js/jq.min.js"></script>
 <script src="/js/badge.js"></script>
