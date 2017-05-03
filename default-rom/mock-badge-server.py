@@ -2,7 +2,7 @@ from flask import Flask, redirect, request
 from time import sleep
 import json
 
-app = Flask(__name__, static_url_path='', static_folder='data/system/web')
+app = Flask(__name__, static_url_path='', static_folder='data_raw/system/web')
 
 
 @app.route('/')
