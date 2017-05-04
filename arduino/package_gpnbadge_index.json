@@ -11,7 +11,7 @@
       "category": "ESP8266",
       "name": "gpnbadge",
       "url": "https://public.electronics.fail/gpnbadge-2.3.0.zip",
-      "checksum": "SHA-256:953c4a0954c813a1911977d2fc7bca64b17ec52f4ca870da20866ec335379024",
+      "checksum": "SHA-256:920d9674426efac352fdfd6b09a5f9b933e379d9f4c22ef8a75cdefdb9eeb8ea",
       "help": {
         "online": "https://entropia.de/GPN17:Badge"
       },
@@ -51,7 +51,7 @@
           "name": "mkspiffs"
         }
       ],
-      "size": "8598128"
+      "size": "8598427"
     }
   ],
   "tools": [
