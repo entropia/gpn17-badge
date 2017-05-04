@@ -2,7 +2,6 @@
 #define DEBUG
 
 #include <GPNBadge.h>
-#include <ArduinoJson.h>
 
 #define WEB_SERVER_BUFFER_SIZE 20
 
@@ -133,7 +132,7 @@ void connectBadge() {
   tft.setCursor(2, 52);
   tft.print(WiFi.localIP());
 }
-DynamicJsonBuffer jsonBuffer;
+
 void initialConfig() {
   char writeBuf[WEB_SERVER_BUFFER_SIZE];
   WiFi.mode(WIFI_AP_STA);
@@ -190,19 +189,27 @@ void initialConfig() {
       pixels.setPixelColor(3, pixels.Color(0, 0, 0));
       pixels.show();
 
-      JsonArray& root = jsonBuffer.createArray();
-      for (int i = 0; i < n; ++i)
-      {
-        JsonObject& ssid = root.createNestedObject();
-        ssid["id"] = i;
-        ssid["ssid"] = WiFi.SSID(i);
-        ssid["rssi"] = WiFi.RSSI(i);
-        ssid["encType"] = WiFi.encryptionType(i);
-      }
       currentClient.write("HTTP/1.1 200\r\n");
       currentClient.write("Content-Type: application/json");
       currentClient.write("\r\n\r\n");
-      root.printTo(currentClient);
+      currentClient.write("[");
+      for (int i = 0; i < n; ++i)
+      {
+        currentClient.write("{");
+        currentClient.write("\"id\":");
+        currentClient.write(String(i).c_str());
+        currentClient.write(",\"ssid\":\"");
+        currentClient.write(WiFi.SSID(i).c_str());
+        currentClient.write("\",\"rssi\":");
+        currentClient.write(String(WiFi.RSSI(i)).c_str());
+        currentClient.write(",\"encType\":");
+        currentClient.write(String(WiFi.encryptionType(i)).c_str());
+        currentClient.write("}");
+        if(i+1 < n) {
+          currentClient.write(",");
+        }
+      }
+      currentClient.write("]");
     } else {
       if (getValue == "/") {
         getValue = "/index.html";
