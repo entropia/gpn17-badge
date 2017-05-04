@@ -9,6 +9,7 @@ var scanRes = null;
 $(document).ready(function () {
     $('#scan-btn').on('click', function () {
         var netlist = $('#net-select');
+	netlist.empty();
         $('#info-box').html('Scanning...');
         $('#scan-btn').attr("disabled");
         $('#scan-btn').addClass("disabled");
