@@ -305,8 +305,8 @@ uint32 NOINLINE find_image(void) {
 	// delay to slow boot (help see messages when debugging)
 	ets_delay_us(BOOT_DELAY_MICROS);
 #endif
-
-	ets_printf("\r\nrBoot v1.4.2 - richardaburton@gmail.com\r\n");
+  ets_printf("\r\nWelcome to the GPN-Badge Loader!\r\n");
+	ets_printf("\r\nrBoot v1.4.2r\n");
 
 	// read rom header
 	SPIRead(0, header, sizeof(rom_header));

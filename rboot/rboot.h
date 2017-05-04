@@ -27,7 +27,7 @@ extern "C" {
 
 // uncomment to enable big flash support (>1MB)
 #define BOOT_BIG_FLASH
-
+#define BOOT_BAUDRATE 115200
 #define OVERRIDE_SIZE 4
 
 // uncomment to enable 2 way communication between
@@ -56,7 +56,7 @@ extern "C" {
 // uncomment to add a boot delay, allows you time to connect
 // a terminal before rBoot starts to run and output messages
 // value is in microseconds
-#define BOOT_DELAY_MICROS 2000000
+#define BOOT_DELAY_MICROS 1000000
 
 // define your own default custom rBoot config, used on
 // first boot and in case of corruption, standard fields
