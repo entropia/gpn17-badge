@@ -10,8 +10,8 @@
     {
       "category": "ESP8266",
       "name": "gpnbadge",
-      "url": "https://entropia.de/images/1/11/Gpnbadge-2.3.0.zip",
-      "checksum": "SHA-256:a8043cd9d074e6e4d97689d30e69e3e1890b9afe733c508f249e831c894196f5",
+      "url": "https://public.electronics.fail/gpnbadge-2.3.0.zip",
+      "checksum": "SHA-256:d1b23943f08b43f8cf7653c73e673018e0c4ead82899795cb441a2abfef5ba0e",
       "help": {
         "online": "https://entropia.de/GPN17:Badge"
       },
@@ -51,7 +51,7 @@
           "name": "mkspiffs"
         }
       ],
-      "size": "8593986"
+      "size": "8594112"
     }
   ],
   "tools": [
@@ -156,10 +156,10 @@
       "name": "esptool2",
       "systems": [
         {
-          "url": "https://entropia.de/images/d/da/Esptool2-1.0.0-linux64.tar.gz",
+          "url": "https://public.electronics.fail/esptool2-1.0.0-linux64.tar.gz",
           "checksum": "SHA-256:2623da7f9eb9c4b7d96beb31c1a53f584b5d9457361a11e886e19febcab0df1e",
           "host": "x86_64-pc-linux-gnu",
-          "archiveFileName": "Esptool2-1.0.0-linux64.tar.gz",
+          "archiveFileName": "esptool2-1.0.0-linux64.tar.gz",
           "size": "8856"
         }
       ]

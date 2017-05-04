@@ -419,6 +419,24 @@ multirom.menu.FlashSize.rom2.build.spiffs_blocksize=4096
 multirom.menu.FlashSize.rom2.upload.maximum_size=761840
 multirom.menu.FlashSize.rom2.upload.address=0x102000
 
+multirom.menu.FlashSize.rom3=Slot 3: 1M (256K SPIFFS)
+multirom.menu.FlashSize.rom3.build.flash_size=1M
+multirom.menu.FlashSize.rom3.build.flash_ld=eagle.flash.1m256.rboot.ld
+multirom.menu.FlashSize.rom3.build.spiffs_start=0xBB000
+multirom.menu.FlashSize.rom3.build.spiffs_end=0xFB000
+multirom.menu.FlashSize.rom3.build.spiffs_blocksize=4096
+multirom.menu.FlashSize.rom3.upload.maximum_size=761840
+multirom.menu.FlashSize.rom3.upload.address=0x202000
+
+multirom.menu.FlashSize.rom4=Slot 4: 1M (256K SPIFFS)
+multirom.menu.FlashSize.rom4.build.flash_size=1M
+multirom.menu.FlashSize.rom4.build.flash_ld=eagle.flash.1m256.rboot.ld
+multirom.menu.FlashSize.rom4.build.spiffs_start=0xBB000
+multirom.menu.FlashSize.rom4.build.spiffs_end=0xFB000
+multirom.menu.FlashSize.rom4.build.spiffs_blocksize=4096
+multirom.menu.FlashSize.rom4.upload.maximum_size=761840
+multirom.menu.FlashSize.rom4.upload.address=0x302000
+
 
 ##############################################################
 coredev.name=Core Development Module
