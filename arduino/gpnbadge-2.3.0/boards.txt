@@ -317,11 +317,13 @@ singlerom.build.flash_freq=80
 singlerom.build.debug_port=
 singlerom.build.debug_level=
 
-singlerom.menu.CpuFrequency.80=80 MHz
-singlerom.menu.CpuFrequency.80.build.f_cpu=80000000L
 singlerom.menu.CpuFrequency.160=160 MHz
 singlerom.menu.CpuFrequency.160.build.f_cpu=160000000L
+singlerom.menu.CpuFrequency.80=80 MHz
+singlerom.menu.CpuFrequency.80.build.f_cpu=80000000L
 
+singlerom.menu.UploadSpeed.921600=921600
+singlerom.menu.UploadSpeed.921600.upload.speed=921600
 singlerom.menu.UploadSpeed.115200=115200
 singlerom.menu.UploadSpeed.115200.upload.speed=115200
 singlerom.menu.UploadSpeed.9600=9600
@@ -339,11 +341,9 @@ singlerom.menu.UploadSpeed.460800.macosx=460800
 singlerom.menu.UploadSpeed.460800.upload.speed=460800
 singlerom.menu.UploadSpeed.512000.windows=512000
 singlerom.menu.UploadSpeed.512000.upload.speed=512000
-singlerom.menu.UploadSpeed.921600=921600
-singlerom.menu.UploadSpeed.921600.upload.speed=921600
 
 singlerom.menu.FlashSize.4M3M=4M (3M SPIFFS) THIS DELETES ALL ROMS!
-singlerom.menu.FlashSize.4M3M.build.flash_size=4M
+singlerom.menu.FlashSize.4M3M.build.flash_size=8M
 singlerom.menu.FlashSize.4M3M.build.flash_ld=eagle.flash.4m.ld
 singlerom.menu.FlashSize.4M3M.build.spiffs_start=0x100000
 singlerom.menu.FlashSize.4M3M.build.spiffs_end=0x3FB000
@@ -375,11 +375,13 @@ multirom.build.flash_freq=80
 multirom.build.debug_port=
 multirom.build.debug_level=
 
-multirom.menu.CpuFrequency.80=80 MHz
-multirom.menu.CpuFrequency.80.build.f_cpu=80000000L
 multirom.menu.CpuFrequency.160=160 MHz
 multirom.menu.CpuFrequency.160.build.f_cpu=160000000L
+multirom.menu.CpuFrequency.80=80 MHz
+multirom.menu.CpuFrequency.80.build.f_cpu=80000000L
 
+multirom.menu.UploadSpeed.921600=921600
+multirom.menu.UploadSpeed.921600.upload.speed=921600
 multirom.menu.UploadSpeed.115200=115200
 multirom.menu.UploadSpeed.115200.upload.speed=115200
 multirom.menu.UploadSpeed.9600=9600
@@ -397,45 +399,62 @@ multirom.menu.UploadSpeed.460800.macosx=460800
 multirom.menu.UploadSpeed.460800.upload.speed=460800
 multirom.menu.UploadSpeed.512000.windows=512000
 multirom.menu.UploadSpeed.512000.upload.speed=512000
-multirom.menu.UploadSpeed.921600=921600
-multirom.menu.UploadSpeed.921600.upload.speed=921600
 
+multirom.menu.FlashSize.rom0=Slot 0: 512kB (1M global SPIFFS) THIS DELETES THE ROM SELECTOR!
+multirom.menu.FlashSize.rom0.build.flash_size=4M
+multirom.menu.FlashSize.rom0.build.flash_ld=eagle.flash.512k0.mono.rboot.even.ld
+multirom.menu.FlashSize.rom0.build.spiffs_start=0x300000
+multirom.menu.FlashSize.rom0.build.spiffs_end=0x3FB000
+multirom.menu.FlashSize.rom0.build.spiffs_blocksize=8192
+multirom.menu.FlashSize.rom0.build.spiffs_pagesize=256
+multirom.menu.FlashSize.rom0.upload.address=0x2000
 
-multirom.menu.FlashSize.rom1=Slot 1: 1M (256K SPIFFS) THIS DELETES THE ROM SELECTOR!
-multirom.menu.FlashSize.rom1.build.flash_size=1M
-multirom.menu.FlashSize.rom1.build.flash_ld=eagle.flash.1m256.rboot.ld
-multirom.menu.FlashSize.rom1.build.spiffs_start=0xBB000
-multirom.menu.FlashSize.rom1.build.spiffs_end=0xFB000
-multirom.menu.FlashSize.rom1.build.spiffs_blocksize=4096
-multirom.menu.FlashSize.rom1.upload.maximum_size=761840
-multirom.menu.FlashSize.rom1.upload.address=0x2000
+multirom.menu.FlashSize.rom1=Slot 1: 512kB (1M global SPIFFS)
+multirom.menu.FlashSize.rom1.build.flash_size=4M
+multirom.menu.FlashSize.rom1.build.flash_ld=eagle.flash.512k0.mono.rboot.odd.ld
+multirom.menu.FlashSize.rom1.build.spiffs_start=0x300000
+multirom.menu.FlashSize.rom1.build.spiffs_end=0x3FB000
+multirom.menu.FlashSize.rom1.build.spiffs_blocksize=8192
+multirom.menu.FlashSize.rom1.build.spiffs_pagesize=256
+multirom.menu.FlashSize.rom1.upload.address=0x82000
 
-multirom.menu.FlashSize.rom2=Slot 2: 1M (256K SPIFFS)
-multirom.menu.FlashSize.rom2.build.flash_size=1M
-multirom.menu.FlashSize.rom2.build.flash_ld=eagle.flash.1m256.rboot.ld
-multirom.menu.FlashSize.rom2.build.spiffs_start=0xBB000
-multirom.menu.FlashSize.rom2.build.spiffs_end=0xFB000
-multirom.menu.FlashSize.rom2.build.spiffs_blocksize=4096
-multirom.menu.FlashSize.rom2.upload.maximum_size=761840
+multirom.menu.FlashSize.rom2=Slot 2: 512kB (1M global SPIFFS)
+multirom.menu.FlashSize.rom2.build.flash_size=4M
+multirom.menu.FlashSize.rom2.build.flash_ld=eagle.flash.512k0.mono.rboot.even.ld
+multirom.menu.FlashSize.rom2.build.spiffs_start=0x300000
+multirom.menu.FlashSize.rom2.build.spiffs_end=0x3FB000
+multirom.menu.FlashSize.rom2.build.spiffs_blocksize=8192
+multirom.menu.FlashSize.rom2.build.spiffs_pagesize=256
 multirom.menu.FlashSize.rom2.upload.address=0x102000
 
-multirom.menu.FlashSize.rom3=Slot 3: 1M (256K SPIFFS)
-multirom.menu.FlashSize.rom3.build.flash_size=1M
-multirom.menu.FlashSize.rom3.build.flash_ld=eagle.flash.1m256.rboot.ld
-multirom.menu.FlashSize.rom3.build.spiffs_start=0xBB000
-multirom.menu.FlashSize.rom3.build.spiffs_end=0xFB000
-multirom.menu.FlashSize.rom3.build.spiffs_blocksize=4096
-multirom.menu.FlashSize.rom3.upload.maximum_size=761840
-multirom.menu.FlashSize.rom3.upload.address=0x202000
+multirom.menu.FlashSize.rom3=Slot 3: 512kB (1M global SPIFFS)
+multirom.menu.FlashSize.rom3.build.flash_size=4M
+multirom.menu.FlashSize.rom3.build.flash_ld=eagle.flash.512k0.mono.rboot.odd.ld
+multirom.menu.FlashSize.rom3.build.spiffs_start=0x300000
+multirom.menu.FlashSize.rom3.build.spiffs_end=0x3FB000
+multirom.menu.FlashSize.rom3.build.spiffs_blocksize=8192
+multirom.menu.FlashSize.rom3.build.spiffs_pagesize=256
+multirom.menu.FlashSize.rom3.upload.address=0x182000
 
-multirom.menu.FlashSize.rom4=Slot 4: 1M (256K SPIFFS)
-multirom.menu.FlashSize.rom4.build.flash_size=1M
-multirom.menu.FlashSize.rom4.build.flash_ld=eagle.flash.1m256.rboot.ld
-multirom.menu.FlashSize.rom4.build.spiffs_start=0xBB000
-multirom.menu.FlashSize.rom4.build.spiffs_end=0xFB000
-multirom.menu.FlashSize.rom4.build.spiffs_blocksize=4096
-multirom.menu.FlashSize.rom4.upload.maximum_size=761840
-multirom.menu.FlashSize.rom4.upload.address=0x302000
+multirom.menu.FlashSize.rom4=Slot 4: 512kB (1M global SPIFFS)
+multirom.menu.FlashSize.rom4.build.flash_size=4M
+multirom.menu.FlashSize.rom4.build.flash_ld=eagle.flash.512k0.mono.rboot.even.ld
+multirom.menu.FlashSize.rom4.build.spiffs_start=0x300000
+multirom.menu.FlashSize.rom4.build.spiffs_end=0x3FB000
+multirom.menu.FlashSize.rom4.build.spiffs_blocksize=8192
+multirom.menu.FlashSize.rom4.build.spiffs_pagesize=256
+multirom.menu.FlashSize.rom4.upload.address=0x202000
+
+multirom.menu.FlashSize.rom5=Slot 5: 512kB (1M global SPIFFS)
+multirom.menu.FlashSize.rom5.build.flash_size=4M
+multirom.menu.FlashSize.rom5.build.flash_ld=eagle.flash.512k0.mono.rboot.odd.ld
+multirom.menu.FlashSize.rom5.build.spiffs_start=0x300000
+multirom.menu.FlashSize.rom5.build.spiffs_end=0x3FB000
+multirom.menu.FlashSize.rom5.build.spiffs_blocksize=8192
+multirom.menu.FlashSize.rom5.build.spiffs_pagesize=256
+multirom.menu.FlashSize.rom5.upload.address=0x282000
+
+
 
 
 ##############################################################

@@ -32,7 +32,7 @@ extern "C" {
 
 // uncomment to enable 2 way communication between
 // rBoot and the user app via the esp rtc data area
-//#define BOOT_RTC_ENABLED
+#define BOOT_RTC_ENABLED
 
 // uncomment to enable GPIO booting of specific rom
 // (specified in rBoot config block)
@@ -56,7 +56,7 @@ extern "C" {
 // uncomment to add a boot delay, allows you time to connect
 // a terminal before rBoot starts to run and output messages
 // value is in microseconds
-#define BOOT_DELAY_MICROS 1000000
+//#define BOOT_DELAY_MICROS 1000000
 
 // define your own default custom rBoot config, used on
 // first boot and in case of corruption, standard fields
@@ -67,7 +67,7 @@ extern "C" {
 
 // max number of roms in the config (defaults to 4), higher
 // values will use more ram at run time
-#define MAX_ROMS 4
+#define MAX_ROMS 6
 
 
 // you should not need to modify anything below this line,
@@ -99,7 +99,7 @@ extern "C" {
 #endif
 
 #ifndef MAX_ROMS
-#define MAX_ROMS 4
+#define MAX_ROMS 6
 #endif
 
 /** @brief  Structure containing rBoot configuration
@@ -148,13 +148,16 @@ typedef struct {
 // or just plain wrong if the device has not been programmed correctly!)
 #ifdef BOOT_CUSTOM_DEFAULT_CONFIG
 static uint8 default_config(rboot_config *romconf, uint32 flashsize) {
-	romconf->count = 4;
+	romconf->count = 6;
 	romconf->roms[0] = SECTOR_SIZE * (BOOT_CONFIG_SECTOR + 1);
-  romconf->roms[1] = 0x100000 + (SECTOR_SIZE * (BOOT_CONFIG_SECTOR + 1));
-  romconf->roms[2] = 0x200000 + (SECTOR_SIZE * (BOOT_CONFIG_SECTOR + 1));
-  romconf->roms[3] = 0x300000 + (SECTOR_SIZE * (BOOT_CONFIG_SECTOR + 1));
+  romconf->roms[1] = 0x80000 + (SECTOR_SIZE * (BOOT_CONFIG_SECTOR + 1));
+  romconf->roms[2] = 0x100000 + (SECTOR_SIZE * (BOOT_CONFIG_SECTOR + 1));
+  romconf->roms[3] = 0x180000 + (SECTOR_SIZE * (BOOT_CONFIG_SECTOR + 1));
+	romconf->roms[4] = 0x200000 + (SECTOR_SIZE * (BOOT_CONFIG_SECTOR + 1));
+	romconf->roms[5] = 0x280000 + (SECTOR_SIZE * (BOOT_CONFIG_SECTOR + 1));
   romconf->current_rom = 1;
 	romconf->gpio_rom = 0;
+	romconf->mode = MODE_STANDARD;
 }
 #endif
 
