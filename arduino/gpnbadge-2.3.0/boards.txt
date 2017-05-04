@@ -298,7 +298,7 @@ nodemcuv2.menu.FlashSize.4M1M.build.spiffs_pagesize=256
 singlerom.name=GPN Badge 2017 singlerom
 
 singlerom.upload.tool=esptool
-singlerom.upload.speed=115200
+singlerom.upload.speed=460800
 singlerom.upload.resetmethod=nodemcu
 singlerom.upload.maximum_size=1044464
 singlerom.upload.maximum_data_size=81920
@@ -307,13 +307,13 @@ singlerom.serial.disableDTR=true
 singlerom.serial.disableRTS=true
 
 singlerom.build.mcu=esp8266
-singlerom.build.f_cpu=80000000L
+singlerom.build.f_cpu=160000000L
 singlerom.build.board=ESP8266_NODEMCU
 singlerom.build.core=esp8266
 singlerom.build.variant=nodemcu
 singlerom.build.flash_mode=dio
 singlerom.build.flash_size=4M
-singlerom.build.flash_freq=40
+singlerom.build.flash_freq=80
 singlerom.build.debug_port=
 singlerom.build.debug_level=
 
@@ -342,7 +342,7 @@ singlerom.menu.UploadSpeed.512000.upload.speed=512000
 singlerom.menu.UploadSpeed.921600=921600
 singlerom.menu.UploadSpeed.921600.upload.speed=921600
 
-singlerom.menu.FlashSize.4M3M=4M (3M SPIFFS)
+singlerom.menu.FlashSize.4M3M=4M (3M SPIFFS) THIS DELETES ALL ROMS!
 singlerom.menu.FlashSize.4M3M.build.flash_size=4M
 singlerom.menu.FlashSize.4M3M.build.flash_ld=eagle.flash.4m.ld
 singlerom.menu.FlashSize.4M3M.build.spiffs_start=0x100000
@@ -356,7 +356,7 @@ singlerom.menu.FlashSize.4M3M.build.spiffs_pagesize=256
 multirom.name=GPN Badge 2017 multirom
 
 multirom.upload.tool=gpntool
-multirom.upload.speed=115200
+multirom.upload.speed=460800
 multirom.upload.resetmethod=nodemcu
 multirom.upload.maximum_size=1044464
 multirom.upload.maximum_data_size=81920
@@ -365,13 +365,13 @@ multirom.serial.disableDTR=true
 multirom.serial.disableRTS=true
 
 multirom.build.mcu=esp8266
-multirom.build.f_cpu=80000000L
+multirom.build.f_cpu=160000000L
 multirom.build.board=ESP8266_NODEMCU
 multirom.build.core=esp8266
 multirom.build.variant=nodemcu
 multirom.build.flash_mode=dio
 multirom.build.flash_size=4M
-multirom.build.flash_freq=40
+multirom.build.flash_freq=80
 multirom.build.debug_port=
 multirom.build.debug_level=
 
@@ -401,7 +401,7 @@ multirom.menu.UploadSpeed.921600=921600
 multirom.menu.UploadSpeed.921600.upload.speed=921600
 
 
-multirom.menu.FlashSize.rom1=Slot 1: 1M (256K SPIFFS)
+multirom.menu.FlashSize.rom1=Slot 1: 1M (256K SPIFFS) THIS DELETES THE ROM SELECTOR!
 multirom.menu.FlashSize.rom1.build.flash_size=1M
 multirom.menu.FlashSize.rom1.build.flash_ld=eagle.flash.1m256.rboot.ld
 multirom.menu.FlashSize.rom1.build.spiffs_start=0xBB000

@@ -13,6 +13,8 @@
 #define UART_CLK_FREQ	(26000000 * 2)
 #endif
 
+#define ESP8266_REG(addr) *((volatile uint32_t *)(0x60000000+(addr)))
+
 static uint32 check_image(uint32 readpos) {
 
 	uint8 buffer[BUFFER_SIZE];
@@ -146,6 +148,8 @@ static uint32 get_gpio16(void) {
 	WRITE_PERI_REG(RTC_GPIO_CONF, (READ_PERI_REG(RTC_GPIO_CONF) & (uint32)0xfffffffe) | (uint32)0x0);	//mux configuration for out enable
 	WRITE_PERI_REG(RTC_GPIO_ENABLE, READ_PERI_REG(RTC_GPIO_ENABLE) & (uint32)0xfffffffe);	//out disable
 
+	ESP8266_REG(0x7A0) |= (1 << 3); //enable pulldown
+
 	return (READ_PERI_REG(RTC_GPIO_IN_DATA) & 1);
 }
 
@@ -190,7 +194,8 @@ static int perform_gpio_boot(rboot_config *romconf) {
 
 	// pin low == GPIO boot
 	if (BOOT_GPIO_NUM == 16) {
-		return (get_gpio16() == 0);
+		ets_printf("GPIO16: %d\r\n", get_gpio16());
+		return (!(get_gpio16() == 0));
 	} else {
 		return (get_gpio(BOOT_GPIO_NUM) == 0);
 	}
@@ -306,7 +311,7 @@ uint32 NOINLINE find_image(void) {
 	ets_delay_us(BOOT_DELAY_MICROS);
 #endif
   ets_printf("\r\nWelcome to the GPN-Badge Loader!\r\n");
-	ets_printf("\r\nrBoot v1.4.2r\n");
+	ets_printf("\r\nrBoot v1.4.2\n");
 
 	// read rom header
 	SPIRead(0, header, sizeof(rom_header));

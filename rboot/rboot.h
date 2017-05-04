@@ -37,7 +37,7 @@ extern "C" {
 // uncomment to enable GPIO booting of specific rom
 // (specified in rBoot config block)
 // cannot be used at same time as BOOT_GPIO_SKIP_ENABLED
-//#define BOOT_GPIO_ENABLED
+#define BOOT_GPIO_ENABLED
 
 // uncomment to enable GPIO rom skip mode, trigger
 // GPIO at boot time to skip to next rom
@@ -47,7 +47,7 @@ extern "C" {
 // set the GPIO pin used by GPIO modes above (will default
 // to 16 if not manually set), only applicable when
 // BOOT_GPIO_ENABLED or BOOT_GPIO_SKIP_ENABLED is enabled
-//#define BOOT_GPIO_NUM 16
+#define BOOT_GPIO_NUM 16
 
 // uncomment to include .irom0.text section in the checksum
 // roms must be built with esptool2 using -iromchksum option
@@ -153,7 +153,8 @@ static uint8 default_config(rboot_config *romconf, uint32 flashsize) {
   romconf->roms[1] = 0x100000 + (SECTOR_SIZE * (BOOT_CONFIG_SECTOR + 1));
   romconf->roms[2] = 0x200000 + (SECTOR_SIZE * (BOOT_CONFIG_SECTOR + 1));
   romconf->roms[3] = 0x300000 + (SECTOR_SIZE * (BOOT_CONFIG_SECTOR + 1));
-  romconf->current_rom = 0;
+  romconf->current_rom = 1;
+	romconf->gpio_rom = 0;
 }
 #endif
 
