@@ -22,17 +22,17 @@
 <div class="container">
     <h1>Customize your badge</h1>
     	<form action="/name-conf" action="POST">
-	Name <input type="text" name="name" placeholder="Your Nick" />
+	Name <input type="text" name="name" placeholder="Your Nick" class="badgeconfinput"/>
 	</form>
     <h1>Configure your Badge</h1>
     <h2>Select Network</h2>
     <div class="alert alert-info" id="info-box">Please wait...</div>
-	<select id="net-select" name="net-select">
+	<select class="badgeconfinput" id="net-select" name="net-select">
 		<option value="-1">No network selected...</option>
 	</select>
-    <button id="scan-btn" class="btn btn-primary">Scan</button>
-    <input type="text" name="wifi-pw" id="wifi-pw" class="hidden">
-    <button id="connect-btn" class="btn btn-success disabled" disabled>Connect</button>
+    <button id="scan-btn" class="btn btn-primary badgeconfinput">Scan</button>
+    <input type="text" name="wifi-pw" id="wifi-pw" class="badgeconfinput">
+    <button id="connect-btn" class="btn btn-success disabled badgeconfinput" disabled>Connect</button>
 </div>
 <script src="/js/jq.min.js"></script>
 <script src="/js/badge.js"></script>
