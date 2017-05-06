@@ -4,6 +4,7 @@
 #include <GPNBadge.h>
 
 #define WEB_SERVER_BUFFER_SIZE 20
+#define WEB_SERVER_CLIENT_TIMEOUT 100
 
 #include <FS.h>
 #include <BadgeUI.h>
@@ -147,30 +148,42 @@ void initialConfig() {
   WiFiServer server(80);
   server.begin();
   // Own Webserver. _slow_ but memory efficient
+  String headBuf;
+  String getValue;
+  unsigned long lastByteReceived = 0;
+  bool requestFinished = false;
   while (true) {
     if (WiFi.softAPgetStationNum() == 0) {
       connectWizard(ssid, pw, webStatus);
     }
     WiFiClient currentClient = server.available();
-    if (!currentClient)  {
+    if (!currentClient || !currentClient.connected())  {
       continue;
     }
-    String headBuf;
-    String getValue;
-    while (currentClient.available()) {
-      char r = char(currentClient.read());
-      if (r == '\n') {
-        if (headBuf.startsWith("GET")) {
-          getValue = headBuf.substring(4, headBuf.length() - 10);
-          getValue.trim();
-          Serial.print("GET::");
-          Serial.println(getValue);
-          Serial.flush();
-          break;
+    while ((lastByteReceived == 0 || millis()-lastByteReceived < WEB_SERVER_CLIENT_TIMEOUT) && !requestFinished) {
+      while (currentClient.available()) {
+        char r = char(currentClient.read());
+        if (r == '\n') {
+          if (headBuf.startsWith("GET")) {
+            getValue = headBuf.substring(4, headBuf.length() - 10);
+            getValue.trim();
+            Serial.print("GET::");
+            Serial.println(getValue);
+            Serial.flush();
+            requestFinished = true;
+            break;
+          }
+        } else {
+          headBuf += r;
         }
-      } else {
-        headBuf += r;
+        lastByteReceived = millis();
       }
+    }
+    if(!requestFinished) {
+      currentClient.stop();
+      lastByteReceived = 0;
+      Serial.println("Request timeout");
+      continue;
     }
     headBuf = String();
     if (getValue == "/api/scan") {
@@ -238,11 +251,14 @@ void initialConfig() {
       } else {
         currentClient.write("HTTP/1.1 404");
         currentClient.write("\r\n\r\n");
-        currentClient.write("Not Found!");
+        currentClient.write(getValue.c_str());
+        currentClient.write(" Not Found!");
       }
     }
     getValue = String();
     currentClient.stop();
+    requestFinished = false;
+    lastByteReceived = 0;
 
   }
   server.close();
