@@ -1,13 +1,13 @@
 #define VERSION 2
 #define DEBUG
 
-#include <GPNBadge.h>
+#include <GPNBadge.hpp>
 
 #define WEB_SERVER_BUFFER_SIZE 20
 #define WEB_SERVER_CLIENT_TIMEOUT 100
 
-#include <FS.h>
 #include <BadgeUI.h>
+#include <FS.h>
 
 #include "rboot.h"
 #include "rboot-api.h"
