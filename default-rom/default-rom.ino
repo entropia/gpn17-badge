@@ -160,7 +160,7 @@ void initialConfig() {
     if (!currentClient || !currentClient.connected())  {
       continue;
     }
-    while ((lastByteReceived == 0 || millis()-lastByteReceived < WEB_SERVER_CLIENT_TIMEOUT) && !requestFinished) {
+    while ((lastByteReceived == 0 || millis() - lastByteReceived < WEB_SERVER_CLIENT_TIMEOUT) && !requestFinished) {
       while (currentClient.available()) {
         char r = char(currentClient.read());
         if (r == '\n') {
@@ -179,7 +179,7 @@ void initialConfig() {
         lastByteReceived = millis();
       }
     }
-    if(!requestFinished) {
+    if (!requestFinished) {
       currentClient.stop();
       lastByteReceived = 0;
       Serial.println("Request timeout");
@@ -216,7 +216,7 @@ void initialConfig() {
         currentClient.write(",\"encType\":");
         currentClient.write(String(WiFi.encryptionType(i)).c_str());
         currentClient.write("}");
-        if(i+1 < n) {
+        if (i + 1 < n) {
           currentClient.write(",");
         }
       }
@@ -259,18 +259,19 @@ void initialConfig() {
     currentClient.stop();
     requestFinished = false;
     lastByteReceived = 0;
-
   }
   server.close();
   ui->closeCurrent();
 }
 
 void connectWizard(char* ssid, char* pw, FullScreenBMPStatus* webStatus) {
+  bool dispPw = false;
   webStatus->setBmp("/system/wifi.bmp", 13, 6);
   webStatus->setSub(ssid);
   ui->open(webStatus);
   ui->draw();
   int last_b = millis();
+  int last_state = 0;
   bool b_state = false;
   while (true) {
     if (millis() - last_b > 1000) {
@@ -282,11 +283,20 @@ void connectWizard(char* ssid, char* pw, FullScreenBMPStatus* webStatus) {
       pixels.show();
       last_b = millis();
     }
-    if (badge.getJoystickState() != NOTHING) {
-      webStatus->setBmp("/system/lock.bmp", 35, 6);
-      webStatus->setSub(pw);
+    int state = badge.getJoystickState();
+    if (state != NOTHING && state != last_state) {
+      dispPw = !dispPw;
+      if (dispPw) {
+        webStatus->setBmp("/system/lock.bmp", 35, 6);
+        webStatus->setSub(pw);
+      } else {
+        webStatus->setBmp("/system/wifi.bmp", 13, 6);
+        webStatus->setSub(ssid);
+      }
       ui->draw();
+      delay(50);
     }
+    last_state = state;
     if (WiFi.softAPgetStationNum() > 0) {
       webStatus->setBmp("/system/pc.bmp", 10, 9);
       webStatus->setSub("10.0.0.1", 30, 52);
