@@ -1,4 +1,3 @@
-#define VERSION 2
 #define DEBUG
 
 #include <GPNBadge.hpp>
