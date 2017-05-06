@@ -187,6 +187,7 @@ void initialConfig() {
       pixels.show();
 
       currentClient.write("HTTP/1.1 200\r\n");
+      currentClient.write("Cache-Control: no-cache\r\n");
       currentClient.write("Content-Type: application/json");
       currentClient.write("\r\n\r\n");
       currentClient.write("[");
@@ -216,6 +217,7 @@ void initialConfig() {
         currentClient.write("HTTP/1.1 200\r\n");
         currentClient.write("Content-Type: ");
         currentClient.write(getContentType(path).c_str());
+        currentClient.write("\r\nCache-Control: max-age=1800");
         if (SPIFFS.exists(path + ".gz")) {
           path += ".gz";
           currentClient.write("\r\nContent-Encoding: gzip");
@@ -234,9 +236,9 @@ void initialConfig() {
         // Flush the remaining bytes
         currentClient.write(&writeBuf[0], size_t(pos));
       } else {
-        currentClient.write("HTTP/1.1 200");
+        currentClient.write("HTTP/1.1 404");
         currentClient.write("\r\n\r\n");
-        currentClient.write("Hallo welt");
+        currentClient.write("Not Found!");
       }
     }
     getValue = String();
