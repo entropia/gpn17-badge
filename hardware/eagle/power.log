@@ -1,0 +1,442 @@
+P-CAD Schematic ASCII File Export Log :
+      Information : Start export of symbol definitions for parts
+      Warning :     Symbol name [C-0603-100n-25V], mode [Normal], part [1] changed to [C-0603-100n-25V_1_N]
+      Warning :     Symbol name [R-0603-100k], mode [Normal], part [1] changed to [R-0603-100k_1_N]
+      Warning :     Rectangle [3750mil : 2660mil]-[3950mil : 2740mil] exported as lines.
+      Warning :     Symbol name [R-0603-300k], mode [Normal], part [1] changed to [R-0603-300k_1_N]
+      Warning :     Rectangle [7060mil : 2450mil]-[7140mil : 2650mil] exported as lines.
+      Warning :     Symbol name [WS2813], mode [Normal], part [1] changed to [WS2813_1_N]
+      Warning :     Rectangle [5400mil : 6400mil]-[6100mil : 6900mil] exported as lines.
+      Warning :     Symbol name [LCD], mode [Normal], part [1] changed to [LCD_1_N]
+      Warning :     Rectangle [8000mil : 3750mil]-[9900mil : 5050mil] exported as lines.
+      Warning :     Symbol name [R-0603-12k], mode [Normal], part [1] changed to [R-0603-12k_1_N]
+      Warning :     Rectangle [7400mil : 4210mil]-[7600mil : 4290mil] exported as lines.
+      Warning :     Symbol name [R-0603-10], mode [Normal], part [1] changed to [R-0603-10_1_N]
+      Warning :     Rectangle [10300mil : 4010mil]-[10500mil : 4090mil] exported as lines.
+      Warning :     Symbol name [AO-NEMOS-G1S2D3-3], mode [Normal], part [1] changed to [AO-NEMOS-G1S2D3-3_1_N]
+      Warning :     Symbol name [joystick], mode [Normal], part [1] changed to [joystick_1_N]
+      Warning :     Rectangle [1900mil : 3350mil]-[2700mil : 3850mil] exported as lines.
+      Warning :     Symbol name [R-0603-200k], mode [Normal], part [1] changed to [R-0603-200k_1_N]
+      Warning :     Rectangle [2300mil : 4210mil]-[2500mil : 4290mil] exported as lines.
+      Warning :     Symbol name [CMP-1575-00043-4], mode [Normal], part [1] changed to [CMP-1575-00043-4_1_N]
+      Warning :     Rectangle [4450mil : 1200mil]-[5050mil : 2400mil] exported as lines.
+      Warning :     Symbol name [BNO-055-I2C], mode [Normal], part [1] changed to [BNO-055-I2C_1_N]
+      Warning :     Rectangle [4400mil : 3750mil]-[5900mil : 5250mil] exported as lines.
+      Warning :     Symbol name [PCA9571], mode [Normal], part [1] changed to [PCA9571_1_N]
+      Warning :     Rectangle [1900mil : 1200mil]-[2700mil : 2400mil] exported as lines.
+      Warning :     Symbol name [CMP-0859-00683-3], mode [Normal], part [1] changed to [CMP-0859-00683-3_1_N]
+      Warning :     Symbol name [CMP-0859-00683-3], mode [Normal], part [2] changed to [CMP-0859-00683-3_2_N]
+      Warning :     Symbol name [CMP-0859-00683-3], mode [Normal], part [3] changed to [CMP-0859-00683-3_3_N]
+      Warning :     Rectangle [850mil : 6200mil]-[1450mil : 6400mil] exported as lines.
+      Warning :     Symbol name [TI-SN74XXX2G126-8_A], mode [Normal], part [1] changed to [TI-SN74XXX2G126-8_A_1_N]
+      Warning :     Symbol name [TI-SN74XXX2G126-8_A], mode [Normal], part [2] changed to [TI-SN74XXX2G126-8_A_2_N]
+      Warning :     Symbol name [TI-SN74XXX2G126-8_A], mode [Normal], part [3] changed to [TI-SN74XXX2G126-8_A_3_N]
+      Warning :     Rectangle [8650mil : 3200mil]-[9250mil : 3400mil] exported as lines.
+      Warning :     Symbol name [TL1838], mode [Normal], part [1] changed to [TL1838_1_N]
+      Warning :     Rectangle [3100mil : 6300mil]-[3900mil : 6900mil] exported as lines.
+      Warning :     Ellipse at position [3600mil : 6600mil] approximated with a circular arc
+      Warning :     Symbol name [IR_LED], mode [Normal], part [1] changed to [IR_LED_1_N]
+      Warning :     Symbol name [LDR], mode [Normal], part [1] changed to [LDR_1_N]
+      Warning :     Symbol name [R-0603-1], mode [Normal], part [1] changed to [R-0603-1_1_N]
+      Warning :     Rectangle [7060mil : 1750mil]-[7140mil : 1950mil] exported as lines.
+      Warning :     Symbol name [R-0603-100], mode [Normal], part [1] changed to [R-0603-100_1_N]
+      Warning :     Rectangle [3000mil : 5960mil]-[3200mil : 6040mil] exported as lines.
+      Warning :     Symbol name [C-0603-220p-50V], mode [Normal], part [1] changed to [C-0603-220p-50V_1_N]
+      Warning :     Symbol name [TP4056], mode [Normal], part [1] changed to [TP4056_1_N]
+      Warning :     Rectangle [4150mil : 5500mil]-[5150mil : 6200mil] exported as lines.
+      Warning :     Symbol name [C-0603-10u-6,3V], mode [Normal], part [1] changed to [C-0603-10u-6,3V_1_N]
+      Warning :     Symbol name [R-0603-1k2], mode [Normal], part [1] changed to [R-0603-1k2_1_N]
+      Warning :     Rectangle [5860mil : 5600mil]-[5940mil : 5800mil] exported as lines.
+      Warning :     Symbol name [jumper 1-1], mode [Normal], part [1] changed to [jumper_1-1_1_N]
+      Warning :     Rectangle [6150mil : 5125mil]-[6250mil : 5275mil] exported as lines.
+      Warning :     Symbol name [DW01A], mode [Normal], part [1] changed to [DW01A_1_N]
+      Warning :     Rectangle [7150mil : 5200mil]-[8450mil : 5800mil] exported as lines.
+      Warning :     Symbol name [R-1206-0R27], mode [Normal], part [1] changed to [R-1206-0R27_1_N]
+      Warning :     Rectangle [2600mil : 6060mil]-[2800mil : 6140mil] exported as lines.
+      Warning :     Symbol name [Header 4H], mode [Normal], part [1] changed to [Header_4H_1_N]
+      Warning :     Rectangle [6450mil : 2550mil]-[6750mil : 3050mil] exported as lines.
+      Warning :     Symbol name [R-0603-0], mode [Normal], part [1] changed to [R-0603-0_1_N]
+      Warning :     Rectangle [9410mil : 5800mil]-[9490mil : 6000mil] exported as lines.
+      Warning :     Symbol name [DUO_LED], mode [Normal], part [1] changed to [DUO_LED_1_N]
+      Warning :     Symbol name [D-BAT54T1G], mode [Normal], part [1] changed to [D-BAT54T1G_1_N]
+      Warning :     Symbol name [MIC5501-3.3V], mode [Normal], part [1] changed to [MIC5501-3.3V_1_N]
+      Warning :     Rectangle [1600mil : 2550mil]-[2200mil : 2950mil] exported as lines.
+      Warning :     Symbol name [C-0603-1u-10V], mode [Normal], part [1] changed to [C-0603-1u-10V_1_N]
+      Warning :     Symbol name [MOSFET-CEG8205], mode [Normal], part [1] changed to [MOSFET-CEG8205_1_N]
+      Warning :     Symbol name [SWITCH_2P2T], mode [Normal], part [1] changed to [SWITCH_2P2T_1_N]
+      Warning :     Rectangle [3150mil : 4150mil]-[3850mil : 4850mil] exported as lines.
+      Warning :     Symbol name [USBLC6-2SC6], mode [Normal], part [1] changed to [USBLC6-2SC6_1_N]
+      Warning :     Rectangle [1600mil : 3850mil]-[2300mil : 4450mil] exported as lines.
+      Warning :     Symbol name [D-B230A-13-F], mode [Normal], part [1] changed to [D-B230A-13-F_1_N]
+      Warning :     Symbol name [L], mode [Normal], part [1] changed to [L_1_N]
+      Warning :     Symbol name [BL8530], mode [Normal], part [1] changed to [BL8530_1_N]
+      Warning :     Rectangle [4500mil : 2450mil]-[5100mil : 2950mil] exported as lines.
+      Warning :     Symbol name [C-0805-47u-6.3V], mode [Normal], part [1] changed to [C-0805-47u-6.3V_1_N]
+      Warning :     Symbol name [18650–Holder], mode [Normal], part [1] changed to [18650–Holder_1_N]
+      Warning :     Symbol name [VIBRATOR], mode [Normal], part [1] changed to [VIBRATOR_1_N]
+      Warning :     Symbol name [R-0603-470], mode [Normal], part [1] changed to [R-0603-470_1_N]
+      Warning :     Rectangle [3950mil : 5260mil]-[4150mil : 5340mil] exported as lines.
+      Warning :     Symbol name [ONSC-D-K1A2-2], mode [Normal], part [1] changed to [ONSC-D-K1A2-2_1_N]
+      Warning :     Symbol name [SLAB-CP210X-QFN-28-29], mode [Normal], part [1] changed to [SLAB-CP210X-QFN-28-29_1_N]
+      Warning :     Rectangle [6800mil : 1650mil]-[7600mil : 3150mil] exported as lines.
+      Warning :     Symbol name [SLAB-CP210X-QFN-28-29], mode [Normal], part [2] changed to [SLAB-CP210X-QFN-28-29_2_N]
+      Warning :     Rectangle [6800mil : 2450mil]-[7300mil : 3150mil] exported as lines.
+      Warning :     Symbol name [CMP-0511-00012-1], mode [Normal], part [1] changed to [CMP-0511-00012-1_1_N]
+      Warning :     Rectangle [2600mil : 4700mil]-[3400mil : 6200mil] exported as lines.
+      Warning :     Symbol name [CMP-0511-00012-1], mode [Normal], part [2] changed to [CMP-0511-00012-1_2_N]
+      Warning :     Rectangle [2600mil : 5500mil]-[3100mil : 6200mil] exported as lines.
+      Warning :     Symbol name [ESP-ANT], mode [Normal], part [1] changed to [ESP-ANT_1_N]
+      Warning :     Rectangle [8350mil : 6200mil]-[9150mil : 6400mil] exported as lines.
+      Warning :     Symbol name [3225-26MHz], mode [Normal], part [1] changed to [3225-26MHz_1_N]
+      Warning :     Symbol name [NPN_MMBT3904], mode [Normal], part [1] changed to [NPN_MMBT3904_1_N]
+      Warning :     Symbol name [C-0603-5p6-50V], mode [Normal], part [1] changed to [C-0603-5p6-50V_1_N]
+      Warning :     Symbol name [W25Q64], mode [Normal], part [1] changed to [W25Q64_1_N]
+      Warning :     Rectangle [8350mil : 4200mil]-[9250mil : 5200mil] exported as lines.
+      Warning :     Symbol name [R-0603-4k7], mode [Normal], part [1] changed to [R-0603-4k7_1_N]
+      Warning :     Rectangle [5500mil : 2110mil]-[5700mil : 2190mil] exported as lines.
+      Warning :     Symbol name [ESP8266EX], mode [Normal], part [1] changed to [ESP8266EX_1_N]
+      Warning :     Rectangle [6100mil : 3900mil]-[7300mil : 6400mil] exported as lines.
+      Warning :     Symbol name [ESP8266EX], mode [Normal], part [2] changed to [ESP8266EX_2_N]
+      Warning :     Rectangle [6100mil : 5400mil]-[7100mil : 6400mil] exported as lines.
+      Information : End export of symbol definitions for part
+      Information : Start exporting the symbol definitions for power ports
+      Warning :     End exporting the symbol defintions for power ports
+      Information : Start exporting component definitions
+      Warning :     Component [C4] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [C12] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [C13] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [R8] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [R12] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [R9] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [C9] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [R14] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [C3] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [C2] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [C1] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [LED1] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [LED2] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [LED3] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [LED4] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [LCD1] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [R3] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [R4] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [Q2] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [BTN1] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [R7] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [U4] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [U2] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [U3] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [C10] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [C5] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [R11] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [U1] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [U1] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [U1] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [IC1] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [LED6] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [Q5] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [R1] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [R5] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [R6] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [R10] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [R13] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [R33] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [C6] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [R2] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [C7] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [R37] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [U8] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [C26] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [C27] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [R28] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [R29] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [J2] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [U9] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [R27] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [R31] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [R30] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [C33] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [P1] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [Q6] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [R34] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [LED5] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [Q1] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [D1] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [U10] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [C29] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [Q7] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [SW2] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [SW1] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [IC2] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [D2] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [L1] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [IC3] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [C31] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [C30] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [B1] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [Q8] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [M1] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [C36] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [R35] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [R36] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [D3] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [U6] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [U6] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [ANT1] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [Y1] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [Q3] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [Q4] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [R17] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [R18] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [C25] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [R15] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [R16] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [R22] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [R23] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [R24] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [R25] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [R19] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [C14] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [C17] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [C16] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [C24] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [C23] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [C21] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [C22] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [C20] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [C18] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [C15] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [C19] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [R20] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [U7] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [R26] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [R32] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [U5] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [U5] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [C32] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [C34] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [C35] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Warning :     Component [R21] in sheet [C:\Users\NIKLAS~1\AppData\Local\Temp\Pro3D4E.tmp] doesn't have a library reference
+      Information : End exporting component definitions
+      Information : Start exporting component definitions for power ports
+      Warning :     End exporting component definitions for powerports
+      Information : Start export of netlist
+      Information : Start export of component instances
+      Information : End export of component instances
+      Information : Start export of nets
+      Information : End export of nets
+      Information : End export of netlist
+      Information : Start exporting the objects for sheet [gpio]
+      Information : Start WIRES export
+      Information : End WIRES export
+      Information : Start BUSES export
+      Information : End BUSES export
+      Information : Start PORTS export
+      Information : End PORTS export
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     Exporting powerport at [9800mil : 6100mil] as component with designator [PVBAT1]
+      Warning :     Exporting powerport at [10100mil : 6100mil] as component with designator [GND1]
+      Warning :     Exporting powerport at [1600mil : 1300mil] as component with designator [PVDD31]
+      Warning :     Exporting powerport at [2900mil : 1000mil] as component with designator [GND2]
+      Warning :     Exporting powerport at [1600mil : 1000mil] as component with designator [GND3]
+      Warning :     Exporting powerport at [4150mil : 1300mil] as component with designator [PVDD32]
+      Warning :     Exporting powerport at [4150mil : 1000mil] as component with designator [GND4]
+      Warning :     Exporting powerport at [4150mil : 1600mil] as component with designator [GND5]
+      Warning :     Exporting powerport at [5350mil : 1000mil] as component with designator [GND6]
+      Warning :     Exporting powerport at [3450mil : 2700mil] as component with designator [GND7]
+      Warning :     Exporting powerport at [7100mil : 2750mil] as component with designator [PVBAT2]
+      Warning :     Exporting powerport at [7100mil : 1650mil] as component with designator [GND8]
+      Warning :     Exporting powerport at [8200mil : 1650mil] as component with designator [GND9]
+      Warning :     Exporting powerport at [9550mil : 1650mil] as component with designator [GND10]
+      Warning :     Exporting powerport at [8200mil : 2750mil] as component with designator [PVDD33]
+      Warning :     Exporting powerport at [9550mil : 2750mil] as component with designator [PMQ31]
+      Warning :     Exporting powerport at [8450mil : 6100mil] as component with designator [PVBAT3]
+      Warning :     Exporting powerport at [8750mil : 6100mil] as component with designator [GND11]
+      Warning :     Exporting powerport at [7100mil : 6100mil] as component with designator [PVBAT4]
+      Warning :     Exporting powerport at [7400mil : 6100mil] as component with designator [GND12]
+      Warning :     Exporting powerport at [5600mil : 6100mil] as component with designator [PVBAT5]
+      Warning :     Exporting powerport at [5900mil : 6100mil] as component with designator [GND13]
+      Warning :     Exporting powerport at [7700mil : 3850mil] as component with designator [GND14]
+      Warning :     Exporting powerport at [7300mil : 4250mil] as component with designator [PVDD34]
+      Warning :     Exporting powerport at [10600mil : 4050mil] as component with designator [PVBAT6]
+      Warning :     Exporting powerport at [10200mil : 3250mil] as component with designator [GND15]
+      Warning :     Exporting powerport at [10200mil : 4950mil] as component with designator [PVDD35]
+      Warning :     Exporting powerport at [2200mil : 3150mil] as component with designator [GND16]
+      Warning :     Exporting powerport at [2400mil : 2900mil] as component with designator [PVDD36]
+      Warning :     Exporting powerport at [8750mil : 1650mil] as component with designator [GND17]
+      Warning :     Exporting powerport at [6300mil : 3550mil] as component with designator [GND18]
+      Warning :     Exporting powerport at [4100mil : 3550mil] as component with designator [GND19]
+      Warning :     Exporting powerport at [3850mil : 4750mil] as component with designator [GND20]
+      Warning :     Exporting powerport at [3850mil : 5150mil] as component with designator [PVDD37]
+      Warning :     Exporting powerport at [6600mil : 5150mil] as component with designator [PVDD38]
+      Warning :     Exporting powerport at [9450mil : 3300mil] as component with designator [GND21]
+      Warning :     Exporting powerport at [2900mil : 6800mil] as component with designator [PVDD39]
+      Warning :     Exporting powerport at [2900mil : 6600mil] as component with designator [GND22]
+      Warning :     Exporting powerport at [2800mil : 5300mil] as component with designator [GND23]
+      Warning :     Exporting powerport at [3850mil : 6000mil] as component with designator [PVBAT7]
+      Warning :     Exporting powerport at [2400mil : 5300mil] as component with designator [GND24]
+      Warning :     Exporting powerport at [8450mil : 3300mil] as component with designator [PVDD310]
+      Information : End exporting the objects for sheet [gpio]
+      Information : Start exporting the objects for sheet [power]
+      Information : Start WIRES export
+      Information : End WIRES export
+      Information : Start BUSES export
+      Information : End BUSES export
+      Information : Start PORTS export
+      Information : End PORTS export
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     Exporting powerport at [3050mil : 5600mil] as component with designator [GND25]
+      Warning :     Exporting powerport at [5450mil : 5600mil] as component with designator [GND26]
+      Warning :     Exporting powerport at [6400mil : 4950mil] as component with designator [GND27]
+      Warning :     Exporting powerport at [5900mil : 4950mil] as component with designator [GND28]
+      Warning :     Exporting powerport at [1800mil : 5450mil] as component with designator [GND29]
+      Warning :     Exporting powerport at [9450mil : 6100mil] as component with designator [PVBAT8]
+      Warning :     Exporting powerport at [1250mil : 2850mil] as component with designator [PVBAT9]
+      Warning :     Exporting powerport at [2650mil : 2850mil] as component with designator [PVDD311]
+      Warning :     Exporting powerport at [2650mil : 2550mil] as component with designator [GND30]
+      Warning :     Exporting powerport at [1250mil : 2550mil] as component with designator [GND31]
+      Warning :     Exporting powerport at [3650mil : 3200mil] as component with designator [PVBAT10]
+      Warning :     Exporting powerport at [5350mil : 3200mil] as component with designator [P5V1]
+      Warning :     Exporting powerport at [6250mil : 2650mil] as component with designator [PMQ32]
+      Warning :     Exporting powerport at [4800mil : 1650mil] as component with designator [GND32]
+      Warning :     Exporting powerport at [9950mil : 3300mil] as component with designator [PVBAT11]
+      Warning :     Exporting powerport at [9950mil : 2150mil] as component with designator [GND33]
+      Warning :     Exporting powerport at [9250mil : 3100mil] as component with designator [GND34]
+      Warning :     Exporting powerport at [3050mil : 6100mil] as component with designator [PVBUS1]
+      Warning :     Exporting powerport at [5450mil : 5000mil] as component with designator [PVBUS2]
+      Warning :     Exporting powerport at [2400mil : 2550mil] as component with designator [GND35]
+      Warning :     P-CAD doesn't support object type [ParameterSet]
+      Warning :     P-CAD doesn't support object type [ParameterSet]
+      Warning :     P-CAD doesn't support object type [ParameterSet]
+      Warning :     P-CAD doesn't support object type [ParameterSet]
+      Warning :     P-CAD doesn't support object type [ParameterSet]
+      Warning :     P-CAD doesn't support object type [ParameterSet]
+      Warning :     Exporting powerport at [1400mil : 3950mil] as component with designator [GND36]
+      Warning :     Exporting powerport at [3650mil : 2650mil] as component with designator [GND37]
+      Warning :     Exporting powerport at [6050mil : 1650mil] as component with designator [GND38]
+      Warning :     P-CAD doesn't support object type [ParameterSet]
+      Warning :     P-CAD doesn't support object type [ParameterSet]
+      Warning :     Exporting powerport at [2300mil : 6100mil] as component with designator [PVUSB1]
+      Warning :     Exporting powerport at [2500mil : 3950mil] as component with designator [PVUSB2]
+      Warning :     Exporting powerport at [5850mil : 3250mil] as component with designator [GND39]
+      Warning :     Exporting powerport at [7600mil : 4300mil] as component with designator [GND40]
+      Information : End exporting the objects for sheet [power]
+      Information : Start exporting the objects for sheet [cpu]
+      Information : Start WIRES export
+      Information : End WIRES export
+      Information : Start BUSES export
+      Information : End BUSES export
+      Information : Start PORTS export
+      Information : End PORTS export
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     Exporting powerport at [5100mil : 4100mil] as component with designator [GND41]
+      Warning :     Exporting powerport at [5200mil : 1350mil] as component with designator [GND42]
+      Warning :     Exporting powerport at [6700mil : 1350mil] as component with designator [GND43]
+      Warning :     Exporting powerport at [9350mil : 6300mil] as component with designator [GND44]
+      Warning :     Exporting powerport at [7600mil : 3700mil] as component with designator [GND45]
+      Warning :     P-CAD doesn't support object type [ParameterSet]
+      Warning :     P-CAD doesn't support object type [ParameterSet]
+      Warning :     Exporting powerport at [3700mil : 4500mil] as component with designator [GND46]
+      Warning :     Exporting powerport at [2100mil : 4500mil] as component with designator [GND47]
+      Warning :     Exporting powerport at [1700mil : 4500mil] as component with designator [GND48]
+      Warning :     Exporting powerport at [4400mil : 1900mil] as component with designator [GND49]
+      Warning :     Exporting powerport at [4100mil : 1900mil] as component with designator [GND50]
+      Warning :     Exporting powerport at [3800mil : 1900mil] as component with designator [GND51]
+      Warning :     Exporting powerport at [1900mil : 1900mil] as component with designator [GND52]
+      Warning :     Exporting powerport at [2300mil : 1900mil] as component with designator [GND53]
+      Warning :     Exporting powerport at [1500mil : 1900mil] as component with designator [GND54]
+      Warning :     Exporting powerport at [1900mil : 2400mil] as component with designator [PVDD312]
+      Warning :     Exporting powerport at [1500mil : 2700mil] as component with designator [PVDD313]
+      Warning :     Exporting powerport at [4100mil : 2200mil] as component with designator [PVDD314]
+      Warning :     Exporting powerport at [4400mil : 2700mil] as component with designator [PVDD315]
+      Warning :     Exporting powerport at [9500mil : 4300mil] as component with designator [GND55]
+      Warning :     Exporting powerport at [9800mil : 4300mil] as component with designator [GND56]
+      Warning :     Exporting powerport at [9800mil : 5100mil] as component with designator [PVDD316]
+      Warning :     Exporting powerport at [5200mil : 3150mil] as component with designator [PVDD317]
+      Warning :     P-CAD doesn't support object type [Parameter]
+      Warning :     Exporting powerport at [10100mil : 1950mil] as component with designator [GND57]
+      Warning :     Exporting powerport at [10100mil : 2250mil] as component with designator [PVDD318]
+      Warning :     Exporting powerport at [10500mil : 1950mil] as component with designator [GND58]
+      Warning :     Exporting powerport at [10500mil : 2250mil] as component with designator [PVDD319]
+      Warning :     Exporting powerport at [10900mil : 1950mil] as component with designator [GND59]
+      Warning :     Exporting powerport at [10900mil : 2250mil] as component with designator [PVDD320]
+      Information : End exporting the objects for sheet [cpu]
+EndLog
