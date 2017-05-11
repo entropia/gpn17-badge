@@ -17,7 +17,7 @@
       },
       "version": "2.3.0",
       "architecture": "esp8266",
-      "archiveFileName": "Gpnbadge-2.3.0.zip",
+      "archiveFileName": "gpnbadge-2.3.0.zip",
       "boards": [
         {
           "name": "Generic ESP8266 Module"
