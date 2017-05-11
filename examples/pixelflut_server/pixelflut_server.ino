@@ -10,6 +10,8 @@
 
 #include <TFT_ILI9163C.h>
 
+// WIP need to undefine the framebuffer to have the pixelflutserver running
+
 #define BNO055_SAMPLERATE_DELAY_MS (10)
 
 #define VERSION 2
