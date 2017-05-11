@@ -1,52 +1,58 @@
-#include <Adafruit_GFX.h>
-#include <TFT_ILI9163C.h>
 #include <ESP8266WiFi.h>
 #include <SPI.h>
+#include <Adafruit_GFX.h>
 #include <Adafruit_NeoPixel.h>
+#include <Wire.h>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_BNO055.h>
+#include <utility/imumaths.h>
+#include <IRremoteESP8266.h>
 
-#define VERSION 1
+#include <TFT_ILI9163C.h>
 
-#if (VERSION == 1)
+#define BNO055_SAMPLERATE_DELAY_MS (10)
+
+#define VERSION 2
+
+#define USEWIFI
+//#define USEIR
+
 #define GPIO_LCD_DC 0
 #define GPIO_TX     1
-#define GPIO_WS2813 2
+#define GPIO_WS2813 4
 #define GPIO_RX     3
-#define GPIO_DN     4
+#define GPIO_DN     2
 #define GPIO_DP     5
-#define GPIO_LATCH  9
-#define GPIO_LCD_BL 10
-#define GPIO_MISO   12
+
+#define GPIO_BOOT   16
 #define GPIO_MOSI   13
 #define GPIO_CLK    14
 #define GPIO_LCD_CS 15
-#define GPIO_MPU_CS 16
+#define GPIO_BNO    12
 
 #define MUX_JOY 0
 #define MUX_BAT 1
 #define MUX_LDR 2
-#define MUX_NTC 3
 #define MUX_ALK 4
 #define MUX_IN1 5
-#define MUX_IN2 6
-#define MUX_IN3 7
 
 #define VIBRATOR 3
 #define MQ3_EN   4
-#define OUT1     5
-#define OUT2     6
-#define OUT3     7
+#define LCD_LED  5
+#define IR_EN    6
+#define OUT1     7
 
-#define UP      660
-#define DOWN    580
-#define RIGHT   500
-#define LEFT    800
-#define CENTER  1020
-#define OFFSET  25
+#define UP      720
+#define DOWN    570
+#define RIGHT   480
+#define LEFT    960
+#define OFFSET  50
+
+#define I2C_PCA 0x25
 
 #define NUM_LEDS    4
-#endif
 
-#define  BLACK   0x0000
+#define BLACK   0x0000
 #define BLUE    0x001F
 #define RED     0xF800
 #define GREEN   0x07E0
@@ -57,6 +63,13 @@
 
 TFT_ILI9163C tft = TFT_ILI9163C(GPIO_LCD_CS, GPIO_LCD_DC);
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUM_LEDS, GPIO_WS2813, NEO_GRB + NEO_KHZ800);
+Adafruit_BNO055 bno = Adafruit_BNO055(BNO055_ID, BNO055_ADDRESS_B);
+
+IRsend irsend(GPIO_DP);
+IRrecv irrecv(GPIO_DN);
+decode_results results;
+
+byte portExpanderConfig = 0; //stores the 74HC595 config
 
 #define MAX_SRV_CLIENTS 10  //max connections/clients
 
@@ -75,7 +88,6 @@ char *pos1; //pos pointer 2
 uint8_t i;  //client counter
 bool showIPflag = false;  //flags for the info statemaschine
 bool drawIPflag = true;
-byte shiftConfig = 0; //stores the 74HC595 config
 
 void setup() {
   initBadge();
@@ -144,51 +156,128 @@ void drawIP() {
   tft.print(":1234");
 }
 
+double getVoltage() {
+  double voltage;   // oversampling to increase the resolution
+  long analog = 0;
+  for (int i = 0; i <= 63; i++) {
+    analog = analog + analogRead(A0);
+    delayMicroseconds(1);
+  }
+  voltage = (analog / 64.0) * 4.8 / 1000;
+  return voltage;
+}
+
+double calculatePPM(double v) {
+  double PPM; // calculate the PPM value with a polynome generated from the datasheet's table
+  PPM = 150.4351049 * pow(v, 5) - 2244.75988 * pow(v, 4) + 13308.5139 * pow(v, 3) - 39136.08594 * pow(v, 2) + (57082.6258 * v) - 32982.05333;
+  return PPM;
+}
+
+float calculateBAC(double PPM) {
+  float BAC;  // calculate the blood alcohol value from the ppm value
+  BAC = PPM / 260.0;
+  return BAC;
+}
+
 void setGPIO(byte channel, boolean level) {
-  bitWrite(shiftConfig, channel, level);
-  SPI.transfer(shiftConfig);
-  digitalWrite(GPIO_LATCH, LOW);
-  digitalWrite(GPIO_LATCH, HIGH);
+  bitWrite(portExpanderConfig, channel, level);
+  Wire.beginTransmission(I2C_PCA);
+  Wire.write(portExpanderConfig);
+  Wire.endTransmission();
 }
 
 void setAnalogMUX(byte channel) {
-  shiftConfig = shiftConfig & 0b11111000;
-  shiftConfig = shiftConfig | channel;
-  SPI.transfer(shiftConfig);
-  digitalWrite(GPIO_LATCH, LOW);
-  digitalWrite(GPIO_LATCH, HIGH);
+  portExpanderConfig = portExpanderConfig & 0b11111000;
+  portExpanderConfig = portExpanderConfig | channel;
+  Wire.beginTransmission(I2C_PCA);
+  Wire.write(portExpanderConfig);
+  Wire.endTransmission();
 }
+
+uint16_t getBatLvl() {
+  if (portExpanderConfig != 33) {
+    setAnalogMUX(MUX_BAT);
+    delay(20);
+  }
+  uint16_t avg = 0;
+  for (byte i = 0; i < 16; i++) {
+    avg += analogRead(A0);
+  }
+  return (avg / 16);
+}
+
+uint16_t getBatVoltage() { //battery voltage in mV
+  return (getBatLvl() * 4.8);
+}
+
+float getLDRLvl() {
+  if (portExpanderConfig != 34) {
+    setAnalogMUX(MUX_LDR);
+    delay(20);
+  }
+  float avg = 0;
+  for (byte i = 0; i < 64; i++) {
+    avg += analogRead(A0);
+  }
+  return (avg / 64);
+}
+
+uint16_t getALKLvl() {
+  if (portExpanderConfig != 36) {
+    setAnalogMUX(MUX_ALK);
+    delay(20);
+  }
+  uint16_t avg = 0;
+  for (byte i = 0; i < 10; i++) {
+    avg += analogRead(A0);
+  }
+  return (avg / 10);
+}
+
 void initBadge() { //initialize the badge
 
+#ifdef USEIR
+  Serial.begin(115200, SERIAL_8N1, SERIAL_TX_ONLY);
+  setGPIO(IR_EN, HIGH);
+  irrecv.enableIRIn(); // Start the receiver
+  irsend.begin();
+#else
+  Serial.begin(115200);
+#endif
+
+#ifdef USEWIFI
   // Next 2 line seem to be needed to connect to wifi after Wake up
   WiFi.disconnect();
   WiFi.mode(WIFI_OFF);
   delay(20);
+#endif
 
-  pinMode(GPIO_LATCH, OUTPUT);
-  pinMode(GPIO_LCD_BL, OUTPUT);
+  pinMode(GPIO_BOOT, INPUT_PULLDOWN_16);  // settings for the leds
   pinMode(GPIO_WS2813, OUTPUT);
-
-  //the ESP is very power-sensitive during startup, so...
-  digitalWrite(GPIO_LCD_BL, LOW);                //...switch off the LCD backlight
-  shiftOut(GPIO_MOSI, GPIO_CLK, MSBFIRST, 0x00); //...clear the shift register
-  digitalWrite(GPIO_LATCH, HIGH);
 
   pixels.begin(); //initialize the WS2813
   pixels.clear();
   pixels.show();
 
-  tft.begin(); //init library
-  tft.setRotation(2); //rotate display to badge rotation
-  tft.scroll(32); //move the scolliingbuffer down
-  tft.fillScreen(0x0000); //clear the screen
+  Wire.begin(9, 10); // Initalize i2c bus
+  Wire.beginTransmission(I2C_PCA);
+  Wire.write(0b00000000); //...clear the I2C extender to switch off vibrator and backlight
+  Wire.endTransmission();
 
-  tft.setCursor(0, 0);  //informative text
+  delay(100);
+
+  tft.begin(); //initialize the tft. This also sets up SPI to 80MHz Mode 0
+  tft.setRotation(2); //turn screen
+  tft.scroll(32); //move down by 32 pixels (needed)
+  tft.fillScreen(BLACK);  //make screen black
+
+  tft.setTextSize(2);
+  tft.setCursor(25, 48);
+  tft.print("GPN17");
   tft.setTextSize(1);
-  tft.println("Starting Server");
 
-
-  analogWrite(GPIO_LCD_BL, 1023); //switch on LCD backlight
+  tft.writeFramebuffer();
+  setGPIO(LCD_LED, HIGH);
 
   pixels.clear(); //clear the WS2813 another time, in case they catched up some noise
   pixels.show();
