@@ -82,11 +82,6 @@ uint32_t startTime = 0;
 int _width = 128;
 int _height = 128;
 
-int test_mode = 0;  // counter for tests
-int max_test_modes = 4; // number of the tests
-int disp_mode = 0;  // counter for modes
-bool joyDirs[6] = {0, 0, 0, 0, 0, 0}; // flags for the Joystick input up,down,right,left,shortPress,longPress
-
 float fps = 0;
 
 int offsetCounter = 16;
@@ -156,7 +151,7 @@ void loop() {
   tft.writeFramebuffer();
   
   endTime = micros();
-  fps = 1000000 / (endTime - startTime);
+  fps = 1000000.0 / (endTime - startTime);
 }
 
 void setGPIO(byte channel, boolean level) {
