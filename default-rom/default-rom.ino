@@ -220,7 +220,7 @@ void initialConfig() {
       Serial.print("body: ");
       Serial.println(bodyBuf);
     } else {
-      if (getValue == "/api/scan") {
+      if (getValue == "/api/wifi/scan") {
         pixels.setPixelColor(0, pixels.Color(0, 0, 20));
         pixels.setPixelColor(1, pixels.Color(0, 0, 20));
         pixels.setPixelColor(2, pixels.Color(0, 0, 20));

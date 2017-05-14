@@ -19,7 +19,7 @@ $(document).ready(function () {
         $('#info-box').html('Scanning...');
         $('#scan-btn').attr("disabled");
         $('#scan-btn').addClass("disabled");
-        $.getJSON('/api/scan', function (res) {
+        $.getJSON('/api/wifi/scan', function (res) {
             scanRes = res;
             netlist.append($('<option>', {
                 value: -1,
