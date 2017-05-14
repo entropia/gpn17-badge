@@ -3,6 +3,7 @@ from time import sleep
 import json
 
 app = Flask(__name__, static_url_path='', static_folder='data_raw/system/web')
+status = 'Disconnected'
 
 
 @app.route('/')
@@ -10,7 +11,7 @@ def index():
     return redirect('/index.html')
 
 
-@app.route('/api/scan')
+@app.route('/api/wifi/scan')
 def scan():
     # Simulate scan
     sleep(5)
@@ -22,9 +23,11 @@ def scan():
 def conf_wifi():
     # Simulate connect
     sleep(5)
+    global status
     pw = request.form['pw']
     id = int(request.form['net'])
     if pw == "correct" or id % 2 != 0:
+        status = 'Connected to \'Net'+str(id)+"'"
         return "true"
     return "false"
 
@@ -34,6 +37,12 @@ def conf_nick():
     # Simulate save
     sleep(1)
     return "true"
+
+
+@app.route('/api/wifi/status')
+def wifi_status():
+    global status
+    return status
 
 
 if __name__ == '__main__':
