@@ -151,9 +151,11 @@ void initialConfig() {
   server.begin();
   // Own Webserver. _slow_ but memory efficient
   String headBuf;
+  String bodyBuf;
   String getValue;
   unsigned long lastByteReceived = 0;
   bool requestFinished = false;
+  bool isPost = false;
   while (true) {
     if (WiFi.softAPgetStationNum() == 0) {
       connectWizard(ssid, pw, webStatus);
@@ -166,10 +168,11 @@ void initialConfig() {
       while (currentClient.available()) {
         char r = char(currentClient.read());
         if (r == '\n') {
-          if (headBuf.startsWith("GET")) {
+          isPost = headBuf.startsWith("POST");
+          if (headBuf.startsWith("GET") || isPost) {
             getValue = headBuf.substring(4, headBuf.length() - 10);
             getValue.trim();
-            Serial.print("GET::");
+            Serial.print("GET/POST::");
             Serial.println(getValue);
             Serial.flush();
             requestFinished = true;
@@ -188,79 +191,110 @@ void initialConfig() {
       continue;
     }
     headBuf = String();
-    if (getValue == "/api/scan") {
-      pixels.setPixelColor(0, pixels.Color(0, 0, 20));
-      pixels.setPixelColor(1, pixels.Color(0, 0, 20));
-      pixels.setPixelColor(2, pixels.Color(0, 0, 20));
-      pixels.setPixelColor(3, pixels.Color(0, 0, 20));
-      pixels.show();
-      int n = WiFi.scanNetworks();
-      pixels.setPixelColor(0, pixels.Color(0, 0, 0));
-      pixels.setPixelColor(1, pixels.Color(0, 0, 0));
-      pixels.setPixelColor(2, pixels.Color(0, 0, 0));
-      pixels.setPixelColor(3, pixels.Color(0, 0, 0));
-      pixels.show();
-
-      currentClient.write("HTTP/1.1 200\r\n");
-      currentClient.write("Cache-Control: no-cache\r\n");
-      currentClient.write("Content-Type: application/json");
-      currentClient.write("\r\n\r\n");
-      currentClient.write("[");
-      for (int i = 0; i < n; ++i)
-      {
-        currentClient.write("{");
-        currentClient.write("\"id\":");
-        currentClient.write(String(i).c_str());
-        currentClient.write(",\"ssid\":\"");
-        currentClient.write(WiFi.SSID(i).c_str());
-        currentClient.write("\",\"rssi\":");
-        currentClient.write(String(WiFi.RSSI(i)).c_str());
-        currentClient.write(",\"encType\":");
-        currentClient.write(String(WiFi.encryptionType(i)).c_str());
-        currentClient.write("}");
-        if (i + 1 < n) {
-          currentClient.write(",");
-        }
-      }
-      currentClient.write("]");
-    } else {
-      if (getValue == "/") {
-        getValue = "/index.html";
-      }
-      String path = "/system/web" + getValue;
-      if (SPIFFS.exists(path) || SPIFFS.exists(path + ".gz")) {
-        currentClient.write("HTTP/1.1 200\r\n");
-        currentClient.write("Content-Type: ");
-        currentClient.write(getContentType(path).c_str());
-        currentClient.write("\r\nCache-Control: max-age=1800");
-        if (SPIFFS.exists(path + ".gz")) {
-          path += ".gz";
-          currentClient.write("\r\nContent-Encoding: gzip");
-        }
-        currentClient.write("\r\n\r\n");
-        File file = SPIFFS.open(path, "r");
-        path = String();
-        int pos = 0;
-        while (file.available()) {
-          writeBuf[pos++] = char(file.read());
-          if (pos == WEB_SERVER_BUFFER_SIZE) {
-            currentClient.write(&writeBuf[0], size_t(WEB_SERVER_BUFFER_SIZE));
-            pos = 0;
+    if (isPost) {
+      requestFinished = false;
+      bool wasNl = false; 
+      bool headerFinished = false;
+      lastByteReceived = millis();
+      while ((lastByteReceived == 0 || millis() - lastByteReceived < WEB_SERVER_CLIENT_TIMEOUT) && !requestFinished) {
+        // Read until request body starts
+        while (currentClient.available() && !headerFinished) {
+          bodyBuf += char(currentClient.read());
+          if (bodyBuf.endsWith("\r\n")) {
+            bodyBuf = String();
+            if (wasNl) {
+              Serial.println("header finished");
+              headerFinished = true;
+              bodyBuf = String();
+              break;
+            }
+            wasNl = true;
+          } else {
+            wasNl = false;
           }
         }
-        // Flush the remaining bytes
-        currentClient.write(&writeBuf[0], size_t(pos));
-      } else {
-        currentClient.write("HTTP/1.1 404");
+        while (currentClient.available() && headerFinished) {
+          bodyBuf += currentClient.read();
+        }
+      }
+      Serial.print("body: ");
+      Serial.println(bodyBuf);
+    } else {
+      if (getValue == "/api/scan") {
+        pixels.setPixelColor(0, pixels.Color(0, 0, 20));
+        pixels.setPixelColor(1, pixels.Color(0, 0, 20));
+        pixels.setPixelColor(2, pixels.Color(0, 0, 20));
+        pixels.setPixelColor(3, pixels.Color(0, 0, 20));
+        pixels.show();
+        int n = WiFi.scanNetworks();
+        pixels.setPixelColor(0, pixels.Color(0, 0, 0));
+        pixels.setPixelColor(1, pixels.Color(0, 0, 0));
+        pixels.setPixelColor(2, pixels.Color(0, 0, 0));
+        pixels.setPixelColor(3, pixels.Color(0, 0, 0));
+        pixels.show();
+
+        currentClient.write("HTTP/1.1 200\r\n");
+        currentClient.write("Cache-Control: no-cache\r\n");
+        currentClient.write("Content-Type: application/json");
         currentClient.write("\r\n\r\n");
-        currentClient.write(getValue.c_str());
-        currentClient.write(" Not Found!");
+        currentClient.write("[");
+        for (int i = 0; i < n; ++i)
+        {
+          currentClient.write("{");
+          currentClient.write("\"id\":");
+          currentClient.write(String(i).c_str());
+          currentClient.write(",\"ssid\":\"");
+          currentClient.write(WiFi.SSID(i).c_str());
+          currentClient.write("\",\"rssi\":");
+          currentClient.write(String(WiFi.RSSI(i)).c_str());
+          currentClient.write(",\"encType\":");
+          currentClient.write(String(WiFi.encryptionType(i)).c_str());
+          currentClient.write("}");
+          if (i + 1 < n) {
+            currentClient.write(",");
+          }
+        }
+        currentClient.write("]");
+      } else {
+        if (getValue == "/") {
+          getValue = "/index.html";
+        }
+        String path = "/system/web" + getValue;
+        if (SPIFFS.exists(path) || SPIFFS.exists(path + ".gz")) {
+          currentClient.write("HTTP/1.1 200\r\n");
+          currentClient.write("Content-Type: ");
+          currentClient.write(getContentType(path).c_str());
+          currentClient.write("\r\nCache-Control: max-age=1800");
+          if (SPIFFS.exists(path + ".gz")) {
+            path += ".gz";
+            currentClient.write("\r\nContent-Encoding: gzip");
+          }
+          currentClient.write("\r\n\r\n");
+          File file = SPIFFS.open(path, "r");
+          path = String();
+          int pos = 0;
+          while (file.available()) {
+            writeBuf[pos++] = char(file.read());
+            if (pos == WEB_SERVER_BUFFER_SIZE) {
+              currentClient.write(&writeBuf[0], size_t(WEB_SERVER_BUFFER_SIZE));
+              pos = 0;
+            }
+          }
+          // Flush the remaining bytes
+          currentClient.write(&writeBuf[0], size_t(pos));
+        } else {
+          currentClient.write("HTTP/1.1 404");
+          currentClient.write("\r\n\r\n");
+          currentClient.write(getValue.c_str());
+          currentClient.write(" Not Found!");
+        }
       }
     }
     getValue = String();
     currentClient.stop();
     requestFinished = false;
     lastByteReceived = 0;
+    bodyBuf = String();
   }
   server.close();
   ui->closeCurrent();
