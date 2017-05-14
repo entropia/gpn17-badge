@@ -13,25 +13,25 @@
         <div class="navbar-header">
             <a class="navbar-brand" href="/">GPN Badge</a>
         </div>
-            <ul class="nav navbar-nav">
-                <li class="active"><a href="/">Customize</a></li>
-                <li><a href="/about.html">Specs</a></li>
-            </ul>
+        <ul class="nav navbar-nav">
+            <li class="active"><a href="/">Customize</a></li>
+            <li><a href="/about.html">Specs</a></li>
+        </ul>
     </div>
 </nav>
 <div class="container">
     <h1>Customize your badge</h1>
-    	<form action="/name-conf" action="POST">
-	Name <input type="text" name="name" placeholder="Your Nick" class="badgeconfinput"/>
-	</form>
+    Name <input class="form-control badgeconfinput" type="text" name="name" id="nick" placeholder="Your Nick"
+                class="badgeconfinput"/>
+    <button id="name-save-btn" class="btn btn-success badgeconfinput">Save</button>
     <h1>Configure your Badge</h1>
     <h2>Select Network</h2>
     <div class="alert alert-info" id="info-box">Please wait...</div>
-	<select class="badgeconfinput" id="net-select" name="net-select">
-		<option value="-1">No network selected...</option>
-	</select>
+    <select class="badgeconfinput" id="net-select" name="net-select">
+        <option value="-1">No network selected...</option>
+    </select>
     <button id="scan-btn" class="btn btn-primary badgeconfinput">Scan</button>
-    <input type="text" name="wifi-pw" id="wifi-pw" class="badgeconfinput">
+    <input type="text" name="wifi-pw" id="wifi-pw" class="badgeconfinput form-control">
     <button id="connect-btn" class="btn btn-success disabled badgeconfinput" disabled>Connect</button>
 </div>
 <script src="/js/jq.min.js"></script>

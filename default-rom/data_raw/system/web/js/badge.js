@@ -44,7 +44,7 @@ $(document).ready(function () {
         }
         lock();
         $('#info-box').html("Connecting... Please wait.");
-        $.post("/api/conf-wifi", {net: $('#net-select').val(), pw: $('#wifi-pw').val()}, function (data) {
+        $.post("/api/conf/wifi", {net: $('#net-select').val(), pw: $('#wifi-pw').val()}, function (data) {
             if (data == "true") {
                 $('#info-box').html('<strong>Successfully connected!</strong> The configuration is saved and will be used.');
             } else {
@@ -52,6 +52,16 @@ $(document).ready(function () {
             }
             unlock();
         });
+    });
+    $('#name-save-btn').on('click', function () {
+        if (locked) {
+            return;
+        }
+        lock();
+        $.post("/api/conf/nick", {nick: $('#net-nick').val()}, function (data) {
+            alert(data);
+        });
+        unlock();
     });
     $('#net-select').change(function () {
         if (scanRes == null || $('#net-select').val() == '-1') {
