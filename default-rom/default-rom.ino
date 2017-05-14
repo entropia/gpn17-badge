@@ -193,7 +193,7 @@ void initialConfig() {
     headBuf = String();
     if (isPost) {
       requestFinished = false;
-      bool wasNl = false; 
+      bool wasNl = false;
       bool headerFinished = false;
       lastByteReceived = millis();
       while ((lastByteReceived == 0 || millis() - lastByteReceived < WEB_SERVER_CLIENT_TIMEOUT) && !requestFinished) {
@@ -220,8 +220,12 @@ void initialConfig() {
       Serial.print("body: ");
       Serial.println(bodyBuf);
     } else {
+      if (getValue.startsWith("/api/")) {
+      currentClient.write("HTTP/1.1 200\r\n");
+        currentClient.write("Cache-Control: no-cache\r\n");
+      }
       if (getValue == "/api/wifi/scan") {
-        pixels.setPixelColor(0, pixels.Color(0, 0, 20));
+      pixels.setPixelColor(0, pixels.Color(0, 0, 20));
         pixels.setPixelColor(1, pixels.Color(0, 0, 20));
         pixels.setPixelColor(2, pixels.Color(0, 0, 20));
         pixels.setPixelColor(3, pixels.Color(0, 0, 20));
@@ -232,9 +236,6 @@ void initialConfig() {
         pixels.setPixelColor(2, pixels.Color(0, 0, 0));
         pixels.setPixelColor(3, pixels.Color(0, 0, 0));
         pixels.show();
-
-        currentClient.write("HTTP/1.1 200\r\n");
-        currentClient.write("Cache-Control: no-cache\r\n");
         currentClient.write("Content-Type: application/json");
         currentClient.write("\r\n\r\n");
         currentClient.write("[");
@@ -255,6 +256,26 @@ void initialConfig() {
           }
         }
         currentClient.write("]");
+      } else if (getValue == "/api/wifi/status") {
+      int stat = WiFi.status();
+        currentClient.write("\r\n\r\n");
+        if (stat == WL_DISCONNECTED) {
+          currentClient.write("Disconnected");
+        } else if (stat == WL_CONNECTION_LOST) {
+          currentClient.write("Connection lost");
+        } else if (stat == WL_CONNECTED) {
+          currentClient.write("Connected to '");
+          currentClient.write(WiFi.SSID().c_str());
+          currentClient.write("'");
+        } else if (stat == WL_IDLE_STATUS) {
+          currentClient.write("Idle");
+        } else if (stat == WL_CONNECT_FAILED) {
+          currentClient.write("Connection failed");
+        } else {
+          currentClient.write("Unknown (");
+          currentClient.write(String(stat).c_str());
+          currentClient.write(")");
+        }
       } else {
         if (getValue == "/") {
           getValue = "/index.html";
@@ -282,6 +303,7 @@ void initialConfig() {
           }
           // Flush the remaining bytes
           currentClient.write(&writeBuf[0], size_t(pos));
+          file.close();
         } else {
           currentClient.write("HTTP/1.1 404");
           currentClient.write("\r\n\r\n");
@@ -291,10 +313,12 @@ void initialConfig() {
       }
     }
     getValue = String();
+    currentClient.flush();
     currentClient.stop();
     requestFinished = false;
     lastByteReceived = 0;
     bodyBuf = String();
+    Serial.println("Finished client.");
   }
   server.close();
   ui->closeCurrent();
