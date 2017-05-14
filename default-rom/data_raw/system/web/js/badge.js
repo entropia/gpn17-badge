@@ -9,6 +9,7 @@ var encTypes = {
 var scanRes = null;
 var locked = false;
 $(document).ready(function () {
+    updateWifiStatus();
     $('#wifi-pw').hide();
     $('#scan-btn').on('click', function () {
         if (locked) {
@@ -113,3 +114,11 @@ function unlock() {
     elems.removeAttr("disabled");
     elems.removeClass("disabled");
 }
+
+function updateWifiStatus(){
+    $.get('/api/wifi/status', function(data) {
+        $('#wifi-status').html(data);
+        setTimeout(updateWifiStatus,5000);
+    });
+}
+
