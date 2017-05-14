@@ -18,7 +18,7 @@ def scan():
         [{'id': i, 'ssid': 'Net' + str(i), 'rssi': '-20', 'encType': 4 if i % 2 == 0 else 7} for i in range(0, 10)])
 
 
-@app.route('/api/conf-wifi', methods=['POST'])
+@app.route('/api/conf/wifi', methods=['POST'])
 def conf_wifi():
     # Simulate connect
     sleep(5)
@@ -27,6 +27,13 @@ def conf_wifi():
     if pw == "correct" or id % 2 != 0:
         return "true"
     return "false"
+
+
+@app.route('/api/conf/nick', methods=['POST'])
+def conf_nick():
+    # Simulate save
+    sleep(1)
+    return "true"
 
 
 if __name__ == '__main__':
