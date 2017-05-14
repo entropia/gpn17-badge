@@ -3,7 +3,8 @@ var encTypes = {
     2: "TKIP",
     4: "CCMP",
     7: "OPEN",
-    8: "AUTO"
+    8: "AUTO",
+    255: "UNSUPPORTED"
 };
 var scanRes = null;
 var locked = false;
@@ -26,6 +27,9 @@ $(document).ready(function () {
                 text: 'No network selected...'
             }));
             $.each(res, function (i, field) {
+                if(encTypes[field.encType] == "UNSUPPORTED") {
+                    return;
+                }
                 netlist.append($('<option>', {
                     value: field.id,
                     text: (field.ssid + ' (' + encTypes[field.encType] + ', ' + field.rssi + 'dB)')
