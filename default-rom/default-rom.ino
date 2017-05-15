@@ -1,11 +1,14 @@
+#include <rboot.h>
+
 #define DEBUG
 
 #include <GPNBadge.hpp>
 
-#define WEB_SERVER_BUFFER_SIZE 20
+#define WEB_SERVER_BUFFER_SIZE 40
 #define WEB_SERVER_CLIENT_TIMEOUT 100
 
 #include <BadgeUI.h>
+#include "url-encode.h"
 #include <FS.h>
 
 const char* ssid = "entropia"; // Put your SSID here
@@ -23,7 +26,7 @@ const char* password = "pw"; // Put your PASSWORD here
 
 Badge badge;
 WindowSystem* ui = new WindowSystem(&tft);
-
+char writeBuf[WEB_SERVER_BUFFER_SIZE];
 
 void setup() {
   badge.init();
@@ -131,7 +134,7 @@ void connectBadge() {
 }
 
 void initialConfig() {
-  char writeBuf[WEB_SERVER_BUFFER_SIZE];
+  Serial.printf("Free heap at init: %d\n", ESP.getFreeHeap());
   WiFi.mode(WIFI_AP_STA);
   WiFi.softAPConfig(IPAddress (10, 0, 0, 1), IPAddress(10, 0, 0, 1), IPAddress(255, 255, 255, 0));
   char pw[20];
@@ -153,6 +156,7 @@ void initialConfig() {
   unsigned long lastByteReceived = 0;
   bool requestFinished = false;
   bool isPost = false;
+  Serial.printf("Free before loop: %d\n", ESP.getFreeHeap());
   while (true) {
     if (WiFi.softAPgetStationNum() == 0) {
       connectWizard(ssid, pw, webStatus);
@@ -216,18 +220,60 @@ void initialConfig() {
       }
       Serial.print("body: ");
       Serial.println(bodyBuf);
+      if(getValue == "/api/conf/wifi") {
+        UrlDecode dec(bodyBuf.c_str());
+        Serial.println("decoder");
+        char* confNet = dec.getKey("net");
+        char* confPw = dec.getKey("pw");
+        WiFi.begin(ssid, password);
+        Serial.println("Trying connect..");
+        int wStat = WiFi.status();
+        int ledVal = 0;
+        bool up = true;
+        while (wStat != WL_CONNECTED || wStat != WL_CONNECT_FAILED ) {
+           pixels.setPixelColor(1, pixels.Color(0, 0, ledVal));
+           pixels.setPixelColor(2, pixels.Color(0, 0, ledVal));
+           pixels.setPixelColor(3, pixels.Color(0, 0, ledVal));
+           pixels.setPixelColor(0, pixels.Color(0, 0, ledVal));
+           pixels.show();
+           Serial.print(".");
+           if(ledVal == 100) {
+            up = false;
+           }
+           if(ledVal == 0) {
+            up = true;
+           }
+           if(up) {
+            ledVal++;
+           } else {
+            ledVal--; 
+           }
+           delay(10);
+           wStat = WiFi.status();
+        }
+        currentClient.write("HTTP/1.1 200\r\n");
+        currentClient.write("Cache-Control: no-cache\r\n");
+        if(wStat == WL_CONNECTED) {
+          currentClient.write("true");
+        } else {
+          currentClient.write("false");
+        }
+        delete confNet;
+        delete confPw;
+      }
     } else {
       if (getValue.startsWith("/api/")) {
-      currentClient.write("HTTP/1.1 200\r\n");
+        currentClient.write("HTTP/1.1 200\r\n");
         currentClient.write("Cache-Control: no-cache\r\n");
       }
       if (getValue == "/api/wifi/scan") {
-      pixels.setPixelColor(0, pixels.Color(0, 0, 20));
+        pixels.setPixelColor(0, pixels.Color(0, 0, 20));
         pixels.setPixelColor(1, pixels.Color(0, 0, 20));
         pixels.setPixelColor(2, pixels.Color(0, 0, 20));
         pixels.setPixelColor(3, pixels.Color(0, 0, 20));
         pixels.show();
         int n = WiFi.scanNetworks();
+        delay(2000);
         pixels.setPixelColor(0, pixels.Color(0, 0, 0));
         pixels.setPixelColor(1, pixels.Color(0, 0, 0));
         pixels.setPixelColor(2, pixels.Color(0, 0, 0));
@@ -238,23 +284,20 @@ void initialConfig() {
         currentClient.write("[");
         for (int i = 0; i < n; ++i)
         {
-          currentClient.write("{");
-          currentClient.write("\"id\":");
-          currentClient.write(String(i).c_str());
-          currentClient.write(",\"ssid\":\"");
-          currentClient.write(WiFi.SSID(i).c_str());
-          currentClient.write("\",\"rssi\":");
-          currentClient.write(String(WiFi.RSSI(i)).c_str());
-          currentClient.write(",\"encType\":");
-          currentClient.write(String(WiFi.encryptionType(i)).c_str());
-          currentClient.write("}");
+          currentClient.printf("{\"id\": %d", i);
+          currentClient.printf(",\"ssid\":\"%s\"", WiFi.SSID(i).c_str());
+          currentClient.printf(",\"rssi\": %d", WiFi.RSSI(i));
+          currentClient.printf(",\"encType\": %d", WiFi.encryptionType(i));
+          Serial.printf("Check >0: %d\n", currentClient.write("}"));
           if (i + 1 < n) {
             currentClient.write(",");
           }
+          Serial.printf("Free heap in json write: %d\n", ESP.getFreeHeap());
+          currentClient.flush();
         }
         currentClient.write("]");
       } else if (getValue == "/api/wifi/status") {
-      int stat = WiFi.status();
+        int stat = WiFi.status();
         currentClient.write("\r\n\r\n");
         if (stat == WL_DISCONNECTED) {
           currentClient.write("Disconnected");
@@ -269,9 +312,7 @@ void initialConfig() {
         } else if (stat == WL_CONNECT_FAILED) {
           currentClient.write("Connection failed");
         } else {
-          currentClient.write("Unknown (");
-          currentClient.write(String(stat).c_str());
-          currentClient.write(")");
+          currentClient.printf("Unknown (%d)", stat);
         }
       } else {
         if (getValue == "/") {
@@ -316,6 +357,7 @@ void initialConfig() {
     lastByteReceived = 0;
     bodyBuf = String();
     Serial.println("Finished client.");
+    Serial.printf("Free heap: %d\n", ESP.getFreeHeap());
   }
   server.close();
   ui->closeCurrent();
