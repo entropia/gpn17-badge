@@ -8,8 +8,11 @@ UrlDecode::UrlDecode(const char * url_encoded) {
     memcpy(this->url_encoded, url_encoded, len);
 }
 
-inline bool parse_hex_char(unsigned char * result, char c)
-{
+UrlDecode::~UrlDecode() {
+    delete[] url_encoded;
+}
+
+inline bool parse_hex_char(unsigned char * result, char c) {
         if ('0' <= c && c <= '9') {
             *result = c - '0';
             return true;
