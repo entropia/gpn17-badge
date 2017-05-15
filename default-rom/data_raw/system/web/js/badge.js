@@ -116,9 +116,12 @@ function unlock() {
 }
 
 function updateWifiStatus(){
+    if(locked) {
+        setTimeout(updateWifiStatus,5000);
+        return;
+    }
     $.get('/api/wifi/status', function(data) {
         $('#wifi-status').html(data);
         setTimeout(updateWifiStatus,5000);
     });
 }
-
