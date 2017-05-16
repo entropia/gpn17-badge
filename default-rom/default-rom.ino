@@ -109,21 +109,43 @@ void loop() {
 }
 
 void connectBadge() {
+  int ledVal = 0;
+  bool up = true;
   WiFi.mode(WIFI_STA);
-  //WiFi.begin(ssid, password);
-  tft.setCursor(2, 22);
-  tft.print("Connecting");
-  tft.setCursor(63, 22);
-  uint8_t cnt = 0;
+  Serial.println("Loading config.");
+  File wifiConf = SPIFFS.open("wifi.conf", "r");
+  String configString;
+  while(wifiConf.available()) {
+    configString += char(wifiConf.read());
+  }
+  wifiConf.close();
+  UrlDecode confParse(configString.c_str());
+  Serial.println(configString);
+  configString = String();
+  char* ssid = confParse.getKey("ssid");
+  char* pw = confParse.getKey("pw");
+  Serial.printf("Connecting ti wifi '%s' with password '%s'...\n", ssid, pw);
+  WiFi.begin(ssid, pw);
+  delete[] ssid;
+  delete[] pw;
   while (WiFi.status() != WL_CONNECTED) {
-    Serial.print(".");
-    tft.print(".");
-    cnt++;
-    if (cnt % 4 == 0) {
-      tft.fillRect(63, 22, 30, 10, BLACK);
-      tft.setCursor(63, 22);
+    pixels.setPixelColor(1, pixels.Color(0, 0, ledVal));
+    pixels.setPixelColor(2, pixels.Color(0, 0, ledVal));
+    pixels.setPixelColor(3, pixels.Color(0, 0, ledVal));
+    pixels.setPixelColor(0, pixels.Color(0, 0, ledVal));
+    pixels.show();
+    if(ledVal == 100) {
+      up = false;
     }
-    delay(250);
+    if(ledVal == 0) {
+      up = true;
+    }
+    if(up) {
+      ledVal++;
+    } else {
+      ledVal--; 
+    }
+    delay(10);
   }
   Serial.println("WiFi connected");
   Serial.println("");
@@ -231,10 +253,11 @@ void initialConfig() {
         Serial.println("Open config file");
         File wifiStore = SPIFFS.open("wifi.conf", "w");
         Serial.println("Write config file");
-        urlEncodeWriteKeyValue(confNet,confPw,wifiStore);
+        urlEncodeWriteKeyValue("pw",confPw,wifiStore);
+        urlEncodeWriteKeyValue("ssid",confNet,wifiStore);
         wifiStore.close();
         Serial.println("Done writing config");
-        WiFi.begin(WiFi.SSID(atoi(confNet)).c_str(), confPw); // quick fix.. chnage in js
+        WiFi.begin(confNet, confPw); // quick fix.. chnage in js
         Serial.printf("Trying connect to %s...\n", confNet);
         int wStat = WiFi.status();
         int ledVal = 0;
@@ -444,6 +467,7 @@ String getContentType(String filename) {
   else if (filename.endsWith(".json")) return "application/json";
   return "text/plain";
 }
+
 
 
 
