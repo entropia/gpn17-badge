@@ -64,8 +64,8 @@ void setup() {
 
   badge.setAnalogMUX(MUX_JOY);
 
-  if (SPIFFS.exists("/config.json")) {
-    Serial.print("Found config.json");
+  if (SPIFFS.exists("wifi.conf")) {
+    Serial.print("Found wifi config");
     connectBadge();
   } else {
     initialConfig();
@@ -228,18 +228,26 @@ void initialConfig() {
         Serial.println("decoder");
         char* confNet = dec.getKey("net");
         char* confPw = dec.getKey("pw");
-        WiFi.begin(ssid, password);
-        Serial.println("Trying connect..");
+        Serial.println("Open config file");
+        File wifiStore = SPIFFS.open("wifi.conf", "w");
+        Serial.println("Write config file");
+        urlEncodeWriteKeyValue(confNet,confPw,wifiStore);
+        wifiStore.close();
+        Serial.println("Done writing config");
+        WiFi.begin(WiFi.SSID(atoi(confNet)).c_str(), confPw); // quick fix.. chnage in js
+        Serial.printf("Trying connect to %s...\n", confNet);
         int wStat = WiFi.status();
         int ledVal = 0;
         bool up = true;
-        while (wStat != WL_CONNECTED || wStat != WL_CONNECT_FAILED ) {
+        while (wStat != WL_CONNECTED) {
+           if(wStat == WL_CONNECT_FAILED) {
+            break;
+           }
            pixels.setPixelColor(1, pixels.Color(0, 0, ledVal));
            pixels.setPixelColor(2, pixels.Color(0, 0, ledVal));
            pixels.setPixelColor(3, pixels.Color(0, 0, ledVal));
            pixels.setPixelColor(0, pixels.Color(0, 0, ledVal));
            pixels.show();
-           Serial.print(".");
            if(ledVal == 100) {
             up = false;
            }
@@ -253,6 +261,7 @@ void initialConfig() {
            }
            delay(10);
            wStat = WiFi.status();
+           Serial.printf("Wstat: %d\n", wStat);
         }
         pixels.setPixelColor(1, pixels.Color(0, 0, 0));
         pixels.setPixelColor(2, pixels.Color(0, 0, 0));
@@ -266,8 +275,8 @@ void initialConfig() {
         } else {
           currentClient.write("false");
         }
-        delete confNet;
-        delete confPw;
+        delete[] confNet;
+        delete[] confPw;
       }
     } else {
       if (getValue.startsWith("/api/")) {
@@ -435,5 +444,6 @@ String getContentType(String filename) {
   else if (filename.endsWith(".json")) return "application/json";
   return "text/plain";
 }
+
 
 
