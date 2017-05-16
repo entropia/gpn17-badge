@@ -251,6 +251,11 @@ void initialConfig() {
            delay(10);
            wStat = WiFi.status();
         }
+        pixels.setPixelColor(1, pixels.Color(0, 0, 0));
+        pixels.setPixelColor(2, pixels.Color(0, 0, 0));
+        pixels.setPixelColor(3, pixels.Color(0, 0, 0));
+        pixels.setPixelColor(0, pixels.Color(0, 0, 0));
+        pixels.show();
         currentClient.write("HTTP/1.1 200\r\n");
         currentClient.write("Cache-Control: no-cache\r\n");
         if(wStat == WL_CONNECTED) {
