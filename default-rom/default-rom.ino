@@ -109,6 +109,8 @@ void loop() {
 }
 
 void connectBadge() {
+  ui->root->setSub("Loading...");
+  ui->draw();
   int ledVal = 0;
   bool up = true;
   WiFi.mode(WIFI_STA);
@@ -126,7 +128,6 @@ void connectBadge() {
   char* pw = confParse.getKey("pw");
   Serial.printf("Connecting ti wifi '%s' with password '%s'...\n", ssid, pw);
   WiFi.begin(ssid, pw);
-  delete[] ssid;
   delete[] pw;
   while (WiFi.status() != WL_CONNECTED) {
     pixels.setPixelColor(1, pixels.Color(0, 0, ledVal));
@@ -141,21 +142,22 @@ void connectBadge() {
       up = true;
     }
     if(up) {
+      ui->root->setSub("Connecting...");
+      ui->draw();
       ledVal++;
     } else {
+      ui->root->setSub(ssid);
+      ui->draw();
       ledVal--; 
     }
     delay(10);
   }
+  delete[] ssid;
   Serial.println("WiFi connected");
   Serial.println("");
   Serial.println(WiFi.localIP());
-
-  tft.setTextColor(GREEN);
-  tft.setCursor(2, 42);
-  tft.print("WiFi connected!");
-  tft.setCursor(2, 52);
-  tft.print(WiFi.localIP());
+  ui->root->setSub(WiFi.localIP().toString(), 0, 105);
+  ui->draw();
 }
 
 void initialConfig() {
