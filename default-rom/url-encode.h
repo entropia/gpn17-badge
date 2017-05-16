@@ -1,5 +1,6 @@
 #ifndef URLENCODE_H
 #define URLENCODE_H
+#include <Stream.h>
 
 class UrlDecode {
 public:
@@ -14,4 +15,6 @@ private:
     char * url_encoded;
 };
 
+void urlEncodeWriteKeyValue(const char * key, const char * value, Stream & stream); 
 #endif //URLENCODE_H
+

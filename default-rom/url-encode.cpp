@@ -1,6 +1,26 @@
 #include "url-encode.h"
 #include <string.h>
 
+void writeEscaped(const char * c, Stream & stream) {
+  while(*c) {
+    if(*c == '=') {
+        stream.write("%3d");
+    } else if(*c == '&') {
+        stream.write("%26");
+    } else {
+        stream.write(*c);
+    }
+    c++;
+  }
+}
+
+void urlEncodeWriteKeyValue(const char * key, const char * value, Stream & stream){
+  writeEscaped(key, stream);
+  stream.write('=');
+  writeEscaped(value, stream);
+  stream.write('&');
+} 
+
 
 UrlDecode::UrlDecode(const char * url_encoded) {
     size_t len = strlen(url_encoded) + 1;
@@ -156,3 +176,4 @@ char * UrlDecode::getKey(const char * key) {
     }
 
 }
+
