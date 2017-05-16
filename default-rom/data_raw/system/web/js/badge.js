@@ -27,18 +27,20 @@ $(document).ready(function () {
                 value: -1,
                 text: 'No network selected...'
             }));
+	    var real_length = 0;
             $.each(res, function (i, field) {
                 if(encTypes[field.encType] == "UNSUPPORTED") {
                     return;
                 }
                 netlist.append($('<option>', {
-                    value: field.ssid,
+                    value: field.id,
                     text: (field.ssid + ' (' + encTypes[field.encType] + ', ' + field.rssi + 'dB)')
                 }));
+		real_length++;
             });
             $('#scan-btn').removeAttr("disabled");
             $('#scan-btn').removeClass("disabled");
-            $('#info-box').html('Scan Done. Found <strong>' + res.length + '</strong> networks.<br/>Ready.');
+            $('#info-box').html('Scan Done. Found <strong>' + real_length + '</strong> supported networks.<br/>Ready.');
             unlock();
             netlist.change();
         });
@@ -49,7 +51,7 @@ $(document).ready(function () {
         }
         lock();
         $('#info-box').html("Connecting... Please wait.");
-        $.post("/api/conf/wifi", {net: $('#net-select').val(), pw: $('#wifi-pw').val()}, function (data) {
+        $.post("/api/conf/wifi", {net: scanRes[$('#net-select').val()].ssid, pw: $('#wifi-pw').val()}, function (data) {
             if (data == "true") {
                 $('#info-box').html('<strong>Successfully connected!</strong> The configuration is saved and will be used.');
             } else {
