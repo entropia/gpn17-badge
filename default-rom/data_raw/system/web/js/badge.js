@@ -32,7 +32,7 @@ $(document).ready(function () {
                     return;
                 }
                 netlist.append($('<option>', {
-                    value: field.id,
+                    value: field.ssid,
                     text: (field.ssid + ' (' + encTypes[field.encType] + ', ' + field.rssi + 'dB)')
                 }));
             });
