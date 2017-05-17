@@ -65,7 +65,7 @@ void setup() {
 
   badge.setAnalogMUX(MUX_JOY);
 
-  if (SPIFFS.exists("wifi.conf")) {
+  if (SPIFFS.exists("/wifi.conf")) {
     Serial.print("Found wifi config");
     connectBadge();
   } else {
@@ -78,7 +78,7 @@ void loop() {
   badge.setAnalogMUX(MUX_JOY);
   delay(10);
   uint16_t adc = analogRead(A0);
-  Serial.println(adc);
+  //Serial.println(adc);
 
   if (adc < UP + OFFSET && adc > UP - OFFSET) {
     pixels.setPixelColor(0, pixels.Color(0, 50, 50));
@@ -134,13 +134,62 @@ void pullNotifications() {
           String url_file_name = channelDir;
 
           File url_file = SPIFFS.open(url_file_name, "r");
+          String host;
           String url;
+          bool read_host = true;
           while (url_file.available()) {
             char r = char(url_file.read());
-            url += r;
+            if (r == '\n') {
+                read_host = false;
+            } else {
+                if (read_host) {
+                    host += r;
+                } else {
+                    url += r;
+                }
+            }
           }
+          Serial.print("host: ");
+          Serial.println(host);
           Serial.print("url: ");
           Serial.println(url);
+
+          WiFiClientSecure client;
+          Serial.print("connecting to ");
+          Serial.println(host);
+          if (!client.connect(host.c_str(), 443)) {
+            Serial.println("connection failed");
+            continue;
+          }
+          /*
+  if (client.verify(fingerprint, host.c_str())) {
+    Serial.println("certificate matches");
+  } else {
+    Serial.println("certificate doesn't match");
+  }
+  */
+  Serial.print("requesting URL: ");
+  Serial.println(url);
+
+  client.print(String("GET ") + url + " HTTP/1.1\r\n" +
+               "Host: " + host + "\r\n" +
+               "User-Agent: BuildFailureDetectorESP8266\r\n" +
+               "Connection: close\r\n\r\n");
+
+  Serial.println("request sent");
+  while (client.connected()) {
+    String line = client.readStringUntil('\n');
+    if (line == "\r") {
+      Serial.println("headers received");
+      break;
+    }
+  }
+  String line = client.readStringUntil('\n');
+  Serial.println("reply was:");
+  Serial.println("==========");
+  Serial.println(line);
+  Serial.println("==========");
+  Serial.println("closing connection");
         }
         
         entry.close();
@@ -155,7 +204,7 @@ void connectBadge() {
   bool up = true;
   WiFi.mode(WIFI_STA);
   Serial.println("Loading config.");
-  File wifiConf = SPIFFS.open("wifi.conf", "r");
+  File wifiConf = SPIFFS.open("/wifi.conf", "r");
   String configString;
   while (wifiConf.available()) {
     configString += char(wifiConf.read());
@@ -306,7 +355,7 @@ void initialConfig() {
         char* confNet = dec.getKey("net");
         char* confPw = dec.getKey("pw");
         Serial.println("Open config file");
-        File wifiStore = SPIFFS.open("wifi.conf", "w");
+        File wifiStore = SPIFFS.open("/wifi.conf", "w");
         Serial.println("Write config file");
         urlEncodeWriteKeyValue("pw", confPw, wifiStore);
         urlEncodeWriteKeyValue("ssid", confNet, wifiStore);
@@ -534,6 +583,9 @@ String getContentType(String filename) {
   else if (filename.endsWith(".json")) return "application/json";
   return "text/plain";
 }
+
+
+
 
 
 
