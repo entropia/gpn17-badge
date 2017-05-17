@@ -121,6 +121,7 @@ void connectBadge() {
   char* ssid = confParse.getKey("ssid");
   char* pw = confParse.getKey("pw");
   Serial.printf("Connecting ti wifi '%s' with password '%s'...\n", ssid, pw);
+  unsigned long startTime = millis();
   WiFi.begin(ssid, pw);
   delete[] pw;
   while (WiFi.status() != WL_CONNECTED) {
@@ -143,6 +144,18 @@ void connectBadge() {
       ui->root->setSub(ssid);
       ui->draw();
       ledVal--; 
+    }
+    if(millis() - startTime > 30*1000) {
+      ui->root->setSub("Error ;(");
+      pixels.setPixelColor(1, pixels.Color(50, 0, 0));
+      pixels.setPixelColor(2, pixels.Color(50, 0, 0));
+      pixels.setPixelColor(3, pixels.Color(50, 0, 0));
+      pixels.setPixelColor(0, pixels.Color(50, 0, 0));
+      pixels.show();
+      ui->draw();
+      delay(5000);
+      initialConfig();
+      ESP.restart();
     }
     delay(10);
   }
