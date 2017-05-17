@@ -102,6 +102,12 @@ void loop() {
   delay(100);
 }
 
+void setNick(const char* nick) {
+  File nickStore = SPIFFS.open("nick.conf", "w");
+  urlEncodeWriteKeyValue("nick", nick, nickStore);
+  nickStore.close();
+}
+
 void connectBadge() {
   ui->root->setSub("Loading...");
   ui->draw();
@@ -111,7 +117,7 @@ void connectBadge() {
   Serial.println("Loading config.");
   File wifiConf = SPIFFS.open("wifi.conf", "r");
   String configString;
-  while(wifiConf.available()) {
+  while (wifiConf.available()) {
     configString += char(wifiConf.read());
   }
   wifiConf.close();
@@ -130,22 +136,22 @@ void connectBadge() {
     pixels.setPixelColor(3, pixels.Color(0, 0, ledVal));
     pixels.setPixelColor(0, pixels.Color(0, 0, ledVal));
     pixels.show();
-    if(ledVal == 100) {
+    if (ledVal == 100) {
       up = false;
     }
-    if(ledVal == 0) {
+    if (ledVal == 0) {
       up = true;
     }
-    if(up) {
+    if (up) {
       ui->root->setSub("Connecting...");
       ui->draw();
       ledVal++;
     } else {
       ui->root->setSub(ssid);
       ui->draw();
-      ledVal--; 
+      ledVal--;
     }
-    if(millis() - startTime > 30*1000) {
+    if (millis() - startTime > 30 * 1000) {
       ui->root->setSub("Error ;(");
       pixels.setPixelColor(1, pixels.Color(50, 0, 0));
       pixels.setPixelColor(2, pixels.Color(50, 0, 0));
@@ -254,7 +260,7 @@ void initialConfig() {
       }
       Serial.print("body: ");
       Serial.println(bodyBuf);
-      if(getValue == "/api/conf/wifi") {
+      if (getValue == "/api/conf/wifi") {
         UrlDecode dec(bodyBuf.c_str());
         Serial.println("decoder");
         char* confNet = dec.getKey("net");
@@ -262,8 +268,8 @@ void initialConfig() {
         Serial.println("Open config file");
         File wifiStore = SPIFFS.open("wifi.conf", "w");
         Serial.println("Write config file");
-        urlEncodeWriteKeyValue("pw",confPw,wifiStore);
-        urlEncodeWriteKeyValue("ssid",confNet,wifiStore);
+        urlEncodeWriteKeyValue("pw", confPw, wifiStore);
+        urlEncodeWriteKeyValue("ssid", confNet, wifiStore);
         wifiStore.close();
         Serial.println("Done writing config");
         WiFi.begin(confNet, confPw); // quick fix.. chnage in js
@@ -272,28 +278,28 @@ void initialConfig() {
         int ledVal = 0;
         bool up = true;
         while (wStat != WL_CONNECTED) {
-           if(wStat == WL_CONNECT_FAILED) {
+          if (wStat == WL_CONNECT_FAILED) {
             break;
-           }
-           pixels.setPixelColor(1, pixels.Color(0, 0, ledVal));
-           pixels.setPixelColor(2, pixels.Color(0, 0, ledVal));
-           pixels.setPixelColor(3, pixels.Color(0, 0, ledVal));
-           pixels.setPixelColor(0, pixels.Color(0, 0, ledVal));
-           pixels.show();
-           if(ledVal == 100) {
+          }
+          pixels.setPixelColor(1, pixels.Color(0, 0, ledVal));
+          pixels.setPixelColor(2, pixels.Color(0, 0, ledVal));
+          pixels.setPixelColor(3, pixels.Color(0, 0, ledVal));
+          pixels.setPixelColor(0, pixels.Color(0, 0, ledVal));
+          pixels.show();
+          if (ledVal == 100) {
             up = false;
-           }
-           if(ledVal == 0) {
+          }
+          if (ledVal == 0) {
             up = true;
-           }
-           if(up) {
+          }
+          if (up) {
             ledVal++;
-           } else {
-            ledVal--; 
-           }
-           delay(10);
-           wStat = WiFi.status();
-           Serial.printf("Wstat: %d\n", wStat);
+          } else {
+            ledVal--;
+          }
+          delay(10);
+          wStat = WiFi.status();
+          Serial.printf("Wstat: %d\n", wStat);
         }
         pixels.setPixelColor(1, pixels.Color(0, 0, 0));
         pixels.setPixelColor(2, pixels.Color(0, 0, 0));
@@ -302,13 +308,25 @@ void initialConfig() {
         pixels.show();
         currentClient.write("HTTP/1.1 200\r\n");
         currentClient.write("Cache-Control: no-cache\r\n");
-        if(wStat == WL_CONNECTED) {
+        if (wStat == WL_CONNECTED) {
           currentClient.write("true");
         } else {
           currentClient.write("false");
         }
         delete[] confNet;
         delete[] confPw;
+      } else if (getValue == "/api/conf/nick") { // Nickname configuration
+        UrlDecode nickUrlDecode(bodyBuf.c_str());
+        char* nick = nickUrlDecode.getKey("nick");
+        setNick(nick);
+        delete[] nick;
+        currentClient.write("HTTP/1.1 200\r\n");
+        currentClient.write("Cache-Control: no-cache\r\n\r\ntrue");
+      } else {
+        currentClient.write("HTTP/1.1 404");
+        currentClient.write("\r\n\r\n");
+        currentClient.write(getValue.c_str());
+        currentClient.write(" Not Found!");
       }
     } else {
       if (getValue.startsWith("/api/")) {
