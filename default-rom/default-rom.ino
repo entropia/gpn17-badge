@@ -30,6 +30,7 @@ const char* password = "pw"; // Put your PASSWORD here
 Badge badge;
 WindowSystem* ui = new WindowSystem(&tft);
 char writeBuf[WEB_SERVER_BUFFER_SIZE];
+unsigned long lastNotificationPull = 0;
 
 void setup() {
   badge.init();
@@ -106,12 +107,45 @@ void loop() {
   pixels.show();
   ui->draw();
   delay(100);
+
+  if (millis() - lastNotificationPull > 10000) {
+    pullNotifications();
+  }
 }
 
 void setNick(const char* nick) {
   File nickStore = SPIFFS.open("nick.conf", "w");
   urlEncodeWriteKeyValue("nick", nick, nickStore);
   nickStore.close();
+}
+
+void pullNotifications() {
+    Serial.println("pullNotifications()");
+    lastNotificationPull = millis();
+    Dir dir = SPIFFS.openDir("/notif/chan");
+
+    while(dir.next()){
+        File entry = dir.openFile("r");
+        String channelDir(entry.name());
+
+        if (channelDir.endsWith("/url")) {
+          Serial.print("Channel dir: ");
+          Serial.println(channelDir);
+          String url_file_name = channelDir;
+
+          File url_file = SPIFFS.open(url_file_name, "r");
+          String url;
+          while (url_file.available()) {
+            char r = char(url_file.read());
+            url += r;
+          }
+          Serial.print("url: ");
+          Serial.println(url);
+        }
+        
+        entry.close();
+    }
+
 }
 
 void connectBadge() {
