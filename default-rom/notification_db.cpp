@@ -118,7 +118,89 @@ void pullNotifications() {
     }
 
   }
+  syncStatesWithData();
 
+}
+
+void syncStatesWithData() {
+  Dir dir = SPIFFS.openDir("/notif/chan");
+
+  while(dir.next()){
+    File entry = dir.openFile("r");
+    String channelDir(entry.name());
+    entry.close();
+
+    if (channelDir.endsWith("/url")) {
+      String channel_dir_base = channelDir.substring(0, channelDir.length() - 3);
+      String data_file_name = channel_dir_base + "data";
+      String states_file_name = channel_dir_base + "states";
+      String new_states_file_name = channel_dir_base + "new_states";
+      
+      {
+        //Add new notifications to states
+        //Iterate data - find in states
+        //If found: copy to new states file
+        //Delete old states file
+        File data_file = SPIFFS.open(data_file_name, "r");
+        File new_states_file = SPIFFS.open(new_states_file_name, "w");
+        while (data_file.available()) {
+          String line = data_file.readStringUntil('\n');
+          UrlDecode decoder(line.c_str());
+          char * id_str = decoder.getKey("id");
+          Serial.print("data line id: ");
+          Serial.println(id_str);
+          if (id_str) {
+            File states_file = SPIFFS.open(states_file_name, "r");
+            bool found = false;
+            while (states_file.available()) {
+              String state_line = states_file.readStringUntil('\n');
+              UrlDecode state_decoder(state_line.c_str());
+              char * state_id_str = decoder.getKey("id");
+              if (state_id_str) {
+                if (strcmp(id_str, state_id_str) == 0) {
+                  Serial.println("Found id in states");
+                  new_states_file.println(state_line);
+                  delete state_id_str;
+                  found = true;
+                  break;
+                } else {
+                  delete state_id_str;
+                }
+              } else {
+                Serial.println("state line without id:");
+                Serial.println(state_line);
+              }
+            }
+            if (!found) {
+              //Not found in states file
+              Serial.println("Did not find id in states");
+              urlEncodeWriteKeyValue("id", id_str, new_states_file);
+              String notification_state_str(int(NotificationState::SCHEDULED));
+              urlEncodeWriteKeyValue("state", notification_state_str.c_str(), new_states_file);
+              new_states_file.println("");
+            }
+            
+            delete id_str;
+          } else {
+            Serial.println("data line without id:");
+            Serial.println(line);
+          }
+
+        }
+      }
+      SPIFFS.remove(states_file_name);
+      SPIFFS.rename(new_states_file_name, states_file_name);
+      {
+        Serial.println("states file:");
+        File states_file = SPIFFS.open(states_file_name, "r");
+        while (states_file.available()) {
+          String line = states_file.readStringUntil('\n');
+          Serial.println(line);
+        }
+      }
+    }
+
+  }
 }
 
 void deleteTimestampFiles() {

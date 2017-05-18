@@ -29,3 +29,5 @@ extern unsigned long lastNotificationPull;
 void deleteTimestampFiles();
 
 void pullNotifications();
+
+void syncStatesWithData();
