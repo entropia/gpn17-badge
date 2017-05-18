@@ -65,6 +65,8 @@ void setup() {
 
   badge.setAnalogMUX(MUX_JOY);
 
+  deleteTimestampFiles();
+
   if (SPIFFS.exists("/wifi.conf")) {
     Serial.print("Found wifi config");
     connectBadge();
@@ -132,21 +134,25 @@ void pullNotifications() {
           Serial.print("Channel dir: ");
           Serial.println(channelDir);
           String url_file_name = channelDir;
+          String channel_dir_base = url_file_name.substring(0, url_file_name.length() - 3);
 
-          File url_file = SPIFFS.open(url_file_name, "r");
           String host;
           String url;
-          bool read_host = true;
-          while (url_file.available()) {
-            char r = char(url_file.read());
-            if (r == '\n') {
-                read_host = false;
-            } else {
-                if (read_host) {
-                    host += r;
-                } else {
-                    url += r;
-                }
+
+          {
+            File url_file = SPIFFS.open(url_file_name, "r");
+            bool read_host = true;
+            while (url_file.available()) {
+              char r = char(url_file.read());
+              if (r == '\n') {
+                  read_host = false;
+              } else {
+                  if (read_host) {
+                      host += r;
+                  } else {
+                      url += r;
+                  }
+              }
             }
           }
           Serial.print("host: ");
@@ -154,13 +160,16 @@ void pullNotifications() {
           Serial.print("url: ");
           Serial.println(url);
 
-          String fingerprint_file_name = url_file_name.substring(0, url_file_name.length() - 3) + "fingerprint";
-          File fingerprint_file = SPIFFS.open(fingerprint_file_name, "r");
           String fingerprint;
-          while (fingerprint_file.available()) {
-            char r = char(fingerprint_file.read());
-            if (r == '\n') break;
-            fingerprint += r;
+          {
+            String fingerprint_file_name = channel_dir_base + "fingerprint";
+            File fingerprint_file = SPIFFS.open(fingerprint_file_name, "r");
+            
+            while (fingerprint_file.available()) {
+              char r = char(fingerprint_file.read());
+              if (r == '\n') break;
+              fingerprint += r;
+            }
           }
 
           Serial.print("Expected fingerprint: ");
@@ -197,17 +206,51 @@ void pullNotifications() {
               break;
             }
           }
-          String line = client.readStringUntil('\n');
-          Serial.println("reply was:");
-          Serial.println("==========");
-          Serial.println(line);
-          Serial.println("==========");
-          Serial.println("closing connection");
+
+          {
+            String timestamp_str = client.readStringUntil('\n');
+            String local_timestamp_str(millis());
+            Serial.print("server timestamp: ");
+            Serial.println(timestamp_str);
+            Serial.print("local timestamp: ");
+            Serial.println(local_timestamp_str);
+            String timestamp_file_name = channel_dir_base + "timestamp";
+            File timestamp_file = SPIFFS.open(timestamp_file_name, "w");
+            timestamp_file.println(timestamp_str);
+            timestamp_file.println(local_timestamp_str);
+          }
+          
+          {
+            String data_file_name = channel_dir_base + "data";
+            File data_file = SPIFFS.open(data_file_name, "w");
+            while (client.available()) {
+              uint8_t buf[128];
+              int n = client.read(buf, 128);
+              data_file.write(buf, n);
+              Serial.write(buf, n);
+            }
+          }
+          Serial.println("Data written to file");
         }
         
         entry.close();
     }
 
+}
+
+void deleteTimestampFiles() {
+  Serial.println("deleteTimestampFiles()");
+  Dir dir = SPIFFS.openDir("/notif/chan");
+  while(dir.next()){
+    File entry = dir.openFile("r");
+    String channelDir(entry.name());
+    entry.close();
+    if (channelDir.endsWith("/timestamp")) {
+      Serial.print("removing: ");
+      Serial.println(channelDir);
+      SPIFFS.remove(channelDir);
+    }
+  }
 }
 
 void connectBadge() {
