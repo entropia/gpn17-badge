@@ -154,6 +154,18 @@ void pullNotifications() {
           Serial.print("url: ");
           Serial.println(url);
 
+          String fingerprint_file_name = url_file_name.substring(0, url_file_name.length() - 3) + "fingerprint";
+          File fingerprint_file = SPIFFS.open(fingerprint_file_name, "r");
+          String fingerprint;
+          while (fingerprint_file.available()) {
+            char r = char(fingerprint_file.read());
+            if (r == '\n') break;
+            fingerprint += r;
+          }
+
+          Serial.print("Expected fingerprint: ");
+          Serial.println(fingerprint);
+
           WiFiClientSecure client;
           Serial.print("connecting to ");
           Serial.println(host);
@@ -161,35 +173,36 @@ void pullNotifications() {
             Serial.println("connection failed");
             continue;
           }
-          /*
-  if (client.verify(fingerprint, host.c_str())) {
-    Serial.println("certificate matches");
-  } else {
-    Serial.println("certificate doesn't match");
-  }
-  */
-  Serial.print("requesting URL: ");
-  Serial.println(url);
-
-  client.print(String("GET ") + url + " HTTP/1.1\r\n" +
-               "Host: " + host + "\r\n" +
-               "User-Agent: BuildFailureDetectorESP8266\r\n" +
-               "Connection: close\r\n\r\n");
-
-  Serial.println("request sent");
-  while (client.connected()) {
-    String line = client.readStringUntil('\n');
-    if (line == "\r") {
-      Serial.println("headers received");
-      break;
-    }
-  }
-  String line = client.readStringUntil('\n');
-  Serial.println("reply was:");
-  Serial.println("==========");
-  Serial.println(line);
-  Serial.println("==========");
-  Serial.println("closing connection");
+          
+          if (client.verify(fingerprint.c_str(), host.c_str())) {
+            Serial.println("fingerprint matches");
+          } else {
+            Serial.println("fingerprint doesn't match");
+            continue;
+          }
+  
+          Serial.print("requesting URL: ");
+          Serial.println(url);
+        
+          client.print(String("GET ") + url + " HTTP/1.1\r\n" +
+                       "Host: " + host + "\r\n" +
+                       "User-Agent: BuildFailureDetectorESP8266\r\n" +
+                       "Connection: close\r\n\r\n");
+        
+          Serial.println("request sent");
+          while (client.connected()) {
+            String line = client.readStringUntil('\n');
+            if (line == "\r") {
+              Serial.println("headers received");
+              break;
+            }
+          }
+          String line = client.readStringUntil('\n');
+          Serial.println("reply was:");
+          Serial.println("==========");
+          Serial.println(line);
+          Serial.println("==========");
+          Serial.println("closing connection");
         }
         
         entry.close();
