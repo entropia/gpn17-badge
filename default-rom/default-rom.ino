@@ -445,7 +445,7 @@ void connectWizard(char* ssid, char* pw, FullScreenBMPStatus* webStatus) {
   ui->open(webStatus);
   ui->draw();
   int last_b = millis();
-  int last_state = 0;
+  JoystickState last_state = JoystickState::BTN_NOTHING;
   bool b_state = false;
   while (true) {
     if (millis() - last_b > 1000) {
@@ -457,8 +457,8 @@ void connectWizard(char* ssid, char* pw, FullScreenBMPStatus* webStatus) {
       pixels.show();
       last_b = millis();
     }
-    int state = badge.getJoystickState();
-    if (state != NOTHING && state != last_state) {
+    JoystickState state = badge.getJoystickState();
+    if (state != JoystickState::BTN_NOTHING && state != last_state) {
       dispPw = !dispPw;
       if (dispPw) {
         webStatus->setBmp("/system/lock.bmp", 35, 6);
