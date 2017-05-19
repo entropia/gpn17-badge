@@ -417,6 +417,29 @@ void initialConfig() {
         } else {
           currentClient.printf("Unknown (%d)", stat);
         }
+      } else if (getValue == "/api/channels") {
+        currentClient.write("\r\n\r\n");
+        ChannelIterator channels;
+        currentClient.write("[");
+        bool first = true;
+        while (channels.next()) {
+          if (first) {
+            first = false;
+          } else {
+            currentClient.write(",");
+          }
+
+          currentClient.write("{\"num\":");
+          currentClient.print(channels.channelNum());
+          currentClient.write(", \"host\":\"");
+          currentClient.print(channels.host());
+          currentClient.write("\", \"url\":\"");
+          currentClient.print(channels.url());
+          currentClient.write("\", \"fingerprint\":\"");
+          currentClient.print(channels.fingerprint());
+          currentClient.write("\"}");
+        }
+        currentClient.write("]");
       } else {
         if (getValue == "/") {
           getValue = "/index.html";
