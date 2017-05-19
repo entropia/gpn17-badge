@@ -68,7 +68,8 @@ void setup() {
     connectBadge();
     mainMenu->addMenuItem(new MenuItem("Badge", [](){}));
     mainMenu->addMenuItem(new MenuItem("Notifications", [](){}));
-    mainMenu->addMenuItem(new MenuItem("Configuration", [](){}));
+    mainMenu->addMenuItem(new MenuItem("Configuration", [](){ initialConfig(); }));
+    mainMenu->addMenuItem(new MenuItem("Info", [](){}));
     mainMenu->addMenuItem(new MenuItem("Factory reset", [](){}));
     ui->open(mainMenu);
     pixels.setPixelColor(1, pixels.Color(0, 0, 0));
