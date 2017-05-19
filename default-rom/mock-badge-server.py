@@ -44,6 +44,21 @@ def wifi_status():
     global status
     return status
 
+@app.route('/api/channels')
+def channels():
+    sleep(0.1)
+    return json.dumps(
+            [{'num': i, 'host': 'pull.gpn.kit.fail', 'url': '/api/channel/chan' + str(i), 'fingerprint': 'AA BB CC DD EE FF'} for i in range(1, 4)])
+
+@app.route('/api/channels/add', methods=['POST'])
+def channels_add():
+    sleep(0.1)
+    return "true"
+
+@app.route('/api/channels/delete', methods=['POST'])
+def channels_delete():
+    sleep(0.1)
+    return "true"
 
 if __name__ == '__main__':
     app.run(host='localhost', port=5000, threaded=False, debug=True)

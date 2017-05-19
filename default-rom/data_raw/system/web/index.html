@@ -34,6 +34,18 @@
     <button id="scan-btn" class="btn btn-primary badgeconfinput">Scan</button>
     <input type="text" name="wifi-pw" id="wifi-pw" class="badgeconfinput form-control">
     <button id="connect-btn" class="btn btn-success disabled badgeconfinput" disabled>Connect</button>
+    <h2>Configure Notification Channels</h2>
+    <div id="channels">
+        <table class="table" id="channels-list">
+            <tr><th>Host</th><th>Url</th><th>Fingerprint</th><th></th></tr>
+            <tr>
+                <td><input type="text" name="chan-host" id="chan-host" /></td>
+                <td><input type="text" name="chan-url" id="chan-url" /></td>
+                <td><input type="text" name="chan-fingerprint" id="chan-fingerprint" /></td>
+                <td><button id="chan-add-btn" class="btn btn-success badgeconfinput">Add</button></td>
+            </tr>
+        </table>
+    </div>
 </div>
 <script src="/js/jq.min.js"></script>
 <script src="/js/badge.js"></script>

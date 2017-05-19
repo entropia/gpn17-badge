@@ -10,6 +10,7 @@ var scanRes = null;
 var locked = false;
 $(document).ready(function () {
     updateWifiStatus();
+    loadChannels();
     $('#wifi-pw').hide();
     $('#scan-btn').on('click', function () {
         if (locked) {
@@ -101,6 +102,20 @@ $(document).ready(function () {
             $('#connect-btn').addClass("disabled");
         }
     });
+    $('#chan-add-btn').on('click', function () {
+        if (locked) {
+            return;
+        }
+        lock();
+        $.post("/api/channels/add", {
+            host: $('#chan-host').val(),
+            url: $('#chan-url').val(),
+            fingerprint: $('#chan-fingerprint').val(),
+        }, function (data) {
+            unlock();
+            loadChannels();
+        });
+    });
     $('#info-box').html('Ready.');
 });
 function lock() {
@@ -125,5 +140,42 @@ function updateWifiStatus(){
     $.get('/api/wifi/status', function(data) {
         $('#wifi-status').html(data);
         setTimeout(updateWifiStatus,5000);
+    });
+}
+
+function loadChannels() {
+    if(locked) {
+        setTimeout(loadChannels, 5000);
+        return;
+    }
+    lock();
+    $.getJSON('/api/channels', function (res) {
+        $('.chan-list-entry').remove();
+        scanRes = res;
+        var channels_list = $('#channels-list');
+        $.each(res, function (i, field) {
+            var tr = $('<tr>').addClass('chan-list-entry');
+            tr.append($('<td>').text(field.host));
+            tr.append($('<td>').text(field.url));
+            tr.append($('<td>').append($('<code>').text(field.fingerprint)));
+            var delete_button = $('<button>', { 'class': "btn btn-success badgeconfinput", "onclick": "deleteChannel(" + field.num + ")"}).text('Delete');
+            tr.append($('<td>').append(delete_button));
+            channels_list.append(tr);
+        });
+        unlock();
+    });
+
+}
+
+function deleteChannel(num) {
+    if (locked) {
+        return;
+    }
+    lock();
+    $.post("/api/channels/delete", {
+        num: num,
+    }, function (data) {
+        unlock();
+        loadChannels();
     });
 }
