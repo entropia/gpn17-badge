@@ -215,6 +215,8 @@ void connectBadge() {
 
 void initialConfig() {
   Serial.printf("Free heap at init: %d\n", ESP.getFreeHeap());
+  WiFi.disconnect();
+  delay(100);
   WiFi.mode(WIFI_AP_STA);
   WiFi.softAPConfig(IPAddress (10, 0, 0, 1), IPAddress(10, 0, 0, 1), IPAddress(255, 255, 255, 0));
   char pw[20];
