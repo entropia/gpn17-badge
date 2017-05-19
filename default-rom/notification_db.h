@@ -11,8 +11,6 @@ struct Notification {
   String summary;
   String description;
   String location;
-  uint64_t valid_from;
-  uint64_t valid_to;
 };
 
 enum class NotificationState {
@@ -26,6 +24,10 @@ enum class NotificationState {
 struct __attribute__((__packed__)) NotificationStateEntry {
   int id;
   NotificationState state;
+  uint32_t valid_from;
+  uint32_t valid_to;
+
+  void updateState(uint32_t server_timestamp);
 };
 
 enum class NotificationFilter {
@@ -50,9 +52,11 @@ public:
   NotificationStateIterator(File state_file);
   bool next();
   NotificationStateEntry get();
+  void update(NotificationStateEntry entry);
 private:
   File state_file;
   NotificationStateEntry current;
+  size_t currentFilePosition;
 };
 
 class NotificationIterator {
@@ -77,3 +81,5 @@ void deleteTimestampFiles();
 void pullNotifications();
 
 void syncStatesWithData();
+
+void recalculateStates();
