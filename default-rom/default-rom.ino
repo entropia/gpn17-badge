@@ -90,8 +90,12 @@ void loop() {
     Serial.println("Iterate notifications: ");
     NotificationIterator notit(NotificationFilter::ALL);
     while(notit.next()) {
-      Notification noti = notit.get();
+      Notification noti = notit.getNotification();
       Serial.println(noti.id);
+      Serial.println(noti.summary);
+      Serial.println(noti.description);
+      Serial.println(noti.location);
+      Serial.println("---");
     }
   }
 }

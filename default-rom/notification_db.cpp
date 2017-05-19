@@ -124,6 +124,7 @@ void syncStatesWithData() {
       File data_file = channelIterator.file("data", "r");
       File new_states_file = channelIterator.file("new_states", "w");
       while (data_file.available()) {
+        size_t data_file_position = data_file.position();
         String line = data_file.readStringUntil('\n');
         UrlDecode decoder(line.c_str());
         char * id_str = decoder.getKey("id");
@@ -148,6 +149,7 @@ void syncStatesWithData() {
               Serial.println("Found id in states");
               entry.valid_from = valid_from;
               entry.valid_to = valid_to;
+              entry.data_file_position = data_file_position;
               new_states_file.write(reinterpret_cast<uint8_t*>(&entry), sizeof(NotificationStateEntry));
               found = true;
               break;
@@ -161,6 +163,7 @@ void syncStatesWithData() {
             entry.state = NotificationState::SCHEDULED;
             entry.valid_from = valid_from;
             entry.valid_to = valid_to;
+            entry.data_file_position = data_file_position;
             new_states_file.write(reinterpret_cast<uint8_t*>(&entry), sizeof(NotificationStateEntry));
           }
         } else {
@@ -360,15 +363,39 @@ bool NotificationIterator::next() {
         return false;
     }
 
-    Notification notif;
-    notif.id = entry.id;
-    currentNotification = notif;
+    current = entry;
 
     return true;
   }
   
 }
 
-Notification NotificationIterator::get() {
-  return currentNotification;
+NotificationStateEntry NotificationIterator::getStateEntry() {
+  return current;
+}
+
+Notification NotificationIterator::getNotification() {
+  File data_file = channels.file("data", "r");
+  data_file.seek(current.data_file_position, SeekSet);
+  String line = data_file.readStringUntil('\n');
+  UrlDecode decoder(line.c_str());
+  Notification noti;
+
+  char * id_str = decoder.getKey("id");
+  noti.id = atoi(id_str);
+  delete id_str;
+
+  char * summary_str = decoder.getKey("summary");
+  noti.summary = String(summary_str);
+  delete summary_str;
+
+  char * description_str = decoder.getKey("description");
+  noti.description = String(description_str);
+  delete description_str;
+
+  char * location_str = decoder.getKey("location");
+  noti.location = String(location_str);
+  delete location_str;
+
+  return noti;
 }

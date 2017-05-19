@@ -26,6 +26,7 @@ struct __attribute__((__packed__)) NotificationStateEntry {
   NotificationState state;
   uint32_t valid_from;
   uint32_t valid_to;
+  size_t data_file_position;
 
   void updateState(uint32_t server_timestamp);
 };
@@ -63,7 +64,8 @@ class NotificationIterator {
 public:
   NotificationIterator(NotificationFilter filter);
   bool next();
-  Notification get();
+  NotificationStateEntry getStateEntry();
+  Notification getNotification();
 
 private:
   bool nextStatesFile();
@@ -71,7 +73,7 @@ private:
   ChannelIterator channels;
   NotificationStateIterator notificationStateIterator;
   NotificationFilter filter;
-  Notification currentNotification;
+  NotificationStateEntry current;
 };
 
 extern unsigned long lastNotificationPull;
