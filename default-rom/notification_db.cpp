@@ -328,7 +328,7 @@ bool NotificationIterator::nextStatesFile() {
   if (channels.next()) {
     Serial.print("NI: next state file: ");
     Serial.println(channels.filename("states"));
-    File state_file = channels.file("states", "r");
+    File state_file = channels.file("states", "r+");
     notificationStateIterator = NotificationStateIterator(state_file);
     return true;
   }
@@ -374,6 +374,7 @@ bool NotificationIterator::next() {
 }
 
 void NotificationIterator::setCurrentNotificationState(NotificationState state) {
+  Serial.printf("Set state from %d to %d\n", current.state, state);
   current.state = state;
   notificationStateIterator.update(current);
 }
@@ -407,3 +408,4 @@ Notification NotificationIterator::getNotification() {
 
   return noti;
 }
+
