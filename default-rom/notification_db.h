@@ -66,6 +66,7 @@ public:
   bool next();
   NotificationStateEntry getStateEntry();
   Notification getNotification();
+  void setCurrentNotificationState(NotificationState state);
 
 private:
   bool nextStatesFile();
