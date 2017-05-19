@@ -370,6 +370,11 @@ bool NotificationIterator::next() {
   
 }
 
+void NotificationIterator::setCurrentNotificationState(NotificationState state) {
+  current.state = state;
+  notificationStateIterator.update(current);
+}
+
 NotificationStateEntry NotificationIterator::getStateEntry() {
   return current;
 }
