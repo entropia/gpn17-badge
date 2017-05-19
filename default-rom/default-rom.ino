@@ -113,6 +113,12 @@ void loop() {
 
   if (millis() - lastNotificationPull > 10000) {
     pullNotifications();
+    Serial.println("Iterate notifications: ");
+    NotificationIterator notit(NotificationFilter::ALL);
+    while(notit.next()) {
+      Notification noti = notit.get();
+      Serial.println(noti.id);
+    }
   }
 }
 
@@ -508,6 +514,7 @@ String getContentType(String filename) {
   else if (filename.endsWith(".json")) return "application/json";
   return "text/plain";
 }
+
 
 
 
