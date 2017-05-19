@@ -9,6 +9,7 @@
 #define WEB_SERVER_CLIENT_TIMEOUT 100
 
 #include <BadgeUI.h>
+#include <UIThemes.h>
 #include "url-encode.h"
 #include <FS.h>
 #include "notification_db.h"
@@ -112,11 +113,27 @@ void setup() {
 }
 
 unsigned long lastOneSecoundTask = 0;
+bool isDark = false;
+uint16_t lightAvg = 0;
 
 void loop() {
+  lightAvg = .99f*lightAvg + .01f*badge.getLDRLvl(); 
+  if(lightAvg > 700) {
+    if(!isDark) {
+      Serial.println("Switching to dark theme");
+      ui->setTheme(new ThemeDark());
+      isDark = true;
+    } 
+  } else {
+    if(isDark) {
+      Serial.println("Switching to light theme");
+      isDark = false;
+      ui->setTheme(new ThemeLight());
+    }
+  }
   ui->dispatchInput(badge.getJoystickState());
   ui->draw();
-  if (millis() - lastNotificationPull > 30000) {
+  if (millis() - lastNotificationPull > 60000) {
     pullNotifications();
     Serial.println("Iterate notifications: ");
   }
