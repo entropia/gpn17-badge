@@ -85,7 +85,7 @@ void pullNotifications() {
 
     {
       String timestamp_str = client.readStringUntil('\n');
-      String local_timestamp_str(millis());
+      String local_timestamp_str(millis() / 1000);
       Serial.print("server timestamp: ");
       Serial.println(timestamp_str);
       Serial.print("local timestamp: ");
@@ -108,6 +108,7 @@ void pullNotifications() {
   }
 
   syncStatesWithData();
+  recalculateStates();
 
 }
 
@@ -126,10 +127,18 @@ void syncStatesWithData() {
         String line = data_file.readStringUntil('\n');
         UrlDecode decoder(line.c_str());
         char * id_str = decoder.getKey("id");
+        char * valid_from_str = decoder.getKey("valid_from");
+        char * valid_to_str = decoder.getKey("valid_to");
         Serial.print("data line id: ");
         Serial.println(id_str);
         if (id_str) {
           int data_line_id = atoi(id_str);
+          uint32_t valid_from = atol(valid_from_str);
+          uint32_t valid_to = atol(valid_to_str);
+          delete id_str;
+          delete valid_from_str;
+          delete valid_to_str;
+
           File states_file = channelIterator.file("states", "r");
           NotificationStateIterator notificationStateIterator(states_file);
           bool found = false;
@@ -137,6 +146,8 @@ void syncStatesWithData() {
             NotificationStateEntry entry = notificationStateIterator.get();
             if (data_line_id == entry.id) {
               Serial.println("Found id in states");
+              entry.valid_from = valid_from;
+              entry.valid_to = valid_to;
               new_states_file.write(reinterpret_cast<uint8_t*>(&entry), sizeof(NotificationStateEntry));
               found = true;
               break;
@@ -148,10 +159,10 @@ void syncStatesWithData() {
             NotificationStateEntry entry;
             entry.id = data_line_id;
             entry.state = NotificationState::SCHEDULED;
+            entry.valid_from = valid_from;
+            entry.valid_to = valid_to;
             new_states_file.write(reinterpret_cast<uint8_t*>(&entry), sizeof(NotificationStateEntry));
           }
-
-          delete id_str;
         } else {
           Serial.println("data line without id:");
           Serial.println(line);
@@ -192,6 +203,62 @@ void deleteTimestampFiles() {
   }
 }
 
+void recalculateStates() {
+  Serial.println("recalculateStates()");
+  ChannelIterator channelIterator;
+
+  while(channelIterator.next()){
+    uint32_t current_server_timestamp = 0;
+    {
+      File timestamp_file = channelIterator.file("timestamp", "r");
+      String server_timestamp_str = timestamp_file.readStringUntil('\n');
+      String local_timestamp_str = timestamp_file.readStringUntil('\n');
+      uint32_t server_timestamp = atol(server_timestamp_str.c_str());
+      uint32_t local_timestamp = atol(local_timestamp_str.c_str());
+      current_server_timestamp = (millis()/1000 - local_timestamp) + server_timestamp;
+      Serial.print("calculated server ts: ");
+      Serial.println(current_server_timestamp);
+    }
+    {
+      File states_file = channelIterator.file("states", "r+");
+      NotificationStateIterator notificationStateIterator(states_file);
+      while (notificationStateIterator.next()) {
+        NotificationStateEntry entry = notificationStateIterator.get();
+        entry.updateState(current_server_timestamp);
+        notificationStateIterator.update(entry);
+      }
+      Serial.println("done recalulating");
+    } 
+    {
+      Serial.println("recalculated states file:");
+      File states_file = channelIterator.file("states", "r");
+      NotificationStateIterator notificationStateIterator(states_file);
+      while (notificationStateIterator.next()) {
+        NotificationStateEntry entry = notificationStateIterator.get();
+        Serial.print("id: ");
+        Serial.print(entry.id);
+        Serial.print(", from: ");
+        Serial.print(entry.valid_from);
+        Serial.print(", to: ");
+        Serial.print(entry.valid_to);
+        Serial.print(", state: ");
+        Serial.println(int(entry.state));
+      }
+    }
+  }
+}
+
+void NotificationStateEntry::updateState(uint32_t server_timestamp) {
+  if (state == NotificationState::SCHEDULED && server_timestamp > valid_from) {
+    state = NotificationState::ACTIVE_NOT_NOTIFIED;
+    Serial.println("new state act");
+  }
+  if (server_timestamp > valid_to) {
+    state = NotificationState::INACTIVE;
+    Serial.println("new state inact");
+  }
+}
+
 NotificationStateIterator::NotificationStateIterator(File state_file)
   : state_file(state_file) {
 
@@ -199,6 +266,7 @@ NotificationStateIterator::NotificationStateIterator(File state_file)
 
 bool NotificationStateIterator::next() {
   if (state_file.available()) {
+    currentFilePosition = state_file.position();
     uint8_t entry_bytes[sizeof(NotificationStateEntry)];
     if (state_file.read(entry_bytes, sizeof(NotificationStateEntry)) != sizeof(NotificationStateEntry)) {
       Serial.println("Read wrong amount of bytes");
@@ -209,6 +277,11 @@ bool NotificationStateIterator::next() {
     return true;
   }
   return false;
+}
+
+void NotificationStateIterator::update(NotificationStateEntry entry) {
+  state_file.seek(currentFilePosition, SeekSet);
+  state_file.write(reinterpret_cast<uint8_t*>(&entry), sizeof(NotificationStateEntry));
 }
 
 NotificationStateEntry NotificationStateIterator::get() {
