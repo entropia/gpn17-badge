@@ -227,8 +227,11 @@ void recalculateStates() {
       NotificationStateIterator notificationStateIterator(states_file);
       while (notificationStateIterator.next()) {
         NotificationStateEntry entry = notificationStateIterator.get();
+        NotificationState lastState = entry.state;
         entry.updateState(current_server_timestamp);
-        notificationStateIterator.update(entry);
+        if (lastState != entry.state) {
+          notificationStateIterator.update(entry); // Save the flash? I dont know how a flash works
+        }
       }
       Serial.println("done recalulating");
     } 
