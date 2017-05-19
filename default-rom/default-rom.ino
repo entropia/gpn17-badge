@@ -82,7 +82,15 @@ void setup() {
       NotificationIterator notit(NotificationFilter::ALL);
       while (notit.next()) {
         Notification noti = notit.getNotification();
-        notificationMenu->addMenuItem(new MenuItem(noti.summary, []() {}));
+        NotificationHandle notiHandl = notit.getHandle();
+        notificationMenu->addMenuItem(new MenuItem(noti.summary, [notiHandl]() {
+          Notification handNot;
+          if(getNotificationByHandle(notiHandl, &handNot)) {
+            ui->open(new NotificationScreen(handNot.summary, handNot.location, handNot.description));
+          } else {
+            ui->open(new NotificationScreen("Error", "", "Notification does not exist anymore."));
+          }
+        }));
       }
       ui->open(notificationMenu);
     }));
@@ -129,6 +137,7 @@ void loop() {
       badge.setVibrator(false);
     }
     Serial.printf("Free heap: %d\n", ESP.getFreeHeap());
+    
     lastOneSecoundTask = millis();
   }
 }
