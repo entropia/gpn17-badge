@@ -1,3 +1,4 @@
+// vim: noai:ts=2:sw=2
 #ifndef URLENCODE_H
 #define URLENCODE_H
 #include <Stream.h>
