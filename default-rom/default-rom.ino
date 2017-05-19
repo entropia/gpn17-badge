@@ -84,7 +84,7 @@ void setup() {
 }
 
 void loop() {
-  mainMenu->dispatchInput(badge.getJoystickState());
+  ui->dispatchInput(badge.getJoystickState());
   ui->draw();
   if (millis() - lastNotificationPull > 10000) {
     pullNotifications();
