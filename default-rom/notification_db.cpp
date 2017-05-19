@@ -392,6 +392,7 @@ NotificationHandle NotificationIterator::getHandle() {
   NotificationHandle handle;
   handle.channel = channels.channelNum();
   handle.id = current.id;
+  return handle;
 }
 
 Notification getNotificationFromDataFileWithSeek(File data_file, size_t seek) {
@@ -426,6 +427,10 @@ Notification NotificationIterator::getNotification() {
 
 bool getNotificationByHandle(NotificationHandle handle, Notification * notification) {
   ChannelIterator channels;
+  Serial.print("Handle lookup for channel ");
+  Serial.print(handle.channel);
+  Serial.print(", id ");
+  Serial.println(handle.id);
   while(channels.next()) {
     if (channels.channelNum() == handle.channel) {
       File state_file = channels.file("states", "r");
