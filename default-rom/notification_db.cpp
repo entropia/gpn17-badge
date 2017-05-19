@@ -319,6 +319,11 @@ String ChannelIterator::filename(const char * name) {
   return channel_dir_base + name;
 }
 
+int ChannelIterator::channelNum() {
+  String num_str = channel_dir_base.substring(12, channel_dir_base.length() - 1);
+  return atoi(num_str.c_str());
+}
+
 NotificationIterator::NotificationIterator(NotificationFilter filter)
   : filter(filter), notificationStateIterator(File()) {
     nextStatesFile();
@@ -383,9 +388,14 @@ NotificationStateEntry NotificationIterator::getStateEntry() {
   return current;
 }
 
-Notification NotificationIterator::getNotification() {
-  File data_file = channels.file("data", "r");
-  data_file.seek(current.data_file_position, SeekSet);
+NotificationHandle NotificationIterator::getHandle() {
+  NotificationHandle handle;
+  handle.channel = channels.channelNum();
+  handle.id = current.id;
+}
+
+Notification getNotificationFromDataFileWithSeek(File data_file, size_t seek) {
+  data_file.seek(seek, SeekSet);
   String line = data_file.readStringUntil('\n');
   UrlDecode decoder(line.c_str());
   Notification noti;
@@ -409,3 +419,25 @@ Notification NotificationIterator::getNotification() {
   return noti;
 }
 
+Notification NotificationIterator::getNotification() {
+  File data_file = channels.file("data", "r");
+  return getNotificationFromDataFileWithSeek(data_file, current.data_file_position);
+}
+
+bool getNotificationByHandle(NotificationHandle handle, Notification * notification) {
+  ChannelIterator channels;
+  while(channels.next()) {
+    if (channels.channelNum() == handle.channel) {
+      File state_file = channels.file("states", "r");
+      NotificationStateIterator nsi(state_file);
+      while (nsi.next()) {
+        if (nsi.get().id == handle.id) {
+          File data_file = channels.file("data", "r");
+          *notification = getNotificationFromDataFileWithSeek(data_file, nsi.get().data_file_position);
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}

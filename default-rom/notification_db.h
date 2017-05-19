@@ -31,6 +31,11 @@ struct __attribute__((__packed__)) NotificationStateEntry {
   void updateState(uint32_t server_timestamp);
 };
 
+struct NotificationHandle {
+  int channel;
+  int id;
+};
+
 enum class NotificationFilter {
   ALL,
   ACTIVE,
@@ -43,6 +48,7 @@ public:
   bool next();
   File file(const char * name, const char * mode);
   String filename(const char * name);
+  int channelNum();
 private:
   Dir channels_dir;
   String channel_dir_base;
@@ -67,6 +73,7 @@ public:
   NotificationStateEntry getStateEntry();
   Notification getNotification();
   void setCurrentNotificationState(NotificationState state);
+  NotificationHandle getHandle();
 
 private:
   bool nextStatesFile();
@@ -86,3 +93,5 @@ void pullNotifications();
 void syncStatesWithData();
 
 void recalculateStates();
+
+bool getNotificationByHandle(NotificationHandle handle, Notification * notification);
