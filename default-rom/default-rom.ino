@@ -66,8 +66,18 @@ void setup() {
   if (SPIFFS.exists("/wifi.conf")) {
     Serial.print("Found wifi config");
     connectBadge();
+    pullNotifications();
     mainMenu->addMenuItem(new MenuItem("Badge", [](){}));
-    mainMenu->addMenuItem(new MenuItem("Notifications", [](){}));
+    mainMenu->addMenuItem(new MenuItem("Notifications", [](){
+          Menu * notificationMenu = new Menu();
+          notificationMenu->addMenuItem(new MenuItem("Back", [](){ ui->closeCurrent(); })); 
+          NotificationIterator notit(NotificationFilter::ALL);
+          while(notit.next()) {
+            Notification noti = notit.getNotification();
+            notificationMenu->addMenuItem(new MenuItem(noti.summary, [](){}));
+          }
+          ui->open(notificationMenu);
+          }));
     mainMenu->addMenuItem(new MenuItem("Configuration", [](){ initialConfig(); }));
     mainMenu->addMenuItem(new MenuItem("Info", [](){}));
     mainMenu->addMenuItem(new MenuItem("Factory reset", [](){}));
@@ -83,10 +93,12 @@ void setup() {
 
 }
 
+unsigned long lastHeapDump = 0;
+
 void loop() {
   ui->dispatchInput(badge.getJoystickState());
   ui->draw();
-  if (millis() - lastNotificationPull > 10000) {
+  if (millis() - lastNotificationPull > 30000) {
     pullNotifications();
     Serial.println("Iterate notifications: ");
     NotificationIterator notit(NotificationFilter::ALL);
@@ -98,6 +110,10 @@ void loop() {
       Serial.println(noti.location);
       Serial.println("---");
     }
+  }
+  if(millis() - lastHeapDump > 2000) {
+    Serial.printf("Free heap: %d\n", ESP.getFreeHeap());
+    lastHeapDump = millis(); 
   }
 }
 
@@ -493,6 +509,7 @@ String getContentType(String filename) {
   else if (filename.endsWith(".json")) return "application/json";
   return "text/plain";
 }
+
 
 
 
