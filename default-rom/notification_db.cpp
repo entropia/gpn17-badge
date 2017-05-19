@@ -13,40 +13,9 @@ void pullNotifications() {
     Serial.print("Fetch data for channel: ");
     Serial.println(channelIterator.filename(""));
 
-    String host;
-    String url;
-
-    {
-      File url_file = channelIterator.file("url", "r");
-      bool read_host = true;
-      while (url_file.available()) {
-        char r = char(url_file.read());
-        if (r == '\n') {
-          read_host = false;
-        } else {
-          if (read_host) {
-            host += r;
-          } else {
-            url += r;
-          }
-        }
-      }
-    }
-    Serial.print("host: ");
-    Serial.println(host);
-    Serial.print("url: ");
-    Serial.println(url);
-
-    String fingerprint;
-    {
-      File fingerprint_file = channelIterator.file("fingerprint", "r");
-
-      while (fingerprint_file.available()) {
-        char r = char(fingerprint_file.read());
-        if (r == '\n') break;
-        fingerprint += r;
-      }
-    }
+    String host = channelIterator.host();
+    String url = channelIterator.url();
+    String fingerprint = channelIterator.fingerprint();
 
     Serial.print("Expected fingerprint: ");
     Serial.println(fingerprint);
@@ -322,6 +291,61 @@ String ChannelIterator::filename(const char * name) {
 int ChannelIterator::channelNum() {
   String num_str = channel_dir_base.substring(12, channel_dir_base.length() - 1);
   return atoi(num_str.c_str());
+}
+
+String ChannelIterator::host() {
+  String host;
+  String url;
+  File url_file = file("url", "r");
+  bool read_host = true;
+  while (url_file.available()) {
+    char r = char(url_file.read());
+    if (r == '\n') {
+      read_host = false;
+    } else {
+      if (read_host) {
+        host += r;
+      } else {
+        url += r;
+      }
+    }
+  }
+  return host;
+
+
+}
+
+String ChannelIterator::url() {
+  String host;
+  String url;
+  File url_file = file("url", "r");
+  bool read_host = true;
+  while (url_file.available()) {
+    char r = char(url_file.read());
+    if (r == '\n') {
+      read_host = false;
+    } else {
+      if (read_host) {
+        host += r;
+      } else {
+        url += r;
+      }
+    }
+  }
+  return url;
+}
+
+String ChannelIterator::fingerprint() {
+  String fingerprint;
+  File fingerprint_file = file("fingerprint", "r");
+
+  while (fingerprint_file.available()) {
+    char r = char(fingerprint_file.read());
+    if (r == '\n') break;
+    fingerprint += r;
+  }
+  return fingerprint;
+
 }
 
 NotificationIterator::NotificationIterator(NotificationFilter filter)

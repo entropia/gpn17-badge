@@ -49,6 +49,9 @@ public:
   File file(const char * name, const char * mode);
   String filename(const char * name);
   int channelNum();
+  String host();
+  String url();
+  String fingerprint();
 private:
   Dir channels_dir;
   String channel_dir_base;
