@@ -1,3 +1,4 @@
+// vim: noai:ts=2:sw=2
 #include "url-encode.h"
 #include <string.h>
 
