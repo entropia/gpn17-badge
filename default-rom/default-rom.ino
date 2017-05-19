@@ -79,7 +79,7 @@ void setup() {
       notificationMenu->addMenuItem(new MenuItem("Back", []() {
         ui->closeCurrent();
       }));
-      NotificationIterator notit(NotificationFilter::ALL);
+      NotificationIterator notit(NotificationFilter::ACTIVE);
       while (notit.next()) {
         Notification noti = notit.getNotification();
         NotificationHandle notiHandl = notit.getHandle();
