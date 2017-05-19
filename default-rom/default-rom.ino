@@ -73,20 +73,24 @@ void setup() {
     Serial.print("Found wifi config");
     connectBadge();
     pullNotifications();
-    mainMenu->addMenuItem(new MenuItem("Badge", [](){}));
-    mainMenu->addMenuItem(new MenuItem("Notifications", [](){
-          Menu * notificationMenu = new Menu();
-          notificationMenu->addMenuItem(new MenuItem("Back", [](){ ui->closeCurrent(); })); 
-          NotificationIterator notit(NotificationFilter::ALL);
-          while(notit.next()) {
-            Notification noti = notit.getNotification();
-            notificationMenu->addMenuItem(new MenuItem(noti.summary, [](){}));
-          }
-          ui->open(notificationMenu);
-          }));
-    mainMenu->addMenuItem(new MenuItem("Configuration", [](){ initialConfig(); }));
-    mainMenu->addMenuItem(new MenuItem("Info", [](){}));
-    mainMenu->addMenuItem(new MenuItem("Factory reset", [](){}));
+    mainMenu->addMenuItem(new MenuItem("Badge", []() {}));
+    mainMenu->addMenuItem(new MenuItem("Notifications", []() {
+      Menu * notificationMenu = new Menu();
+      notificationMenu->addMenuItem(new MenuItem("Back", []() {
+        ui->closeCurrent();
+      }));
+      NotificationIterator notit(NotificationFilter::ALL);
+      while (notit.next()) {
+        Notification noti = notit.getNotification();
+        notificationMenu->addMenuItem(new MenuItem(noti.summary, []() {}));
+      }
+      ui->open(notificationMenu);
+    }));
+    mainMenu->addMenuItem(new MenuItem("Configuration", []() {
+      initialConfig();
+    }));
+    mainMenu->addMenuItem(new MenuItem("Info", []() {}));
+    mainMenu->addMenuItem(new MenuItem("Factory reset", []() {}));
     ui->open(mainMenu);
     pixels.setPixelColor(1, pixels.Color(0, 0, 0));
     pixels.setPixelColor(2, pixels.Color(0, 0, 0));
@@ -99,7 +103,7 @@ void setup() {
 
 }
 
-unsigned long lastHeapDump = 0;
+unsigned long lastOneSecoundTask = 0;
 
 void loop() {
   ui->dispatchInput(badge.getJoystickState());
@@ -107,19 +111,25 @@ void loop() {
   if (millis() - lastNotificationPull > 30000) {
     pullNotifications();
     Serial.println("Iterate notifications: ");
-    NotificationIterator notit(NotificationFilter::ALL);
-    while(notit.next()) {
-      Notification noti = notit.getNotification();
-      Serial.println(noti.id);
-      Serial.println(noti.summary);
-      Serial.println(noti.description);
-      Serial.println(noti.location);
-      Serial.println("---");
-    }
   }
-  if(millis() - lastHeapDump > 2000) {
+  if (millis() - lastOneSecoundTask > 1000) {
+    recalculateStates();
+    NotificationIterator notit(NotificationFilter::NOT_NOTIFIED);
+    if (notit.next()) {
+      Notification noti = notit.getNotification();
+      notit.setCurrentNotificationState(NotificationState::NOTIFIED);
+      NotificationScreen * notification = new NotificationScreen(String(noti.summary), String(noti.location), String(noti.description));
+      ui->open(notification);
+      badge.setVibrator(true);
+      delay(200);
+      badge.setVibrator(false);
+      delay(300);
+      badge.setVibrator(true);
+      delay(400);
+      badge.setVibrator(false);
+    }
     Serial.printf("Free heap: %d\n", ESP.getFreeHeap());
-    lastHeapDump = millis(); 
+    lastOneSecoundTask = millis();
   }
 }
 
@@ -515,6 +525,11 @@ String getContentType(String filename) {
   else if (filename.endsWith(".json")) return "application/json";
   return "text/plain";
 }
+
+
+
+
+
 
 
 
