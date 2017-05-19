@@ -26,6 +26,7 @@
 Badge badge;
 WindowSystem* ui = new WindowSystem(&tft);
 char writeBuf[WEB_SERVER_BUFFER_SIZE];
+Menu * mainMenu = new Menu();
 
 void setup() {
   badge.init();
@@ -65,6 +66,16 @@ void setup() {
   if (SPIFFS.exists("/wifi.conf")) {
     Serial.print("Found wifi config");
     connectBadge();
+    mainMenu->addMenuItem(new MenuItem("Badge", [](){}));
+    mainMenu->addMenuItem(new MenuItem("Notifications", [](){}));
+    mainMenu->addMenuItem(new MenuItem("Configuration", [](){}));
+    mainMenu->addMenuItem(new MenuItem("Factory reset", [](){}));
+    ui->open(mainMenu);
+    pixels.setPixelColor(1, pixels.Color(0, 0, 0));
+    pixels.setPixelColor(2, pixels.Color(0, 0, 0));
+    pixels.setPixelColor(3, pixels.Color(0, 0, 0));
+    pixels.setPixelColor(0, pixels.Color(0, 0, 0));
+    pixels.show();
   } else {
     initialConfig();
   }
@@ -72,39 +83,8 @@ void setup() {
 }
 
 void loop() {
-  badge.setAnalogMUX(MUX_JOY);
-  delay(10);
-  uint16_t adc = analogRead(A0);
-  //Serial.println(adc);
-
-  if (adc < UP + OFFSET && adc > UP - OFFSET) {
-    pixels.setPixelColor(0, pixels.Color(0, 50, 50));
-  }
-
-  else if (adc < DOWN + OFFSET && adc > DOWN - OFFSET) {
-    pixels.setPixelColor(3, pixels.Color(0, 50, 50));
-  }
-
-  else if (adc < RIGHT + OFFSET && adc > RIGHT - OFFSET) {
-    pixels.setPixelColor(2, pixels.Color(0, 50, 50));
-  }
-
-  else if (adc < LEFT + OFFSET && adc > LEFT - OFFSET) {
-    pixels.setPixelColor(1, pixels.Color(0, 50, 50));
-  }
-
-  else if (digitalRead(GPIO_BOOT) == HIGH) {
-    badge.setGPIO(VIBRATOR, HIGH);
-  }
-
-  else {
-    badge.setGPIO(VIBRATOR, LOW);
-    pixels.clear();
-  }
-  pixels.show();
+  mainMenu->dispatchInput(badge.getJoystickState());
   ui->draw();
-  delay(100);
-
   if (millis() - lastNotificationPull > 10000) {
     pullNotifications();
     Serial.println("Iterate notifications: ");
@@ -508,6 +488,8 @@ String getContentType(String filename) {
   else if (filename.endsWith(".json")) return "application/json";
   return "text/plain";
 }
+
+
 
 
 
