@@ -570,25 +570,3 @@ String getContentType(String filename) {
   else if (filename.endsWith(".json")) return "application/json";
   return "text/plain";
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
