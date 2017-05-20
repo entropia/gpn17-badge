@@ -8,6 +8,12 @@
 #define WEB_SERVER_BUFFER_SIZE 40
 #define WEB_SERVER_CLIENT_TIMEOUT 100
 
+#ifdef DEBUG
+#define BADGE_PULL_INTERVAL 60000
+#else
+#define BADGE_PULL_INTERVAL 5*60*1000
+#endif
+
 #include <BadgeUI.h>
 #include <UIThemes.h>
 #include "url-encode.h"
@@ -127,7 +133,7 @@ void loop() {
   }
   ui->dispatchInput(badge.getJoystickState());
   ui->draw();
-  if (millis() - lastNotificationPull > 60000) {
+  if (millis() - lastNotificationPull > BADGE_PULL_INTERVAL) {
     pullNotifications();
     Serial.println("Iterate notifications: ");
   }
