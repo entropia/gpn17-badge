@@ -109,11 +109,15 @@ void setup() {
       infoMenu->addMenuItem(new MenuItem("Back", []() {
         ui->closeCurrent();
       }));
-      
+
       infoMenu->addMenuItem(new MenuItem("SSID: " + WiFi.SSID(), []() {})); 
       infoMenu->addMenuItem(new MenuItem("RSSI: " + String(WiFi.RSSI()), []() {})); 
       infoMenu->addMenuItem(new MenuItem("IP: " + WiFi.localIP().toString(), []() {})); 
       infoMenu->addMenuItem(new MenuItem("Bat. Voltage:\n" + String(badge.getBatVoltage())+"mV", []() {})); 
+      infoMenu->addMenuItem(new MenuItem("About", []() {
+        NotificationScreen * about = new NotificationScreen("GPN17 Badge\nDefault ROM", "", "Developed by\nJanis (@dehexadop)\n&\nAnton");
+        ui->open(about);
+      })); 
       ui->open(infoMenu); 
     }));
     mainMenu->addMenuItem(new MenuItem("Factory reset", []() {}));
