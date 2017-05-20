@@ -104,7 +104,17 @@ void setup() {
     mainMenu->addMenuItem(new MenuItem("Configuration", []() {
       initialConfig();
     }));
-    mainMenu->addMenuItem(new MenuItem("Info", []() {}));
+    mainMenu->addMenuItem(new MenuItem("Info", []() {
+      Menu * infoMenu = new Menu(2);
+      infoMenu->addMenuItem(new MenuItem("Back", []() {
+        ui->closeCurrent();
+      }));
+      
+      infoMenu->addMenuItem(new MenuItem("SSID: " + WiFi.SSID(), []() {})); 
+      infoMenu->addMenuItem(new MenuItem("RSSI: " + String(WiFi.RSSI()), []() {})); 
+      infoMenu->addMenuItem(new MenuItem("IP: " + WiFi.localIP().toString(), []() {})); 
+      ui->open(infoMenu); 
+    }));
     mainMenu->addMenuItem(new MenuItem("Factory reset", []() {}));
     ui->open(mainMenu);
     pixels.setPixelColor(1, pixels.Color(0, 0, 0));
