@@ -113,6 +113,7 @@ void setup() {
       infoMenu->addMenuItem(new MenuItem("SSID: " + WiFi.SSID(), []() {})); 
       infoMenu->addMenuItem(new MenuItem("RSSI: " + String(WiFi.RSSI()), []() {})); 
       infoMenu->addMenuItem(new MenuItem("IP: " + WiFi.localIP().toString(), []() {})); 
+      infoMenu->addMenuItem(new MenuItem("Bat. Voltage:\n" + String(badge.getBatVoltage())+"mV", []() {})); 
       ui->open(infoMenu); 
     }));
     mainMenu->addMenuItem(new MenuItem("Factory reset", []() {}));
