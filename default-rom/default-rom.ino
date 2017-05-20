@@ -105,7 +105,7 @@ void setup() {
       initialConfig();
     }));
     mainMenu->addMenuItem(new MenuItem("Info", []() {
-      Menu * infoMenu = new Menu(2);
+      Menu * infoMenu = new Menu();
       infoMenu->addMenuItem(new MenuItem("Back", []() {
         ui->closeCurrent();
       }));
