@@ -34,6 +34,7 @@ Badge badge;
 WindowSystem* ui = new WindowSystem(&tft);
 char writeBuf[WEB_SERVER_BUFFER_SIZE];
 Menu * mainMenu = new Menu();
+StatusOverlay * status = new StatusOverlay(BAT_CRITICAL, BAT_FULL);
 
 void setup() {
   badge.init();
@@ -46,6 +47,7 @@ void setup() {
   badge.setBacklight(true);
   ui->root->setBmp("/system/load.bmp", 40, 12);
   ui->root->setSub("");
+  ui->setOverlay(status);
   ui->draw();
 
   Serial.print("Battery Voltage:  ");
@@ -107,7 +109,7 @@ void setup() {
       infoMenu->addMenuItem(new MenuItem("SSID: " + WiFi.SSID(), []() {})); 
       infoMenu->addMenuItem(new MenuItem("RSSI: " + String(WiFi.RSSI()), []() {})); 
       infoMenu->addMenuItem(new MenuItem("IP: " + WiFi.localIP().toString(), []() {})); 
-      infoMenu->addMenuItem(new MenuItem("Bat. Voltage:\n" + String(badge.getBatVoltage())+"mV", []() {})); 
+      infoMenu->addMenuItem(new MenuItem("Bat.:" + String(badge.getBatVoltage())+"mV", []() {})); 
       infoMenu->addMenuItem(new MenuItem("About", []() {
         NotificationScreen * about = new NotificationScreen("GPN17 Badge\nDefault ROM", "", "Developed by\nJanis (@dehexadop)\n&\nAnton");
         ui->open(about);
@@ -121,6 +123,13 @@ void setup() {
     pixels.setPixelColor(3, pixels.Color(0, 0, 0));
     pixels.setPixelColor(0, pixels.Color(0, 0, 0));
     pixels.show();
+    status->updateBat(badge.getBatVoltage());
+    int wStat = WiFi.status();
+    if(wStat == WL_CONNECTED) {
+      status->updateWiFiState(WiFi.SSID());
+    } else {
+      status->updateWiFiState("No WiFi");
+    }
   } else {
     initialConfig();
   }
@@ -130,6 +139,7 @@ void setup() {
 unsigned long lastOneSecoundTask = 0;
 bool isDark = false;
 uint16_t lightAvg = 0;
+uint16_t batAvg = BAT_FULL;
 
 void loop() {
   lightAvg = .99f*lightAvg + .01f*badge.getLDRLvl(); 
@@ -169,7 +179,14 @@ void loop() {
       badge.setVibrator(false);
     }
     Serial.printf("Free heap: %d\n", ESP.getFreeHeap());
-    
+    batAvg = .8f*batAvg + .2f*badge.getBatVoltage();
+    status->updateBat(batAvg);
+    int wStat = WiFi.status();
+    if(wStat == WL_CONNECTED) {
+      status->updateWiFiState(WiFi.SSID());
+    } else {
+      status->updateWiFiState("No WiFi");
+    }
     lastOneSecoundTask = millis();
   }
 }
