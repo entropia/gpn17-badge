@@ -136,7 +136,7 @@ void setup() {
 unsigned long lastOneSecoundTask = 0;
 bool isDark = false;
 uint16_t lightAvg = 0;
-uint16_t batAvg = BAT_FULL;
+int16_t batAvg = -1;
 uint16_t pollDelay = 0;
 
 void loop() {
@@ -159,6 +159,8 @@ void loop() {
   if (millis() - lastNotificationPull > BADGE_PULL_INTERVAL + pollDelay) {
     if(connectBadge()) {
       pollDelay = 0;
+      status->updateWiFiState("Polling...");
+      ui->draw();
       pullNotifications();
       Serial.println("Iterate notifications: ");
     } else {
@@ -188,7 +190,11 @@ void loop() {
       badge.setVibrator(false);
     }
     Serial.printf("Free heap: %d\n", ESP.getFreeHeap());
-    batAvg = .8f*batAvg + .2f*badge.getBatVoltage();
+    if(batAvg == -1) {
+      batAvg = badge.getBatVoltage();
+    } else {
+      batAvg = .8f*batAvg + .2f*badge.getBatVoltage();
+    }
     status->updateBat(batAvg);
     int wStat = WiFi.status();
     if(wStat == WL_CONNECTED) {
@@ -211,7 +217,7 @@ bool connectBadge() {
   if(WiFi.status() == WL_CONNECTED) {
     return true;
   }
-  status->updateWiFiState("Connecting");
+  status->updateWiFiState("Connecting...");
   ui->root->setSub("Loading...");
   ui->draw();
   int ledVal = 0;
