@@ -72,7 +72,7 @@ HTTPUpdateResult ESP8266HTTPUpdate::updateSpiffs(const String& url, const String
     http.begin(url);
     return handleUpdate(http, currentVersion, true);
 }
-
+/*
 HTTPUpdateResult ESP8266HTTPUpdate::update(const String& host, uint16_t port, const String& uri, const String& currentVersion,
         bool https, const String& httpsFingerprint, bool reboot)
 {
@@ -82,15 +82,16 @@ HTTPUpdateResult ESP8266HTTPUpdate::update(const String& host, uint16_t port, co
     } else {
         return update(host, port, uri, currentVersion, httpsFingerprint);
     }
-}
+}*/
 
 HTTPUpdateResult ESP8266HTTPUpdate::update(const String& host, uint16_t port, const String& uri,
-        const String& currentVersion)
+        const String& currentVersion, uint32_t address)
 {
+    Serial.println("Preeparing update...");
     HTTPClient http;
     http.begin(host, port, uri);
-    return handleUpdate(http, currentVersion, false);
-}
+    return handleUpdate(http, currentVersion, false, address);
+}/*
 HTTPUpdateResult ESP8266HTTPUpdate::update(const String& host, uint16_t port, const String& url,
         const String& currentVersion, const String& httpsFingerprint)
 {
@@ -98,7 +99,7 @@ HTTPUpdateResult ESP8266HTTPUpdate::update(const String& host, uint16_t port, co
     http.begin(host, port, url, httpsFingerprint);
     return handleUpdate(http, currentVersion, false);
 
-}
+}*/
 
 /**
  * return error code as int
@@ -162,9 +163,9 @@ String ESP8266HTTPUpdate::getLastErrorString(void)
  * @param currentVersion const char *
  * @return HTTPUpdateResult
  */
-HTTPUpdateResult ESP8266HTTPUpdate::handleUpdate(HTTPClient& http, const String& currentVersion, bool spiffs)
+HTTPUpdateResult ESP8266HTTPUpdate::handleUpdate(HTTPClient& http, const String& currentVersion, bool spiffs, uint32_t address)
 {
-
+    Serial.println("Start client...");
     HTTPUpdateResult ret = HTTP_UPDATE_FAILED;
 
     // use HTTP/1.0 for update since the update handler not support any transfer Encoding
@@ -199,28 +200,28 @@ HTTPUpdateResult ESP8266HTTPUpdate::handleUpdate(HTTPClient& http, const String&
     int len = http.getSize();
 
     if(code <= 0) {
-        DEBUG_HTTP_UPDATE("[httpUpdate] HTTP error: %s\n", http.errorToString(code).c_str());
+        Serial.printf("[httpUpdate] HTTP error: %s\n", http.errorToString(code).c_str());
         _lastError = code;
         http.end();
         return HTTP_UPDATE_FAILED;
     }
 
 
-    DEBUG_HTTP_UPDATE("[httpUpdate] Header read fin.\n");
-    DEBUG_HTTP_UPDATE("[httpUpdate] Server header:\n");
-    DEBUG_HTTP_UPDATE("[httpUpdate]  - code: %d\n", code);
-    DEBUG_HTTP_UPDATE("[httpUpdate]  - len: %d\n", len);
+    Serial.printf("[httpUpdate] Header read fin.\n");
+    Serial.printf("[httpUpdate] Server header:\n");
+    Serial.printf("[httpUpdate]  - code: %d\n", code);
+    Serial.printf("[httpUpdate]  - len: %d\n", len);
 
     if(http.hasHeader("x-MD5")) {
-        DEBUG_HTTP_UPDATE("[httpUpdate]  - MD5: %s\n", http.header("x-MD5").c_str());
+        Serial.printf("[httpUpdate]  - MD5: %s\n", http.header("x-MD5").c_str());
     }
 
-    DEBUG_HTTP_UPDATE("[httpUpdate] ESP8266 info:\n");
-    DEBUG_HTTP_UPDATE("[httpUpdate]  - free Space: %d\n", ESP.getFreeSketchSpace());
-    DEBUG_HTTP_UPDATE("[httpUpdate]  - current Sketch Size: %d\n", ESP.getSketchSize());
+    Serial.printf("[httpUpdate] ESP8266 info:\n");
+    Serial.printf("[httpUpdate]  - free Space: %d\n", ESP.getFreeSketchSpace());
+    Serial.printf("[httpUpdate]  - current Sketch Size: %d\n", ESP.getSketchSize());
 
     if(currentVersion && currentVersion[0] != 0x00) {
-        DEBUG_HTTP_UPDATE("[httpUpdate]  - current version: %s\n", currentVersion.c_str() );
+        Serial.printf("[httpUpdate]  - current version: %s\n", currentVersion.c_str() );
     }
 
     switch(code) {
@@ -230,12 +231,12 @@ HTTPUpdateResult ESP8266HTTPUpdate::handleUpdate(HTTPClient& http, const String&
             if(spiffs) {
                 size_t spiffsSize = ((size_t) &_SPIFFS_end - (size_t) &_SPIFFS_start);
                 if(len > (int) spiffsSize) {
-                    DEBUG_HTTP_UPDATE("[httpUpdate] spiffsSize to low (%d) needed: %d\n", spiffsSize, len);
+                    Serial.printf("[httpUpdate] spiffsSize to low (%d) needed: %d\n", spiffsSize, len);
                     startUpdate = false;
                 }
             } else {
                 if(len > (int) ESP.getFreeSketchSpace()) {
-                    DEBUG_HTTP_UPDATE("[httpUpdate] FreeSketchSpace to low (%d) needed: %d\n", ESP.getFreeSketchSpace(), len);
+                    Serial.printf("[httpUpdate] FreeSketchSpace to low (%d) needed: %d\n", ESP.getFreeSketchSpace(), len);
                     startUpdate = false;
                 }
             }
@@ -256,24 +257,24 @@ HTTPUpdateResult ESP8266HTTPUpdate::handleUpdate(HTTPClient& http, const String&
 
                 if(spiffs) {
                     command = U_SPIFFS;
-                    DEBUG_HTTP_UPDATE("[httpUpdate] runUpdate spiffs...\n");
+                    Serial.printf("[httpUpdate] runUpdate spiffs...\n");
                 } else {
                     command = U_FLASH;
-                    DEBUG_HTTP_UPDATE("[httpUpdate] runUpdate flash...\n");
+                    Serial.printf("[httpUpdate] runUpdate flash...\n");
                 }
 
                 if(!spiffs) {
                     uint8_t buf[4];
                     if(tcp->peekBytes(&buf[0], 4) != 4) {
-                        DEBUG_HTTP_UPDATE("[httpUpdate] peekBytes magic header failed\n");
+                        Serial.printf("[httpUpdate] peekBytes magic header failed\n");
                         _lastError = HTTP_UE_BIN_VERIFY_HEADER_FAILED;
                         http.end();
                         return HTTP_UPDATE_FAILED;
                     }
 
                     // check for valid first magic byte
-                    if(buf[0] != 0xE9) {
-                        DEBUG_HTTP_UPDATE("[httpUpdate] magic header not starts with 0xE9\n");
+                    if(buf[0] != 0xEA) {
+                        Serial.printf("[httpUpdate] magic header not starts with 0xE9\n");
                         _lastError = HTTP_UE_BIN_VERIFY_HEADER_FAILED;
                         http.end();
                         return HTTP_UPDATE_FAILED;
@@ -284,31 +285,33 @@ HTTPUpdateResult ESP8266HTTPUpdate::handleUpdate(HTTPClient& http, const String&
 
                     // check if new bin fits to SPI flash
                     if(bin_flash_size > ESP.getFlashChipRealSize()) {
-                        DEBUG_HTTP_UPDATE("[httpUpdate] magic header, new bin not fits SPI Flash\n");
+                        Serial.printf("[httpUpdate] magic header, new bin not fits SPI Flash\n");
                         _lastError = HTTP_UE_BIN_FOR_WRONG_FLASH;
                         http.end();
                         return HTTP_UPDATE_FAILED;
                     }
                 }
-
-                if(runUpdate(*tcp, len, http.header("x-MD5"), command)) {
+                Serial.println("Start update. Address:");
+                Serial.print(address, HEX);
+                Serial.println("");
+                if(runUpdate(*tcp, len, http.header("x-MD5"), command, address)) {
                     ret = HTTP_UPDATE_OK;
-                    DEBUG_HTTP_UPDATE("[httpUpdate] Update ok\n");
+                    Serial.printf("[httpUpdate] Update ok\n");
                     http.end();
 
                     if(_rebootOnUpdate) {
-                        ESP.restart();
+                        //ESP.restart();
                     }
 
                 } else {
                     ret = HTTP_UPDATE_FAILED;
-                    DEBUG_HTTP_UPDATE("[httpUpdate] Update failed\n");
+                    Serial.printf("[httpUpdate] Update failed\n");
                 }
             }
         } else {
             _lastError = HTTP_UE_SERVER_NOT_REPORT_SIZE;
             ret = HTTP_UPDATE_FAILED;
-            DEBUG_HTTP_UPDATE("[httpUpdate] Content-Length is 0 or not set by Server?!\n");
+            Serial.printf("[httpUpdate] Content-Length is 0 or not set by Server?!\n");
         }
         break;
     case HTTP_CODE_NOT_MODIFIED:
@@ -326,7 +329,7 @@ HTTPUpdateResult ESP8266HTTPUpdate::handleUpdate(HTTPClient& http, const String&
     default:
         _lastError = HTTP_UE_SERVER_WRONG_HTTP_CODE;
         ret = HTTP_UPDATE_FAILED;
-        DEBUG_HTTP_UPDATE("[httpUpdate] HTTP Code is (%d)\n", code);
+        Serial.printf("[httpUpdate] HTTP Code is (%d)\n", code);
         //http.writeToStream(&Serial1);
         break;
     }
@@ -342,23 +345,23 @@ HTTPUpdateResult ESP8266HTTPUpdate::handleUpdate(HTTPClient& http, const String&
  * @param md5 String
  * @return true if Update ok
  */
-bool ESP8266HTTPUpdate::runUpdate(Stream& in, uint32_t size, String md5, int command)
+bool ESP8266HTTPUpdate::runUpdate(Stream& in, uint32_t size, String md5, int command, uint32_t address)
 {
 
     StreamString error;
 
-    if(!Update.begin(size, command)) {
+    if(!Update.begin(size, command, address)) {
         _lastError = Update.getError();
         Update.printError(error);
         error.trim(); // remove line ending
-        DEBUG_HTTP_UPDATE("[httpUpdate] Update.begin failed! (%s)\n", error.c_str());
+        Serial.printf("[httpUpdate] Update.begin failed! (%s)\n", error.c_str());
         return false;
     }
 
     if(md5.length()) {
         if(!Update.setMD5(md5.c_str())) {
             _lastError = HTTP_UE_SERVER_FAULTY_MD5;
-            DEBUG_HTTP_UPDATE("[httpUpdate] Update.setMD5 failed! (%s)\n", md5.c_str());
+            Serial.printf("[httpUpdate] Update.setMD5 failed! (%s)\n", md5.c_str());
             return false;
         }
     }
@@ -367,7 +370,7 @@ bool ESP8266HTTPUpdate::runUpdate(Stream& in, uint32_t size, String md5, int com
         _lastError = Update.getError();
         Update.printError(error);
         error.trim(); // remove line ending
-        DEBUG_HTTP_UPDATE("[httpUpdate] Update.writeStream failed! (%s)\n", error.c_str());
+        Serial.printf("[httpUpdate] Update.writeStream failed! (%s)\n", error.c_str());
         return false;
     }
 
@@ -375,7 +378,7 @@ bool ESP8266HTTPUpdate::runUpdate(Stream& in, uint32_t size, String md5, int com
         _lastError = Update.getError();
         Update.printError(error);
         error.trim(); // remove line ending
-        DEBUG_HTTP_UPDATE("[httpUpdate] Update.end failed! (%s)\n", error.c_str());
+        Serial.printf("[httpUpdate] Update.end failed! (%s)\n", error.c_str());
         return false;
     }
 

@@ -35,7 +35,7 @@ class UpdaterClass {
       Call this to check the space needed for the update
       Will return false if there is not enough space
     */
-    bool begin(size_t size, int command = U_FLASH);
+    bool begin(size_t size, int command = U_FLASH, uint32_t updateStartAddress = 0);
 
     /*
       Run Updater from asynchronous callbacs

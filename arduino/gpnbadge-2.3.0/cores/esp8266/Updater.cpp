@@ -12,6 +12,11 @@ extern "C" {
 }
 
 extern "C" uint32_t _SPIFFS_start;
+extern SpiFlashChip *flashchip;
+
+
+uint32_t flash_size_sdk;
+uint32_t flash_size_actual = 0x800000;
 
 UpdaterClass::UpdaterClass()
 : _async(false)
@@ -36,7 +41,7 @@ void UpdaterClass::_reset() {
   _command = U_FLASH;
 }
 
-bool UpdaterClass::begin(size_t size, int command) {
+bool UpdaterClass::begin(size_t size, int command, uint32_t updateStartAddress) {
   if(_size > 0){
 #ifdef DEBUG_UPDATER
     DEBUG_UPDATER.println("[begin] already running");
@@ -70,8 +75,9 @@ bool UpdaterClass::begin(size_t size, int command) {
   _error = 0;
 
   wifi_set_sleep_type(NONE_SLEEP_T);
+  Serial.println("disable sleep...");
 
-  uint32_t updateStartAddress = 0;
+  if (updateStartAddress == 0) {
   if (command == U_FLASH) {
     //size of current sketch rounded to a sector
     uint32_t currentSketchSize = (ESP.getSketchSize() + FLASH_SECTOR_SIZE - 1) & (~(FLASH_SECTOR_SIZE - 1));
@@ -97,16 +103,17 @@ bool UpdaterClass::begin(size_t size, int command) {
       return false;
     }
   }
-  else if (command == U_SPIFFS) {
+}
+  if (command == U_SPIFFS) {
      updateStartAddress = (uint32_t)&_SPIFFS_start - 0x40200000;
   }
-  else {
+  /*else {
     // unknown command
 #ifdef DEBUG_UPDATER
     DEBUG_UPDATER.println("[begin] Unknown update command.");
 #endif
     return false;
-  }
+  }*/
 
   //initialize
   _startAddress = updateStartAddress;
@@ -115,11 +122,11 @@ bool UpdaterClass::begin(size_t size, int command) {
   _buffer = new uint8_t[FLASH_SECTOR_SIZE];
   _command = command;
 
-#ifdef DEBUG_UPDATER
-  DEBUG_UPDATER.printf("[begin] _startAddress:     0x%08X (%d)\n", _startAddress, _startAddress);
-  DEBUG_UPDATER.printf("[begin] _currentAddress:   0x%08X (%d)\n", _currentAddress, _currentAddress);
-  DEBUG_UPDATER.printf("[begin] _size:             0x%08X (%d)\n", _size, _size);
-#endif
+
+  Serial.printf("[begin] _startAddress:     0x%08X (%d)\n", _startAddress, _startAddress);
+  Serial.printf("[begin] _currentAddress:   0x%08X (%d)\n", _currentAddress, _currentAddress);
+  Serial.printf("[begin] _size:             0x%08X (%d)\n", _size, _size);
+
 
   _md5.begin();
   return true;
@@ -204,12 +211,21 @@ bool UpdaterClass::end(bool evenIfRemaining){
 bool UpdaterClass::_writeBuffer(){
 
   if(!_async) yield();
+  flash_size_sdk = flashchip->chip_size;
+  //Serial.printf("SDK flash size:    %d bytes\r\n", flash_size_sdk);
+  //Serial.printf("Actual flash size: %d bytes\r\n", flash_size_actual);
+  flashchip->chip_size = flash_size_actual;
+  //Serial.println("Erase Flash");
   bool result = ESP.flashEraseSector(_currentAddress/FLASH_SECTOR_SIZE);
   if(!_async) yield();
+  //Serial.println("Done.");
   if (result) {
+      //Serial.println("Write Flash");
       result = ESP.flashWrite(_currentAddress, (uint32_t*) _buffer, _bufferLen);
   }
   if(!_async) yield();
+  flashchip->chip_size = flash_size_sdk;
+  //Serial.println("Done.");
 
   if (!result) {
     _error = UPDATE_ERROR_WRITE;
@@ -258,7 +274,7 @@ size_t UpdaterClass::write(uint8_t *data, size_t len) {
 bool UpdaterClass::_verifyHeader(uint8_t data) {
     if(_command == U_FLASH) {
         // check for valid first magic byte (is always 0xE9)
-        if(data != 0xE9) {
+        if(data != 0xEA) {
             _error = UPDATE_ERROR_MAGIC_BYTE;
             _currentAddress = (_startAddress + _size);
             return false;
@@ -273,16 +289,17 @@ bool UpdaterClass::_verifyHeader(uint8_t data) {
 
 bool UpdaterClass::_verifyEnd() {
     if(_command == U_FLASH) {
-
+        flashchip->chip_size = flash_size_actual;
         uint8_t buf[4];
         if(!ESP.flashRead(_startAddress, (uint32_t *) &buf[0], 4)) {
             _error = UPDATE_ERROR_READ;
             _currentAddress = (_startAddress);
             return false;
         }
+        flashchip->chip_size = flash_size_sdk;
 
         // check for valid first magic byte
-        if(buf[0] != 0xE9) {
+        if(buf[0] != 0xEA) {
             _error = UPDATE_ERROR_MAGIC_BYTE;
             _currentAddress = (_startAddress);
             return false;
