@@ -41,6 +41,7 @@ WindowSystem* ui = new WindowSystem(&tft);
 char writeBuf[WEB_SERVER_BUFFER_SIZE];
 Menu * mainMenu = new Menu();
 StatusOverlay * status = new StatusOverlay(BAT_CRITICAL, BAT_FULL);
+bool initialSync = false;
 
 void setup() {
   badge.init();
@@ -80,8 +81,9 @@ void setup() {
 
   if (SPIFFS.exists("/wifi.conf")) {
     Serial.print("Found wifi config");
-    connectBadge();
-    pullNotifications();
+    if(connectBadge()) {
+      pullNotifications();
+    }
     mainMenu->addMenuItem(new MenuItem("Badge", []() {}));
     mainMenu->addMenuItem(new MenuItem("Notifications", []() {
       Menu * notificationMenu = new Menu();
@@ -124,11 +126,6 @@ void setup() {
     }));
     mainMenu->addMenuItem(new MenuItem("Factory reset", []() {}));
     ui->open(mainMenu);
-    pixels.setPixelColor(1, pixels.Color(0, 0, 0));
-    pixels.setPixelColor(2, pixels.Color(0, 0, 0));
-    pixels.setPixelColor(3, pixels.Color(0, 0, 0));
-    pixels.setPixelColor(0, pixels.Color(0, 0, 0));
-    pixels.show();
     status->updateBat(badge.getBatVoltage());
     int wStat = WiFi.status();
     if(wStat == WL_CONNECTED) {
@@ -146,6 +143,7 @@ unsigned long lastOneSecoundTask = 0;
 bool isDark = false;
 uint16_t lightAvg = 0;
 uint16_t batAvg = BAT_FULL;
+uint16_t pollDelay = 0;
 
 void loop() {
   lightAvg = .99f*lightAvg + .01f*badge.getLDRLvl(); 
@@ -164,12 +162,23 @@ void loop() {
   }
   ui->dispatchInput(badge.getJoystickState());
   ui->draw();
-  if (millis() - lastNotificationPull > BADGE_PULL_INTERVAL) {
-    pullNotifications();
-    Serial.println("Iterate notifications: ");
+  if (millis() - lastNotificationPull > BADGE_PULL_INTERVAL + pollDelay) {
+    if(connectBadge()) {
+      pollDelay = 0;
+      pullNotifications();
+      Serial.println("Iterate notifications: ");
+    } else {
+      if(pollDelay < 5*60*1000) {
+        Serial.println("Delaying poll by one minute...");
+        pollDelay+=60*1000;
+      }
+    }
+    lastNotificationPull = millis();
   }
   if (millis() - lastOneSecoundTask > 1000) {
-    recalculateStates();
+    if(initialSync) {
+      recalculateStates();
+    }
     NotificationIterator notit(NotificationFilter::NOT_NOTIFIED);
     if (notit.next()) {
       Notification noti = notit.getNotification();
@@ -203,7 +212,12 @@ void setNick(const char* nick) {
   nickStore.close();
 }
 
-void connectBadge() {
+bool connectBadge() {
+  bool ret = true;
+  if(WiFi.status() == WL_CONNECTED) {
+    return true;
+  }
+  status->updateWiFiState("Connecting");
   ui->root->setSub("Loading...");
   ui->draw();
   int ledVal = 0;
@@ -254,18 +268,22 @@ void connectBadge() {
       pixels.setPixelColor(0, pixels.Color(50, 0, 0));
       pixels.show();
       ui->draw();
-      delay(5000);
-      initialConfig();
-      ESP.restart();
+      ret = false;
+      break;
     }
     delay(10);
   }
   delete[] ssid;
-  Serial.println("WiFi connected");
-  Serial.println("");
-  Serial.println(WiFi.localIP());
-  ui->root->setSub(WiFi.localIP().toString(), 0, 105);
   ui->draw();
+  pixels.setPixelColor(1, pixels.Color(0, 0, 0));
+  pixels.setPixelColor(2, pixels.Color(0, 0, 0));
+  pixels.setPixelColor(3, pixels.Color(0, 0, 0));
+  pixels.setPixelColor(0, pixels.Color(0, 0, 0));
+  pixels.show();
+  if(ret) {
+    initialSync = true;
+  }
+  return ret;
 }
 
 void initialConfig() {
