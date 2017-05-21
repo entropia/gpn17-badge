@@ -5,7 +5,7 @@
 // See license.txt for license terms.
 //////////////////////////////////////////////////
 
-#include "rboot.h"
+#include <rboot.h>
 
 #ifdef BOOT_BIG_FLASH
 
@@ -17,6 +17,17 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+typedef struct{
+        uint32  deviceId;
+        uint32  chip_size;    // chip size in byte
+        uint32  block_size;
+        uint32  sector_size;
+        uint32  page_size;
+        uint32  status_mask;
+} SpiFlashChip;
+
+extern SpiFlashChip *flashchip;
 
 extern void Cache_Read_Disable(void);
 extern uint32 SPIRead(uint32, void*, uint32);
@@ -32,6 +43,9 @@ void ICACHE_RAM_ATTR Cache_Read_Enable_New(void) {
 	if (rBoot_mmap_1 == 0xff) {
 		uint32 val;
 		rboot_config conf;
+
+		ets_printf("[BigFlash] Patching Flash Size...\n");
+		flashchip->chip_size = 8 * 1024 * 1024;
 
 		SPIRead(BOOT_CONFIG_SECTOR * SECTOR_SIZE, &conf, sizeof(rboot_config));
 

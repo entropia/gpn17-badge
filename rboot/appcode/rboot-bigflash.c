@@ -33,6 +33,9 @@ void ICACHE_RAM_ATTR Cache_Read_Enable_New(void) {
 		uint32 val;
 		rboot_config conf;
 
+		ets_printf("[BigFlash] Patching Flash Size...\n");
+		flashchip->chip_size = 8 * 1024 * 1024;
+
 		SPIRead(BOOT_CONFIG_SECTOR * SECTOR_SIZE, &conf, sizeof(rboot_config));
 
 #ifdef BOOT_RTC_ENABLED

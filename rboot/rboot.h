@@ -11,7 +11,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 #include <c_types.h> // uint* types
 
 #ifdef RBOOT_INTEGRATION
@@ -28,7 +27,7 @@ extern "C" {
 // uncomment to enable big flash support (>1MB)
 #define BOOT_BIG_FLASH
 #define BOOT_BAUDRATE 115200
-#define OVERRIDE_SIZE 4
+#define OVERRIDE_SIZE 5
 
 // uncomment to enable 2 way communication between
 // rBoot and the user app via the esp rtc data area
@@ -67,7 +66,7 @@ extern "C" {
 
 // max number of roms in the config (defaults to 4), higher
 // values will use more ram at run time
-#define MAX_ROMS 6
+#define MAX_ROMS 10
 
 
 // you should not need to modify anything below this line,
@@ -98,9 +97,6 @@ extern "C" {
 #define BOOT_GPIO_NUM 16
 #endif
 
-#ifndef MAX_ROMS
-#define MAX_ROMS 6
-#endif
 
 /** @brief  Structure containing rBoot configuration
  *  @note   ROM addresses must be multiples of 0x1000 (flash sector aligned).
@@ -142,19 +138,42 @@ typedef struct {
 } rboot_rtc_data;
 #endif
 
+typedef enum {
+    SPI_FLASH_RESULT_OK,
+    SPI_FLASH_RESULT_ERR,
+    SPI_FLASH_RESULT_TIMEOUT
+} SpiFlashOpResult;
+
+typedef struct{
+        uint32  deviceId;
+        uint32  chip_size;    // chip size in byte
+        uint32  block_size;
+        uint32  sector_size;
+        uint32  page_size;
+        uint32  status_mask;
+} SpiFlashChip;
+
+extern SpiFlashChip *flashchip;
+
 // override function to create default config, must be placed after type
 // and constant defines as it uses some of them, flashsize is the used size
 // (may be smaller than actual flash size if big flash mode is not enabled,
 // or just plain wrong if the device has not been programmed correctly!)
 #ifdef BOOT_CUSTOM_DEFAULT_CONFIG
 static uint8 default_config(rboot_config *romconf, uint32 flashsize) {
-	romconf->count = 6;
+	romconf->count = 10;
 	romconf->roms[0] = SECTOR_SIZE * (BOOT_CONFIG_SECTOR + 1);
   romconf->roms[1] = 0x80000 + (SECTOR_SIZE * (BOOT_CONFIG_SECTOR + 1));
   romconf->roms[2] = 0x100000 + (SECTOR_SIZE * (BOOT_CONFIG_SECTOR + 1));
   romconf->roms[3] = 0x180000 + (SECTOR_SIZE * (BOOT_CONFIG_SECTOR + 1));
 	romconf->roms[4] = 0x200000 + (SECTOR_SIZE * (BOOT_CONFIG_SECTOR + 1));
 	romconf->roms[5] = 0x280000 + (SECTOR_SIZE * (BOOT_CONFIG_SECTOR + 1));
+
+	romconf->roms[6] = 0x400000 + (SECTOR_SIZE * (BOOT_CONFIG_SECTOR + 1));
+  romconf->roms[7] = 0x500000 + (SECTOR_SIZE * (BOOT_CONFIG_SECTOR + 1));
+	romconf->roms[8] = 0x600000 + (SECTOR_SIZE * (BOOT_CONFIG_SECTOR + 1));
+	romconf->roms[9] = 0x700000 + (SECTOR_SIZE * (BOOT_CONFIG_SECTOR + 1));
+
   romconf->current_rom = 1;
 	romconf->gpio_rom = 0;
 	romconf->mode = MODE_STANDARD;

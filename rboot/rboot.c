@@ -15,6 +15,10 @@
 
 #define ESP8266_REG(addr) *((volatile uint32_t *)(0x60000000+(addr)))
 
+//extern SpiFlashChip *flashchip;
+//uint32_t flash_size_sdk;
+//uint32_t flash_size_actual = 0x800000;
+
 static uint32 check_image(uint32 readpos) {
 
 	uint8 buffer[BUFFER_SIZE];
@@ -32,10 +36,14 @@ static uint32 check_image(uint32 readpos) {
 		return 0;
 	}
 
+
+	//flash_size_sdk = flashchip->chip_size;
+	//flashchip->chip_size = flash_size_actual;
 	// read rom header
 	if (SPIRead(readpos, header, sizeof(rom_header_new)) != 0) {
 		return 0;
 	}
+	//flashchip->chip_size = flash_size_sdk;
 
 	// check header type
 	if (header->magic == ROM_MAGIC) {
@@ -346,11 +354,23 @@ uint32 NOINLINE find_image(void) {
 #else
 		flashsize = 0x100000; // limit to 8Mbit
 #endif
+	}
+
+	else if (flag == 5) {
+		ets_printf("64 Mbit\r\n");
+#ifdef BOOT_BIG_FLASH
+		flashsize = 0x800000;
+#else
+		flashsize = 0x100000; // limit to 8Mbit
+#endif
 	} else {
 		ets_printf("unknown\r\n");
 		// assume at least 4mbit
 		flashsize = 0x80000;
 	}
+  ets_printf("Old Flash size:    %d bytes\r\n", flashchip->chip_size);
+  ets_printf("Patching Flash Size...\n");
+	flashchip->chip_size = 8 * 1024 * 1024;
 
 	// print spi mode
 	ets_printf("Flash Mode:   ");
@@ -477,6 +497,8 @@ uint32 NOINLINE find_image(void) {
 
 	// check rom is valid
 	runAddr = check_image(romconf->roms[romToBoot]);
+
+	ets_printf("Got Address: 0x%x\n", runAddr);
 
 #ifdef BOOT_GPIO_ENABLED
 	if (gpio_boot && runAddr == 0) {

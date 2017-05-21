@@ -11,6 +11,10 @@
 
 
 
+#include "rboot.h"
+#include "rboot-api.h"
+
+
 const char* ssid = "entropia"; // Put your SSID here
 const char* password = "pw"; // Put your PASSWORD here
 
@@ -163,7 +167,7 @@ void initialConfig() {
       char r = char(currentClient.read());
       if (r == '\n') {
         if (headBuf.startsWith("GET")) {
-          getValue = headBuf.substring(4, headBuf.length() - 10).strip();
+          getValue = headBuf.substring(4, headBuf.length() - 10);//.strip();
           Serial.print("GET::");
           Serial.println(getValue);
           Serial.flush();
