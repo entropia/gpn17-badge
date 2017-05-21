@@ -115,7 +115,7 @@ void setup() {
       }));
 
       infoMenu->addMenuItem(new MenuItem("SSID: " + WiFi.SSID(), []() {})); 
-      infoMenu->addMenuItem(new MenuItem("RSSI: " + String(WiFi.RSSI()), []() {})); 
+      infoMenu->addMenuItem(new MenuItem("RSSI: " + String(WiFi.RSSI())+"dBm", []() {})); 
       infoMenu->addMenuItem(new MenuItem("IP: " + WiFi.localIP().toString(), []() {})); 
       infoMenu->addMenuItem(new MenuItem("Bat.:" + String(badge.getBatVoltage())+"mV", []() {})); 
       infoMenu->addMenuItem(new MenuItem("About", []() {
