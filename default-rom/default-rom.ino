@@ -199,7 +199,7 @@ void loop() {
     if(batAvg == -1) {
       batAvg = badge.getBatVoltage();
     } else {
-      batAvg = .8f*batAvg + .2f*badge.getBatVoltage();
+      batAvg = .9f*batAvg + .1f*badge.getBatVoltage();
     }
     status->updateBat(batAvg);
     int wStat = WiFi.status();
