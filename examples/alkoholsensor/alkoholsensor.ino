@@ -8,6 +8,7 @@
 #include <Adafruit_BNO055.h>
 #include <utility/imumaths.h>
 #include <IRremoteESP8266.h>
+#include "rboot.h"
 
 #define BNO055_SAMPLERATE_DELAY_MS (10)
 
