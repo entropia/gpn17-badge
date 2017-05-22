@@ -62,11 +62,6 @@ void setup() {
   Serial.print("Light LDR Level:  ");
   Serial.println(badge.getLDRLvl());
 
-  pixels.setPixelColor(0, pixels.Color(20, 0, 0));
-  pixels.setPixelColor(1, pixels.Color(20, 0, 0));
-  pixels.setPixelColor(2, pixels.Color(20, 0, 0));
-  pixels.setPixelColor(3, pixels.Color(20, 0, 0));
-  pixels.show();
 
 
   //setGPIO(VIBRATOR, HIGH);
@@ -219,16 +214,13 @@ void setNick(const char* nick) {
 }
 
 bool connectBadge() {
-  bool ret = true;
   if(WiFi.status() == WL_CONNECTED) {
     return true;
   }
   status->updateWiFiState("Connecting...");
-  ui->root->setSub("Loading...");
   ui->draw();
-  int ledVal = 0;
-  bool up = true;
   WiFi.mode(WIFI_STA);
+  delay(30);
   Serial.println("Loading config.");
   File wifiConf = SPIFFS.open("/wifi.conf", "r");
   String configString;
@@ -245,52 +237,7 @@ bool connectBadge() {
   unsigned long startTime = millis();
   WiFi.begin(ssid, pw);
   delete[] pw;
-  while (WiFi.status() != WL_CONNECTED) {
-    pixels.setPixelColor(1, pixels.Color(0, 0, ledVal));
-    pixels.setPixelColor(2, pixels.Color(0, 0, ledVal));
-    pixels.setPixelColor(3, pixels.Color(0, 0, ledVal));
-    pixels.setPixelColor(0, pixels.Color(0, 0, ledVal));
-    pixels.show();
-    if (ledVal == 100) {
-      up = false;
-    }
-    if (ledVal == 0) {
-      up = true;
-    }
-    if (up) {
-      ui->root->setSub("Connecting...");
-      ui->draw();
-      ledVal++;
-    } else {
-      ui->root->setSub(ssid);
-      ui->draw();
-      ledVal--;
-    }
-    if (millis() - startTime > 30 * 1000) {
-      ui->root->setSub("Error ;(");
-      pixels.setPixelColor(1, pixels.Color(50, 0, 0));
-      pixels.setPixelColor(2, pixels.Color(50, 0, 0));
-      pixels.setPixelColor(3, pixels.Color(50, 0, 0));
-      pixels.setPixelColor(0, pixels.Color(50, 0, 0));
-      pixels.show();
-      ui->draw();
-      ret = false;
-      break;
-    }
-    delay(10);
-  }
-  delete[] ssid;
-  ui->draw();
-  delay(10);
-  pixels.setPixelColor(1, pixels.Color(0, 0, 0));
-  pixels.setPixelColor(2, pixels.Color(0, 0, 0));
-  pixels.setPixelColor(3, pixels.Color(0, 0, 0));
-  pixels.setPixelColor(0, pixels.Color(0, 0, 0));
-  pixels.show();
-  if(ret) {
-    initialSync = true;
-  }
-  return ret;
+  return WiFi.status() == WL_CONNECTED;
 }
 
 void initialConfig() {
