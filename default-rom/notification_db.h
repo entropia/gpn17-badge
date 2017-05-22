@@ -42,6 +42,8 @@ enum class NotificationFilter {
   NOT_NOTIFIED
 };
 
+extern const String channelsBaseDir;
+
 class ChannelIterator {
 public:
   ChannelIterator();
@@ -98,3 +100,7 @@ void syncStatesWithData();
 void recalculateStates();
 
 bool getNotificationByHandle(NotificationHandle handle, Notification * notification);
+
+void addChannel(const char* host, const char* url, const char* fingerprint);
+
+bool deleteChannel(int num);

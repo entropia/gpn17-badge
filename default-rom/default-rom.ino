@@ -444,6 +444,26 @@ void initialConfig() {
         delete[] nick;
         currentClient.write("HTTP/1.1 200\r\n");
         currentClient.write("Cache-Control: no-cache\r\n\r\ntrue");
+      } else if (getValue == "/api/channels/add") { // Add channel
+        UrlDecode channelAddDecode(bodyBuf.c_str());
+        char* host = channelAddDecode.getKey("host");
+        char* url = channelAddDecode.getKey("url");
+        char* fingerprint = channelAddDecode.getKey("fingerprint");
+        addChannel(host, url, fingerprint);
+        delete[] host;
+        delete[] url;
+        delete[] fingerprint;
+        currentClient.write("HTTP/1.1 200\r\n");
+        currentClient.write("Cache-Control: no-cache\r\n\r\ntrue");
+      } else if (getValue == "/api/channels/delete") { // Delete channel
+        UrlDecode channelAddDecode(bodyBuf.c_str());
+        char* num = channelAddDecode.getKey("num");
+        int id = atoi(num);
+        bool success = deleteChannel(id);
+        delete[] num;
+        currentClient.write("HTTP/1.1 200\r\n");
+        currentClient.write("Cache-Control: no-cache\r\n\r\n");
+        currentClient.print(success);
       } else {
         currentClient.write("HTTP/1.1 404");
         currentClient.write("\r\n\r\n");

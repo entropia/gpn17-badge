@@ -1,6 +1,8 @@
 // vim: noai:ts=2:sw=2
 #include "notification_db.h"
 #include "url-encode.h"
+#include <vector>
+#include <algorithm>
 
 unsigned long lastNotificationPull = 0;
 
@@ -60,8 +62,10 @@ void pullNotifications() {
       Serial.print("local timestamp: ");
       Serial.println(local_timestamp_str);
       File timestamp_file = channelIterator.file("timestamp", "w");
-      timestamp_file.println(timestamp_str);
-      timestamp_file.println(local_timestamp_str);
+      timestamp_file.print(timestamp_str);
+      timestamp_file.write('\n');
+      timestamp_file.print(local_timestamp_str);
+      timestamp_file.write('\n');
     }
 
     {
@@ -105,9 +109,9 @@ void syncStatesWithData() {
           int data_line_id = atoi(id_str);
           uint32_t valid_from = atol(valid_from_str);
           uint32_t valid_to = atol(valid_to_str);
-          delete id_str;
-          delete valid_from_str;
-          delete valid_to_str;
+          delete[] id_str;
+          delete[] valid_from_str;
+          delete[] valid_to_str;
 
           File states_file = channelIterator.file("states", "r");
           NotificationStateIterator notificationStateIterator(states_file);
@@ -162,7 +166,7 @@ void syncStatesWithData() {
 
 void deleteTimestampFiles() {
   Serial.println("deleteTimestampFiles()");
-  Dir dir = SPIFFS.openDir("/notif/chan");
+  Dir dir = SPIFFS.openDir(channelsBaseDir);
   while(dir.next()){
     File entry = dir.openFile("r");
     String channelDir(entry.name());
@@ -263,8 +267,10 @@ NotificationStateEntry NotificationStateIterator::get() {
   return current;
 }
 
+const String channelsBaseDir("/notif/chan");
+
 ChannelIterator::ChannelIterator() {
-  channels_dir = SPIFFS.openDir("/notif/chan");
+  channels_dir = SPIFFS.openDir(channelsBaseDir);
 }
 
 bool ChannelIterator::next() {
@@ -427,19 +433,19 @@ Notification getNotificationFromDataFileWithSeek(File data_file, size_t seek) {
 
   char * id_str = decoder.getKey("id");
   noti.id = atoi(id_str);
-  delete id_str;
+  delete[] id_str;
 
   char * summary_str = decoder.getKey("summary");
   noti.summary = String(summary_str);
-  delete summary_str;
+  delete[] summary_str;
 
   char * description_str = decoder.getKey("description");
   noti.description = String(description_str);
-  delete description_str;
+  delete[] description_str;
 
   char * location_str = decoder.getKey("location");
   noti.location = String(location_str);
-  delete location_str;
+  delete[] location_str;
 
   return noti;
 }
@@ -469,4 +475,58 @@ bool getNotificationByHandle(NotificationHandle handle, Notification * notificat
     }
   }
   return false;
+}
+
+void addChannel(int id, const char * host, const char * url, const char * fingerprint) {
+  String channelDir = channelsBaseDir + "/" + String(id);
+  String urlPath = channelDir + "/url";
+  String fingerprintPath = channelDir + "/fingerprint";
+  Serial.println("Creating files: ");
+  Serial.println(urlPath);
+  Serial.println(fingerprintPath);
+  File url_file = SPIFFS.open(urlPath, "w");
+  url_file.print(host);
+  url_file.write('\n');
+  url_file.print(url);
+  url_file.write('\n');
+
+  File fingerprint_file = SPIFFS.open(fingerprintPath, "w");
+  fingerprint_file.print(fingerprint);
+  url_file.write('\n');
+}
+
+void addChannel(const char * host, const char * url, const char * fingerprint) {
+  Serial.println("Add channel");
+  std::vector<int> usedIds;
+
+  {
+    ChannelIterator channels;
+    while(channels.next()) {
+      usedIds.push_back(channels.channelNum());
+    }
+  }
+
+  for (int i = 1; ; ++i) {
+    if (std::find(usedIds.begin(), usedIds.end(), i) == usedIds.end()) {
+      Serial.print("Found unused id: ");
+      Serial.println(i);
+      addChannel(i, host, url, fingerprint);      
+      return;
+    }
+  }
+}
+
+bool deleteChannel(int num) {
+  Serial.print("deleteChannel: ");
+  Serial.println(num);
+  Dir dir = SPIFFS.openDir(channelsBaseDir + "/" + String(num) + "/");
+  while(dir.next()){
+    File entry = dir.openFile("r");
+    String channelDir(entry.name());
+    entry.close();
+    Serial.print("deleting: ");
+    Serial.println(channelDir);
+    SPIFFS.remove(channelDir);
+  }
+
 }
