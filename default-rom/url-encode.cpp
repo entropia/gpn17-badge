@@ -96,6 +96,10 @@ bool compare_key_encoded_unencoded(const char * encoded, const char * unencoded,
             }
         }
 
+        if (encoded_char == '+') {
+          encoded_char = ' ';
+        }
+
         if (encoded_char != unencoded_char) {
             return false;
         }
@@ -128,6 +132,8 @@ bool decode_percent(const char * encoded, size_t encoded_len, char * decoded, si
             if (!hex_to_ascii(decoded, digit1, digit2)) {
                 return false;
             }
+        } else if (encoded[0] == '+') {
+          decoded[0] = ' ';
         } else {
             decoded[0] = encoded[0];
         }
