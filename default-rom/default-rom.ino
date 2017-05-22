@@ -19,6 +19,7 @@
 #include "url-encode.h"
 #include <FS.h>
 #include "notification_db.h"
+#include "WebServer.h"
 
 #include "rboot.h"
 #include "rboot-api.h"
@@ -256,289 +257,186 @@ void initialConfig() {
   Serial.println(WiFi.softAP(ssid, pw));
   FullScreenBMPStatus* webStatus = new FullScreenBMPStatus();
   connectWizard(ssid, pw, webStatus);
-  WiFiServer server(80);
-  server.begin();
-  // Own Webserver. _slow_ but memory efficient
-  String headBuf;
-  String bodyBuf;
-  String getValue;
-  unsigned long lastByteReceived = 0;
-  bool requestFinished = false;
-  bool isPost = false;
-  Serial.printf("Free before loop: %d\n", ESP.getFreeHeap());
+  WebServer webServer(80, "/system/web");
+  webServer.begin();
+  webServer.registerPost("/api/conf/wifi", Page<WebServer::PostHandler>(CacheTime::NO_CACHE,
+    [](Stream & currentClient, const String & bodyBuf) {
+      UrlDecode dec(bodyBuf.c_str());
+      Serial.println("decoder");
+      char* confNet = dec.getKey("net");
+      char* confPw = dec.getKey("pw");
+      Serial.println("Open config file");
+      File wifiStore = SPIFFS.open("/wifi.conf", "w");
+      Serial.println("Write config file");
+      urlEncodeWriteKeyValue("pw", confPw, wifiStore);
+      urlEncodeWriteKeyValue("ssid", confNet, wifiStore);
+      wifiStore.close();
+      Serial.println("Done writing config");
+      WiFi.begin(confNet, confPw); // quick fix.. chnage in js
+      Serial.printf("Trying connect to %s...\n", confNet);
+      int wStat = WiFi.status();
+      int ledVal = 0;
+      bool up = true;
+      while (wStat != WL_CONNECTED) {
+        if (wStat == WL_CONNECT_FAILED) {
+          break;
+        }
+        pixels.setPixelColor(1, pixels.Color(0, 0, ledVal));
+        pixels.setPixelColor(2, pixels.Color(0, 0, ledVal));
+        pixels.setPixelColor(3, pixels.Color(0, 0, ledVal));
+        pixels.setPixelColor(0, pixels.Color(0, 0, ledVal));
+        pixels.show();
+        if (ledVal == 100) {
+          up = false;
+        }
+        if (ledVal == 0) {
+          up = true;
+        }
+        if (up) {
+          ledVal++;
+        } else {
+          ledVal--;
+        }
+        delay(10);
+        wStat = WiFi.status();
+        Serial.printf("Wstat: %d\n", wStat);
+      }
+      pixels.setPixelColor(1, pixels.Color(0, 0, 0));
+      pixels.setPixelColor(2, pixels.Color(0, 0, 0));
+      pixels.setPixelColor(3, pixels.Color(0, 0, 0));
+      pixels.setPixelColor(0, pixels.Color(0, 0, 0));
+      pixels.show();
+      if (wStat == WL_CONNECTED) {
+        currentClient.write("true");
+      } else {
+        currentClient.write("false");
+      }
+      delete[] confNet;
+      delete[] confPw;
+    }
+  ));
+
+  webServer.registerPost("/api/conf/nick", Page<WebServer::PostHandler>(CacheTime::NO_CACHE,
+    [](Stream & currentClient, const String & bodyBuf) {
+      UrlDecode nickUrlDecode(bodyBuf.c_str());
+      char* nick = nickUrlDecode.getKey("nick");
+      setNick(nick);
+      delete[] nick;
+      currentClient.write("true");
+    }
+  ));
+
+  webServer.registerPost("/api/channels/add", Page<WebServer::PostHandler>(CacheTime::NO_CACHE,
+    [](Stream & currentClient, const String & bodyBuf) {
+      UrlDecode channelAddDecode(bodyBuf.c_str());
+      char* host = channelAddDecode.getKey("host");
+      char* url = channelAddDecode.getKey("url");
+      char* fingerprint = channelAddDecode.getKey("fingerprint");
+      addChannel(host, url, fingerprint);
+      delete[] host;
+      delete[] url;
+      delete[] fingerprint;
+      currentClient.write("true");
+    }
+  ));
+
+  webServer.registerPost("/api/channels/delete", Page<WebServer::PostHandler>(CacheTime::NO_CACHE,
+    [](Stream & currentClient, const String & bodyBuf) {
+      UrlDecode channelAddDecode(bodyBuf.c_str());
+      char* num = channelAddDecode.getKey("num");
+      int id = atoi(num);
+      bool success = deleteChannel(id);
+      delete[] num;
+      currentClient.print(success);
+    }
+  ));
+
+  webServer.registerGet("/api/wifi/scan", Page<WebServer::GetHandler>(CacheTime::NO_CACHE,
+    [](Stream & currentClient) {
+      pixels.setPixelColor(0, pixels.Color(0, 0, 20));
+      pixels.setPixelColor(1, pixels.Color(0, 0, 20));
+      pixels.setPixelColor(2, pixels.Color(0, 0, 20));
+      pixels.setPixelColor(3, pixels.Color(0, 0, 20));
+      pixels.show();
+      int n = WiFi.scanNetworks();
+      delay(2000);
+      pixels.setPixelColor(0, pixels.Color(0, 0, 0));
+      pixels.setPixelColor(1, pixels.Color(0, 0, 0));
+      pixels.setPixelColor(2, pixels.Color(0, 0, 0));
+      pixels.setPixelColor(3, pixels.Color(0, 0, 0));
+      pixels.show();
+      currentClient.write("[");
+      for (int i = 0; i < n; ++i)
+      {
+        currentClient.printf("{\"id\": %d", i);
+        currentClient.printf(",\"ssid\":\"%s\"", WiFi.SSID(i).c_str());
+        currentClient.printf(",\"rssi\": %d", WiFi.RSSI(i));
+        currentClient.printf(",\"encType\": %d", WiFi.encryptionType(i));
+        Serial.printf("Check >0: %d\n", currentClient.write("}"));
+        if (i + 1 < n) {
+          currentClient.write(",");
+        }
+        Serial.printf("Free heap in json write: %d\n", ESP.getFreeHeap());
+        currentClient.flush();
+      }
+      currentClient.write("]");
+    }
+  ));
+
+  webServer.registerGet("/api/wifi/status", Page<WebServer::GetHandler>(CacheTime::NO_CACHE,
+    [](Stream & currentClient) {
+      int stat = WiFi.status();
+      if (stat == WL_DISCONNECTED) {
+        currentClient.write("Disconnected");
+      } else if (stat == WL_CONNECTION_LOST) {
+        currentClient.write("Connection lost");
+      } else if (stat == WL_CONNECTED) {
+        currentClient.write("Connected to '");
+        currentClient.write(WiFi.SSID().c_str());
+        currentClient.write("'");
+      } else if (stat == WL_IDLE_STATUS) {
+        currentClient.write("Idle");
+      } else if (stat == WL_CONNECT_FAILED) {
+        currentClient.write("Connection failed");
+      } else {
+        currentClient.printf("Unknown (%d)", stat);
+      }
+    }
+  ));
+
+  webServer.registerGet("/api/channels", Page<WebServer::GetHandler>(CacheTime::NO_CACHE,
+    [](Stream & currentClient) {
+      ChannelIterator channels;
+      currentClient.write("[");
+      bool first = true;
+      while (channels.next()) {
+        if (first) {
+          first = false;
+        } else {
+          currentClient.write(",");
+        }
+
+        currentClient.write("{\"num\":");
+        currentClient.print(channels.channelNum());
+        currentClient.write(", \"host\":\"");
+        currentClient.print(channels.host());
+        currentClient.write("\", \"url\":\"");
+        currentClient.print(channels.url());
+        currentClient.write("\", \"fingerprint\":\"");
+        currentClient.print(channels.fingerprint());
+        currentClient.write("\"}");
+      }
+      currentClient.write("]");
+    }
+  ));
+
+
   while (true) {
     if (WiFi.softAPgetStationNum() == 0) {
       connectWizard(ssid, pw, webStatus);
     }
-    WiFiClient currentClient = server.available();
-    if (!currentClient || !currentClient.connected())  {
-      continue;
-    }
-    while ((lastByteReceived == 0 || millis() - lastByteReceived < WEB_SERVER_CLIENT_TIMEOUT) && !requestFinished) {
-      while (currentClient.available()) {
-        char r = char(currentClient.read());
-        if (r == '\n') {
-          isPost = headBuf.startsWith("POST");
-          if (headBuf.startsWith("GET") || isPost) {
-            getValue = headBuf.substring(4, headBuf.length() - 10);
-            getValue.trim();
-            Serial.print("GET/POST::");
-            Serial.println(getValue);
-            Serial.flush();
-            requestFinished = true;
-            break;
-          }
-        } else {
-          headBuf += r;
-        }
-        lastByteReceived = millis();
-      }
-    }
-    if (!requestFinished) {
-      currentClient.stop();
-      lastByteReceived = 0;
-      Serial.println("Request timeout");
-      continue;
-    }
-    headBuf = String();
-    if (isPost) {
-      requestFinished = false;
-      bool wasNl = false;
-      bool headerFinished = false;
-      lastByteReceived = millis();
-      while ((lastByteReceived == 0 || millis() - lastByteReceived < WEB_SERVER_CLIENT_TIMEOUT) && !requestFinished) {
-        // Read until request body starts
-        while (currentClient.available() && !headerFinished) {
-          bodyBuf += char(currentClient.read());
-          if (bodyBuf.endsWith("\r\n")) {
-            bodyBuf = String();
-            if (wasNl) {
-              Serial.println("header finished");
-              headerFinished = true;
-              bodyBuf = String();
-              break;
-            }
-            wasNl = true;
-          } else {
-            wasNl = false;
-          }
-        }
-        while (currentClient.available() && headerFinished) {
-          bodyBuf += currentClient.read();
-        }
-      }
-      Serial.print("body: ");
-      Serial.println(bodyBuf);
-      if (getValue == "/api/conf/wifi") {
-        UrlDecode dec(bodyBuf.c_str());
-        Serial.println("decoder");
-        char* confNet = dec.getKey("net");
-        char* confPw = dec.getKey("pw");
-        Serial.println("Open config file");
-        File wifiStore = SPIFFS.open("/wifi.conf", "w");
-        Serial.println("Write config file");
-        urlEncodeWriteKeyValue("pw", confPw, wifiStore);
-        urlEncodeWriteKeyValue("ssid", confNet, wifiStore);
-        wifiStore.close();
-        Serial.println("Done writing config");
-        WiFi.begin(confNet, confPw); // quick fix.. chnage in js
-        Serial.printf("Trying connect to %s...\n", confNet);
-        int wStat = WiFi.status();
-        int ledVal = 0;
-        bool up = true;
-        while (wStat != WL_CONNECTED) {
-          if (wStat == WL_CONNECT_FAILED) {
-            break;
-          }
-          pixels.setPixelColor(1, pixels.Color(0, 0, ledVal));
-          pixels.setPixelColor(2, pixels.Color(0, 0, ledVal));
-          pixels.setPixelColor(3, pixels.Color(0, 0, ledVal));
-          pixels.setPixelColor(0, pixels.Color(0, 0, ledVal));
-          pixels.show();
-          if (ledVal == 100) {
-            up = false;
-          }
-          if (ledVal == 0) {
-            up = true;
-          }
-          if (up) {
-            ledVal++;
-          } else {
-            ledVal--;
-          }
-          delay(10);
-          wStat = WiFi.status();
-          Serial.printf("Wstat: %d\n", wStat);
-        }
-        pixels.setPixelColor(1, pixels.Color(0, 0, 0));
-        pixels.setPixelColor(2, pixels.Color(0, 0, 0));
-        pixels.setPixelColor(3, pixels.Color(0, 0, 0));
-        pixels.setPixelColor(0, pixels.Color(0, 0, 0));
-        pixels.show();
-        currentClient.write("HTTP/1.1 200\r\n");
-        currentClient.write("Cache-Control: no-cache\r\n");
-        if (wStat == WL_CONNECTED) {
-          currentClient.write("true");
-        } else {
-          currentClient.write("false");
-        }
-        delete[] confNet;
-        delete[] confPw;
-      } else if (getValue == "/api/conf/nick") { // Nickname configuration
-        UrlDecode nickUrlDecode(bodyBuf.c_str());
-        char* nick = nickUrlDecode.getKey("nick");
-        setNick(nick);
-        delete[] nick;
-        currentClient.write("HTTP/1.1 200\r\n");
-        currentClient.write("Cache-Control: no-cache\r\n\r\ntrue");
-      } else if (getValue == "/api/channels/add") { // Add channel
-        UrlDecode channelAddDecode(bodyBuf.c_str());
-        char* host = channelAddDecode.getKey("host");
-        char* url = channelAddDecode.getKey("url");
-        char* fingerprint = channelAddDecode.getKey("fingerprint");
-        addChannel(host, url, fingerprint);
-        delete[] host;
-        delete[] url;
-        delete[] fingerprint;
-        currentClient.write("HTTP/1.1 200\r\n");
-        currentClient.write("Cache-Control: no-cache\r\n\r\ntrue");
-      } else if (getValue == "/api/channels/delete") { // Delete channel
-        UrlDecode channelAddDecode(bodyBuf.c_str());
-        char* num = channelAddDecode.getKey("num");
-        int id = atoi(num);
-        bool success = deleteChannel(id);
-        delete[] num;
-        currentClient.write("HTTP/1.1 200\r\n");
-        currentClient.write("Cache-Control: no-cache\r\n\r\n");
-        currentClient.print(success);
-      } else {
-        currentClient.write("HTTP/1.1 404");
-        currentClient.write("\r\n\r\n");
-        currentClient.write(getValue.c_str());
-        currentClient.write(" Not Found!");
-      }
-    } else {
-      if (getValue.startsWith("/api/")) {
-        currentClient.write("HTTP/1.1 200\r\n");
-        currentClient.write("Cache-Control: no-cache\r\n");
-      }
-      if (getValue == "/api/wifi/scan") {
-        pixels.setPixelColor(0, pixels.Color(0, 0, 20));
-        pixels.setPixelColor(1, pixels.Color(0, 0, 20));
-        pixels.setPixelColor(2, pixels.Color(0, 0, 20));
-        pixels.setPixelColor(3, pixels.Color(0, 0, 20));
-        pixels.show();
-        int n = WiFi.scanNetworks();
-        delay(2000);
-        pixels.setPixelColor(0, pixels.Color(0, 0, 0));
-        pixels.setPixelColor(1, pixels.Color(0, 0, 0));
-        pixels.setPixelColor(2, pixels.Color(0, 0, 0));
-        pixels.setPixelColor(3, pixels.Color(0, 0, 0));
-        pixels.show();
-        currentClient.write("Content-Type: application/json");
-        currentClient.write("\r\n\r\n");
-        currentClient.write("[");
-        for (int i = 0; i < n; ++i)
-        {
-          currentClient.printf("{\"id\": %d", i);
-          currentClient.printf(",\"ssid\":\"%s\"", WiFi.SSID(i).c_str());
-          currentClient.printf(",\"rssi\": %d", WiFi.RSSI(i));
-          currentClient.printf(",\"encType\": %d", WiFi.encryptionType(i));
-          Serial.printf("Check >0: %d\n", currentClient.write("}"));
-          if (i + 1 < n) {
-            currentClient.write(",");
-          }
-          Serial.printf("Free heap in json write: %d\n", ESP.getFreeHeap());
-          currentClient.flush();
-        }
-        currentClient.write("]");
-      } else if (getValue == "/api/wifi/status") {
-        int stat = WiFi.status();
-        currentClient.write("\r\n\r\n");
-        if (stat == WL_DISCONNECTED) {
-          currentClient.write("Disconnected");
-        } else if (stat == WL_CONNECTION_LOST) {
-          currentClient.write("Connection lost");
-        } else if (stat == WL_CONNECTED) {
-          currentClient.write("Connected to '");
-          currentClient.write(WiFi.SSID().c_str());
-          currentClient.write("'");
-        } else if (stat == WL_IDLE_STATUS) {
-          currentClient.write("Idle");
-        } else if (stat == WL_CONNECT_FAILED) {
-          currentClient.write("Connection failed");
-        } else {
-          currentClient.printf("Unknown (%d)", stat);
-        }
-      } else if (getValue == "/api/channels") {
-        currentClient.write("\r\n\r\n");
-        ChannelIterator channels;
-        currentClient.write("[");
-        bool first = true;
-        while (channels.next()) {
-          if (first) {
-            first = false;
-          } else {
-            currentClient.write(",");
-          }
-
-          currentClient.write("{\"num\":");
-          currentClient.print(channels.channelNum());
-          currentClient.write(", \"host\":\"");
-          currentClient.print(channels.host());
-          currentClient.write("\", \"url\":\"");
-          currentClient.print(channels.url());
-          currentClient.write("\", \"fingerprint\":\"");
-          currentClient.print(channels.fingerprint());
-          currentClient.write("\"}");
-        }
-        currentClient.write("]");
-      } else {
-        if (getValue == "/") {
-          getValue = "/index.html";
-        }
-        String path = "/system/web" + getValue;
-        if (SPIFFS.exists(path) || SPIFFS.exists(path + ".gz")) {
-          currentClient.write("HTTP/1.1 200\r\n");
-          currentClient.write("Content-Type: ");
-          currentClient.write(getContentType(path).c_str());
-          currentClient.write("\r\nCache-Control: max-age=1800");
-          if (SPIFFS.exists(path + ".gz")) {
-            path += ".gz";
-            currentClient.write("\r\nContent-Encoding: gzip");
-          }
-          currentClient.write("\r\n\r\n");
-          File file = SPIFFS.open(path, "r");
-          path = String();
-          int pos = 0;
-          while (file.available()) {
-            writeBuf[pos++] = char(file.read());
-            if (pos == WEB_SERVER_BUFFER_SIZE) {
-              currentClient.write(&writeBuf[0], size_t(WEB_SERVER_BUFFER_SIZE));
-              pos = 0;
-            }
-          }
-          // Flush the remaining bytes
-          currentClient.write(&writeBuf[0], size_t(pos));
-          file.close();
-        } else {
-          currentClient.write("HTTP/1.1 404");
-          currentClient.write("\r\n\r\n");
-          currentClient.write(getValue.c_str());
-          currentClient.write(" Not Found!");
-        }
-      }
-    }
-    getValue = String();
-    currentClient.flush();
-    currentClient.stop();
-    requestFinished = false;
-    lastByteReceived = 0;
-    bodyBuf = String();
-    Serial.println("Finished client.");
-    Serial.printf("Free heap: %d\n", ESP.getFreeHeap());
+    webServer.doWork();
   }
-  server.close();
   ui->closeCurrent();
 }
 
@@ -588,21 +486,4 @@ void connectWizard(char* ssid, char* pw, FullScreenBMPStatus* webStatus) {
   pixels.setPixelColor(2, pixels.Color(0, b_state ? 0 : 30, 0));
   pixels.setPixelColor(3, pixels.Color(0, b_state ? 0 : 30, 0));
   pixels.show();
-}
-
-String getContentType(String filename) {
-  if (filename.endsWith(".htm")) return "text/html";
-  else if (filename.endsWith(".html")) return "text/html";
-  else if (filename.endsWith(".css")) return "text/css";
-  else if (filename.endsWith(".js")) return "application/javascript";
-  else if (filename.endsWith(".png")) return "image/png";
-  else if (filename.endsWith(".gif")) return "image/gif";
-  else if (filename.endsWith(".jpg")) return "image/jpeg";
-  else if (filename.endsWith(".ico")) return "image/x-icon";
-  else if (filename.endsWith(".xml")) return "text/xml";
-  else if (filename.endsWith(".pdf")) return "application/x-pdf";
-  else if (filename.endsWith(".zip")) return "application/x-zip";
-  else if (filename.endsWith(".gz")) return "application/x-gzip";
-  else if (filename.endsWith(".json")) return "application/json";
-  return "text/plain";
 }
