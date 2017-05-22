@@ -186,6 +186,10 @@ void recalculateStates() {
   while(channelIterator.next()){
     uint32_t current_server_timestamp = 0;
     {
+      if (!SPIFFS.exists(channelIterator.filename("timestamp"))) {
+        Serial.println("no timestamps, wont recalculate states");
+        continue;
+      }
       File timestamp_file = channelIterator.file("timestamp", "r");
       String server_timestamp_str = timestamp_file.readStringUntil('\n');
       String local_timestamp_str = timestamp_file.readStringUntil('\n');
