@@ -106,11 +106,34 @@ $(document).ready(function () {
         if (locked) {
             return;
         }
+
+        var host = $('#chan-host').val();
+        var url = $('#chan-url').val();
+        var fingerprint = $('#chan-fingerprint').val();
+
+        var channels_alert = $("#channels-alert");
+        channels_alert.empty();
+        var ul = channels_alert.append($("<ul>"));
+        var error = false;
+        if (fingerprint.match(/^([0-9A-F]{2} ){19}([0-9A-F]{2})$/) === null) {
+            ul.append($("<li>").text('Fingerprint is not a SHA1 fingerprint in the expected format:\n([0-9A-F]{2} ){19}([0-9A-F]{2})'));
+            error = true;
+        }
+        if (!url.startsWith("/")) {
+            ul.append($("<li>").text('Url has to start with "/"'));
+            error = true;
+        }
+        if (error) {
+            channels_alert.removeClass('hidden');
+            return;
+        } else {
+            channels_alert.addClass('hidden');
+        }
         lock();
         $.post("/api/channels/add", {
-            host: $('#chan-host').val(),
-            url: $('#chan-url').val(),
-            fingerprint: $('#chan-fingerprint').val(),
+            host: host,
+            url: url,
+            fingerprint: fingerprint
         }, function (data) {
             unlock();
             loadChannels();
