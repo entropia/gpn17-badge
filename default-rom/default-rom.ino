@@ -112,9 +112,8 @@ void setup() {
       pullNotifications();
     }
     mainMenu->addMenuItem(new MenuItem("Badge", []() {
-      FullScreenBMPStatus* badge_screen = new FullScreenBMPStatus();
-      badge_screen->setBmp("/badge.bmp", 0, 0);
-      badge_screen->setSub("", 0, 0);
+      FullScreenBMPDisplay* badge_screen = new FullScreenBMPDisplay();
+      badge_screen->setBmp("/badge.bmp");
       ui->open(badge_screen);
     }));
     mainMenu->addMenuItem(new MenuItem("Notifications", []() {
