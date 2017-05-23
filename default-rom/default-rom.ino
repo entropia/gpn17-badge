@@ -102,7 +102,14 @@ void setup() {
       ui->open(notificationMenu);
     }));
     mainMenu->addMenuItem(new MenuItem("Configuration", []() {
-      initialConfig();
+      Menu * configMenu = new Menu(2);
+      configMenu->addMenuItem(new MenuItem("Back", []() {
+            ui->closeCurrent();
+      }));
+      configMenu->addMenuItem(new MenuItem("WiFi Config", []() {
+          initialConfig();
+      }));
+      ui->open(configMenu);
     }));
     mainMenu->addMenuItem(new MenuItem("Info", []() {
       Menu * infoMenu = new Menu();
