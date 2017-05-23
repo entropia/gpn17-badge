@@ -1,6 +1,9 @@
 // vim: noai:ts=2:sw=2
 #include "WebServer.h"
 #include <FS.h>
+#undef min
+#undef max
+#include <vector>
 
 WebServer::~WebServer() {
   server.close();
@@ -46,45 +49,78 @@ void writeCacheHeader(Stream & stream, CacheTime cacheTime) {
   }
 }
 
+
+void kmp(const String & needle, Stream & haystack, Stream * into) {
+  int m = needle.length();
+  std::vector<int> border(m + 1);
+  border[0] = -1;
+  for (int i = 0; i < m; ++i) {
+    border[i+1] = border[i];
+    while (border[i+1] > -1 and needle[border[i+1]] != needle[i]) {
+      border[i+1] = border[border[i+1]];
+    }
+    border[i+1]++;
+  }
+
+  int seen = 0;
+  while (haystack.available()) {
+    char c = haystack.read();
+    while (seen > -1 and needle[seen] != c) {
+      seen = border[seen];
+    }
+    if (++seen == m) {
+	    seen = border[m]; // There are no more characters in needle, so with the next input character let's try with the border of the whole needle.
+      return;
+    } else {
+      if (into) {
+        into->write(c);
+      }
+    }
+  }
+}
+
 void WebServer::doWork() {
-  String headBuf;
-  String bodyBuf;
   String getValue;
   unsigned long lastByteReceived = 0;
-  bool requestFinished = false;
   bool isPost = false;
   WiFiClient currentClient = server.available();
   if (!currentClient || !currentClient.connected())  {
     return;
   }
-  while ((lastByteReceived == 0 || millis() - lastByteReceived < WEB_SERVER_CLIENT_TIMEOUT) && !requestFinished) {
-    while (currentClient.available()) {
-      char r = char(currentClient.read());
-      if (r == '\n') {
-        isPost = headBuf.startsWith("POST");
-        if (headBuf.startsWith("GET") || isPost) {
-          getValue = headBuf.substring(4, headBuf.length() - 10);
-          getValue.trim();
-          Serial.print("GET/POST::");
-          Serial.println(getValue);
-          Serial.flush();
-          requestFinished = true;
-          break;
+  Serial.println("got client");
+  {
+    bool requestFinished = false;
+    String headBuf;
+    while ((lastByteReceived == 0 || millis() - lastByteReceived < WEB_SERVER_CLIENT_TIMEOUT) && !requestFinished) {
+      while (currentClient.available()) {
+        char r = char(currentClient.read());
+        if (r == '\n') {
+          isPost = headBuf.startsWith("POST");
+          if (headBuf.startsWith("GET") || isPost) {
+            getValue = headBuf.substring(4, headBuf.length() - 10);
+            getValue.trim();
+            Serial.print("GET/POST::");
+            Serial.println(getValue);
+            Serial.flush();
+            requestFinished = true;
+            break;
+          }
+        } else {
+          headBuf += r;
         }
-      } else {
-        headBuf += r;
+        lastByteReceived = millis();
       }
-      lastByteReceived = millis();
+    }
+    if (!requestFinished) {
+      currentClient.stop();
+      lastByteReceived = 0;
+      Serial.println("Request timeout");
+      return;
     }
   }
-  if (!requestFinished) {
-    currentClient.stop();
-    lastByteReceived = 0;
-    Serial.println("Request timeout");
-    return;
-  }
-  headBuf = String();
   if (isPost) {
+    String contentTypeHeader;
+    String bodyBuf;
     bool headerFinished = false;
     lastByteReceived = millis();
     while ((lastByteReceived == 0 || millis() - lastByteReceived < WEB_SERVER_CLIENT_TIMEOUT) && !headerFinished) {
@@ -92,6 +128,10 @@ void WebServer::doWork() {
       while (currentClient.available() && !headerFinished) {
         bodyBuf += char(currentClient.read());
         if (bodyBuf.endsWith("\r\n")) {
+          if (bodyBuf.startsWith("Content-Type:")) {
+            Serial.println(bodyBuf);
+            contentTypeHeader = bodyBuf;
+          }
           if (bodyBuf == "\r\n") {
             Serial.println("header finished");
             headerFinished = true;
@@ -103,20 +143,36 @@ void WebServer::doWork() {
         lastByteReceived = millis();
       }
     }
-    Serial.print("body: ");
-    Serial.println(bodyBuf);
-    PostPageMap::const_iterator page_it = postHandlers.find(getValue);
-    if (page_it != postHandlers.end()) {
-      const Page<PostHandler> & page = (*page_it).second;
-      currentClient.write("HTTP/1.1 200\r\n");
-      writeCacheHeader(currentClient, page.cacheTime);
-      currentClient.write("\r\n");
-      page.handler(currentClient);
+    if (getValue == "/upload") {
+      int bound_start = contentTypeHeader.indexOf("boundary=");
+      int bound_end = contentTypeHeader.indexOf(" ", bound_start);
+      String boundary = contentTypeHeader.substring(bound_start + 9, bound_end);
+      Serial.print("boundary:");
+      Serial.println(boundary);
+
+      kmp(boundary, currentClient, nullptr);
+      Serial.println("Found first boundary");
+      kmp("\r\n\r\n", currentClient, nullptr);
+      Serial.println("Read part headers");
+      {
+        File file = SPIFFS.open("/system/web/uptest", "w");
+        kmp(boundary, currentClient, &file);
+      }
+      Serial.println("Read part body");
     } else {
-      currentClient.write("HTTP/1.1 404");
-      currentClient.write("\r\n\r\n");
-      currentClient.write(getValue.c_str());
-      currentClient.write(" Not Found!");
+      PostPageMap::const_iterator page_it = postHandlers.find(getValue);
+      if (page_it != postHandlers.end()) {
+        const Page<PostHandler> & page = (*page_it).second;
+        currentClient.write("HTTP/1.1 200\r\n");
+        writeCacheHeader(currentClient, page.cacheTime);
+        currentClient.write("\r\n");
+        page.handler(currentClient);
+      } else {
+        currentClient.write("HTTP/1.1 404");
+        currentClient.write("\r\n\r\n");
+        currentClient.write(getValue.c_str());
+        currentClient.write(" Not Found!");
+      }
     }
   } else {
     GetPageMap::const_iterator page_it = getHandlers.find(getValue);
