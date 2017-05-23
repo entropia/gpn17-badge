@@ -63,20 +63,47 @@ void kmp(const String & needle, Stream & haystack, Stream * into) {
   }
 
   int seen = 0;
+  char ringbuf[m];
+  int p = 0;
+  int l = 0;
   while (haystack.available()) {
     char c = haystack.read();
     while (seen > -1 and needle[seen] != c) {
       seen = border[seen];
     }
     if (++seen == m) {
-	    seen = border[m]; // There are no more characters in needle, so with the next input character let's try with the border of the whole needle.
+	    //seen = border[m];
+      Serial.print("l=");
+      Serial.println(l);
+      Serial.println("Rest: ");
+        while (l > 0) {
+          int idx = (p - l) % m;
+          if (idx < 0) idx += m;
+
+          Serial.write(ringbuf[idx]);
+          l--;
+        }
+      Serial.println("");
       return;
     } else {
       if (into) {
-        into->write(c);
+        ringbuf[p] = c;
+        l++;
+        if (l > m) {
+          Serial.println("Logic error in kmp ringbuf");
+        }
+        p = (p + 1) % m;
+        while (seen < l && l > 0) {
+          int idx = (p - l) % m;
+          if (idx < 0) idx += m;
+
+          into->write(ringbuf[idx]);
+          l--;
+        }
       }
     }
   }
+  Serial.println("needle not found");
 }
 
 void WebServer::doWork() {
@@ -147,6 +174,10 @@ void WebServer::doWork() {
       int bound_start = contentTypeHeader.indexOf("boundary=");
       int bound_end = contentTypeHeader.indexOf(" ", bound_start);
       String boundary = contentTypeHeader.substring(bound_start + 9, bound_end);
+      if (boundary.endsWith("\r\n")) {
+        boundary = boundary.substring(0, boundary.length() - 4);
+      }
+      boundary = String("--") + boundary;
       Serial.print("boundary:");
       Serial.println(boundary);
 
@@ -156,7 +187,7 @@ void WebServer::doWork() {
       Serial.println("Read part headers");
       {
         File file = SPIFFS.open("/system/web/uptest", "w");
-        kmp(boundary, currentClient, &file);
+        kmp(String("\r\n") + boundary, currentClient, &file);
       }
       Serial.println("Read part body");
     } else {
