@@ -43,6 +43,32 @@ char writeBuf[WEB_SERVER_BUFFER_SIZE];
 Menu * mainMenu = new Menu();
 StatusOverlay * status = new StatusOverlay(BAT_CRITICAL, BAT_FULL);
 bool initialSync = false;
+bool autoTheme = false;
+bool isDark = false;
+
+String getConfig(String key, String def) {
+  if(!SPIFFS.exists(key)){
+    setConfig(key, def);
+    return def;
+  }
+  File f = SPIFFS.open(key, "r");
+  String ret = "";
+  while(f.available()) {
+    ret += char(f.read());
+  }
+  f.close();
+  if(ret == "" && ret != def) {
+    setConfig(key, def);
+    return def;
+  }
+  return ret;
+}
+
+void setConfig(String key, String value) {
+  File f = SPIFFS.open(key, "w");
+  f.print(value);
+  f.close();
+} 
 
 void setup() {
   badge.init();
@@ -106,6 +132,27 @@ void setup() {
       configMenu->addMenuItem(new MenuItem("Back", []() {
             ui->closeCurrent();
       }));
+      MenuItem * themeItem = new MenuItem("Theme:\n   "+getConfig("theme", "Light"), []() {});
+      themeItem->setTrigger([themeItem]() {
+       String current = getConfig("theme", "Light"); 
+       autoTheme = false;
+       if(current == "Light") {
+        themeItem->setText("Dark");
+        setConfig("theme", "Dark");
+        ui->setTheme(new ThemeDark());
+        isDark = true;
+       } else if(current == "Dark") {
+        themeItem->setText("Auto");
+        setConfig("theme", "Auto");
+        autoTheme = true;
+       } else {
+        isDark = false;
+        ui->setTheme(new ThemeLight());
+        setConfig("theme", "Light");
+        themeItem->setText("Light");
+       }
+      });
+      configMenu->addMenuItem(themeItem);
       configMenu->addMenuItem(new MenuItem("WiFi Config", []() {
           initialConfig();
       }));
@@ -127,6 +174,15 @@ void setup() {
       })); 
       ui->open(infoMenu); 
     }));
+    String themeConf = getConfig("theme", "Light");
+    if(themeConf == "auto") {
+      autoTheme = true;
+    } else if(themeConf == "Light"){
+      ui->setTheme(new ThemeLight());
+    } else {
+      ui->setTheme(new ThemeDark());
+      isDark = true;
+    }
     mainMenu->addMenuItem(new MenuItem("Factory reset", []() {}));
     ui->open(mainMenu);
     status->updateBat(badge.getBatVoltage());
@@ -143,24 +199,25 @@ void setup() {
 }
 
 unsigned long lastOneSecoundTask = 0;
-bool isDark = false;
 uint16_t lightAvg = 0;
 int16_t batAvg = -1;
 uint16_t pollDelay = 0;
 
 void loop() {
   lightAvg = .99f*lightAvg + .01f*badge.getLDRLvl(); 
-  if(lightAvg > 700) {
-    if(!isDark) {
-      Serial.println("Switching to dark theme");
-      ui->setTheme(new ThemeDark());
-      isDark = true;
-    } 
-  } else {
-    if(isDark) {
-      Serial.println("Switching to light theme");
-      isDark = false;
-      ui->setTheme(new ThemeLight());
+  if(autoTheme) {
+    if(lightAvg > 700) {
+      if(!isDark) {
+        Serial.println("Switching to dark theme");
+        ui->setTheme(new ThemeDark());
+        isDark = true;
+      } 
+    } else {
+      if(isDark) {
+        Serial.println("Switching to light theme");
+        isDark = false;
+        ui->setTheme(new ThemeLight());
+      }
     }
   }
   ui->dispatchInput(badge.getJoystickState());
