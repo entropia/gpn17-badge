@@ -54,6 +54,7 @@ public:
   String host();
   String url();
   String fingerprint();
+  String name();
 private:
   Dir channels_dir;
   String channel_dir_base;
