@@ -85,29 +85,22 @@ void WebServer::doWork() {
   }
   headBuf = String();
   if (isPost) {
-    requestFinished = false;
-    bool wasNl = false;
     bool headerFinished = false;
     lastByteReceived = millis();
-    while ((lastByteReceived == 0 || millis() - lastByteReceived < WEB_SERVER_CLIENT_TIMEOUT) && !requestFinished) {
+    while ((lastByteReceived == 0 || millis() - lastByteReceived < WEB_SERVER_CLIENT_TIMEOUT) && !headerFinished) {
       // Read until request body starts
       while (currentClient.available() && !headerFinished) {
         bodyBuf += char(currentClient.read());
         if (bodyBuf.endsWith("\r\n")) {
-          bodyBuf = String();
-          if (wasNl) {
+          if (bodyBuf == "\r\n") {
             Serial.println("header finished");
             headerFinished = true;
             bodyBuf = String();
             break;
           }
-          wasNl = true;
-        } else {
-          wasNl = false;
+          bodyBuf = String();
         }
-      }
-      while (currentClient.available() && headerFinished) {
-        bodyBuf += currentClient.read();
+        lastByteReceived = millis();
       }
     }
     Serial.print("body: ");
@@ -118,7 +111,7 @@ void WebServer::doWork() {
       currentClient.write("HTTP/1.1 200\r\n");
       writeCacheHeader(currentClient, page.cacheTime);
       currentClient.write("\r\n");
-      page.handler(currentClient, bodyBuf);
+      page.handler(currentClient);
     } else {
       currentClient.write("HTTP/1.1 404");
       currentClient.write("\r\n\r\n");
@@ -175,4 +168,12 @@ void WebServer::doWork() {
   currentClient.stop();
   Serial.println("Finished client.");
   Serial.printf("Free heap: %d\n", ESP.getFreeHeap());
+}
+
+String readAll(Stream & stream) {
+  String string;
+  while(stream.available()) {
+    string += char(stream.read());
+  }
+  return string;
 }
