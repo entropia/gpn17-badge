@@ -197,7 +197,6 @@ void setup() {
       ui->setTheme(new ThemeDark());
       isDark = true;
     }
-    mainMenu->addMenuItem(new MenuItem("Factory reset", []() {}));
     ui->open(mainMenu);
     status->updateBat(badge.getBatVoltage());
     int wStat = WiFi.status();
