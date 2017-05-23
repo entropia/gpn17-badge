@@ -21,6 +21,12 @@
     </div>
 </nav>
 <div class="container">
+    <form method="post" enctype="multipart/form-data" action="/upload" >
+  <label>Wählen Sie eine Textdatei (*.txt, *.html usw.) von Ihrem Rechner aus.
+    <input name="datei" type="file" size="50" > 
+  </label>  
+  <button>… und ab geht die Post!</button>
+</form>
     <h1>Customize your Badge</h1>
     Name <input class="form-control badgeconfinput" type="text" name="name" id="nick" placeholder="Your Nick"
                 class="badgeconfinput"/>
