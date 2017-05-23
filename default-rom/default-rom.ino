@@ -45,7 +45,6 @@ WindowSystem* ui = new WindowSystem(&tft);
 char writeBuf[WEB_SERVER_BUFFER_SIZE];
 Menu * mainMenu = new Menu();
 StatusOverlay * status = new StatusOverlay(BAT_CRITICAL, BAT_FULL);
-bool initialSync = false;
 bool autoTheme = false;
 bool isDark = false;
 
@@ -253,9 +252,7 @@ void loop() {
     lastNotificationPull = millis();
   }
   if (millis() - lastOneSecoundTask > 1000) {
-    if(initialSync) {
-      recalculateStates();
-    }
+    recalculateStates();
     NotificationIterator notit(NotificationFilter::NOT_NOTIFIED);
     if (notit.next()) {
       Notification noti = notit.getNotification();
