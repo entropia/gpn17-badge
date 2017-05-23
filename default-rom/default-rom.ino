@@ -20,6 +20,7 @@
 #include <FS.h>
 #include "notification_db.h"
 #include "WebServer.h"
+#include <rboot-api.h>
 
 #include "rboot.h"
 #include "rboot-api.h"
@@ -102,6 +103,14 @@ void setup() {
   badge.setAnalogMUX(MUX_JOY);
 
   deleteTimestampFiles();
+
+  rboot_config rboot_config = rboot_get_config();
+  Serial.print("I am in Slot ");
+  Serial.println(rboot_config.current_rom);
+
+  SPIFFS.begin();
+  File f = SPIFFS.open("/rom" + String(rboot_config.current_rom), "w");
+  f.println("Default ROM\n");
 
   if (SPIFFS.exists("/wifi.conf")) {
     Serial.print("Found wifi config");
