@@ -69,6 +69,13 @@ void pullNotifications() {
     }
 
     {
+      String name_str = client.readStringUntil('\n');
+      File name_file = channelIterator.file("name", "w");
+      name_file.print(name_str);
+      name_file.write('\n');
+    }
+
+    {
       File data_file = channelIterator.file("data", "w");
       while (client.available()) {
         uint8_t buf[128];
@@ -355,7 +362,19 @@ String ChannelIterator::fingerprint() {
     fingerprint += r;
   }
   return fingerprint;
+}
 
+String ChannelIterator::name() {
+  String name;
+
+  File name_file = file("name", "r");
+
+  while (name_file.available()) {
+    char r = char(name_file.read());
+    if (r == '\n') break;
+    name += r;
+  }
+  return name;
 }
 
 NotificationIterator::NotificationIterator(NotificationFilter filter)
