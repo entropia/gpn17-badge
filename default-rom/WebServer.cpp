@@ -50,7 +50,7 @@ void writeCacheHeader(Stream & stream, CacheTime cacheTime) {
 }
 
 
-void kmp(const String & needle, Stream & haystack, Stream * into) {
+bool kmp(const String & needle, Stream & haystack, Stream * into) {
   int m = needle.length();
   std::vector<int> border(m + 1);
   border[0] = -1;
@@ -84,7 +84,7 @@ void kmp(const String & needle, Stream & haystack, Stream * into) {
           l--;
         }
       Serial.println("");
-      return;
+      return true;
     } else {
       if (into) {
         ringbuf[p] = c;
@@ -104,6 +104,7 @@ void kmp(const String & needle, Stream & haystack, Stream * into) {
     }
   }
   Serial.println("needle not found");
+  return false;
 }
 
 void WebServer::doWork() {
@@ -181,15 +182,22 @@ void WebServer::doWork() {
       Serial.print("boundary:");
       Serial.println(boundary);
 
-      kmp(boundary, currentClient, nullptr);
-      Serial.println("Found first boundary");
-      kmp("\r\n\r\n", currentClient, nullptr);
-      Serial.println("Read part headers");
-      {
-        File file = SPIFFS.open("/system/web/uptest", "w");
-        kmp(String("\r\n") + boundary, currentClient, &file);
+      if (kmp(boundary, currentClient, nullptr)) {
+        Serial.println("Found first boundary");
+        if (kmp("\r\n\r\n", currentClient, nullptr)) {
+          Serial.println("Read part headers");
+          File file = SPIFFS.open("/system/web/uptest", "w");
+          if (kmp(String("\r\n") + boundary, currentClient, &file)) {
+            Serial.println("Read part body");
+          } else {
+            Serial.println("Body end not found");
+          }
+        } else {
+          Serial.println("Header end not found");
+        }
+      } else {
+        Serial.println("first boundary not found");
       }
-      Serial.println("Read part body");
     } else {
       PostPageMap::const_iterator page_it = postHandlers.find(getValue);
       if (page_it != postHandlers.end()) {
