@@ -49,7 +49,7 @@ bool autoTheme = false;
 bool isDark = false;
 
 String getConfig(String key, String def) {
-  if(!SPIFFS.exists(key)){
+  if(!SPIFFS.exists("/"+key)){
     setConfig(key, def);
     return def;
   }
@@ -68,7 +68,9 @@ String getConfig(String key, String def) {
 
 void setConfig(String key, String value) {
   File f = SPIFFS.open("/"+key, "w");
+  Serial.printf("Conf save: %s value=%s\n", key.c_str(), value.c_str());
   f.print(value);
+  f.flush();
   f.close();
 } 
 
@@ -151,21 +153,19 @@ void setup() {
        String current = getConfig("theme", DEFAULT_THEME); 
        autoTheme = false;
        if(current == "Light") {
-        themeItem->setText("Theme: Dark");
         setConfig("theme", "Dark");
         ui->setTheme(new ThemeDark());
         isDark = true;
        } else if(current == "Dark") {
-        themeItem->setText("Theme: Auto");
         setConfig("theme", "Auto");
         autoTheme = true;
        } else {
         isDark = false;
         ui->setTheme(new ThemeLight());
         setConfig("theme", "Light");
-        themeItem->setText("Theme: Light");
        }
-      });
+       themeItem->setText("Theme: "+getConfig("theme", DEFAULT_THEME));
+       });
       configMenu->addMenuItem(themeItem);
       configMenu->addMenuItem(new MenuItem("WiFi Config", []() {
           initialConfig();
@@ -189,7 +189,7 @@ void setup() {
       ui->open(infoMenu); 
     }));
     String themeConf = getConfig("theme", DEFAULT_THEME);
-    if(themeConf == "auto") {
+    if(themeConf == "Auto") {
       autoTheme = true;
     } else if(themeConf == "Light"){
       ui->setTheme(new ThemeLight());
