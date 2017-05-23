@@ -24,7 +24,7 @@ struct Page {
 class WebServer {
 public:
   typedef std::function<void(Stream &)> GetHandler;
-  typedef std::function<void(Stream &, const String &)> PostHandler;
+  typedef std::function<void(Stream &)> PostHandler;
   typedef std::map<String, Page<GetHandler>> GetPageMap;
   typedef std::map<String, Page<PostHandler>> PostPageMap;
   WebServer(int port, String staticPath)
@@ -41,3 +41,5 @@ private:
   PostPageMap postHandlers;
   String staticPath;
 };
+
+String readAll(Stream & stream);

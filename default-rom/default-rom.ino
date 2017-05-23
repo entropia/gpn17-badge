@@ -254,7 +254,8 @@ void initialConfig() {
   WebServer webServer(80, "/system/web");
   webServer.begin();
   webServer.registerPost("/api/conf/wifi", Page<WebServer::PostHandler>(CacheTime::NO_CACHE,
-    [](Stream & currentClient, const String & bodyBuf) {
+    [](Stream & currentClient) {
+      String bodyBuf = readAll(currentClient);
       UrlDecode dec(bodyBuf.c_str());
       Serial.println("decoder");
       char* confNet = dec.getKey("net");
@@ -311,7 +312,8 @@ void initialConfig() {
   ));
 
   webServer.registerPost("/api/conf/nick", Page<WebServer::PostHandler>(CacheTime::NO_CACHE,
-    [](Stream & currentClient, const String & bodyBuf) {
+    [](Stream & currentClient) {
+      String bodyBuf = readAll(currentClient);
       UrlDecode nickUrlDecode(bodyBuf.c_str());
       char* nick = nickUrlDecode.getKey("nick");
       setNick(nick);
@@ -321,7 +323,8 @@ void initialConfig() {
   ));
 
   webServer.registerPost("/api/channels/add", Page<WebServer::PostHandler>(CacheTime::NO_CACHE,
-    [](Stream & currentClient, const String & bodyBuf) {
+    [](Stream & currentClient) {
+      String bodyBuf = readAll(currentClient);
       UrlDecode channelAddDecode(bodyBuf.c_str());
       char* host = channelAddDecode.getKey("host");
       char* url = channelAddDecode.getKey("url");
@@ -335,7 +338,8 @@ void initialConfig() {
   ));
 
   webServer.registerPost("/api/channels/delete", Page<WebServer::PostHandler>(CacheTime::NO_CACHE,
-    [](Stream & currentClient, const String & bodyBuf) {
+    [](Stream & currentClient) {
+      String bodyBuf = readAll(currentClient);
       UrlDecode channelAddDecode(bodyBuf.c_str());
       char* num = channelAddDecode.getKey("num");
       int id = atoi(num);
