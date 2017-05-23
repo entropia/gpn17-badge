@@ -102,7 +102,12 @@ void setup() {
     if(connectBadge()) {
       pullNotifications();
     }
-    mainMenu->addMenuItem(new MenuItem("Badge", []() {}));
+    mainMenu->addMenuItem(new MenuItem("Badge", []() {
+      FullScreenBMPStatus* badge_screen = new FullScreenBMPStatus();
+      badge_screen->setBmp("/badge.bmp", 0, 0);
+      badge_screen->setSub("", 0, 0);
+      ui->open(badge_screen);
+    }));
     mainMenu->addMenuItem(new MenuItem("Notifications", []() {
       Menu * notificationMenu = new Menu();
       notificationMenu->addMenuItem(new MenuItem("Back", []() {

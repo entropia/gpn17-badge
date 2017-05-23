@@ -171,7 +171,7 @@ void WebServer::doWork() {
         lastByteReceived = millis();
       }
     }
-    if (getValue == "/upload") {
+    if (getValue == "/upload_badge") {
       int bound_start = contentTypeHeader.indexOf("boundary=");
       int bound_end = contentTypeHeader.indexOf(" ", bound_start);
       String boundary = contentTypeHeader.substring(bound_start + 9, bound_end);
@@ -186,7 +186,7 @@ void WebServer::doWork() {
         Serial.println("Found first boundary");
         if (kmp("\r\n\r\n", currentClient, nullptr)) {
           Serial.println("Read part headers");
-          File file = SPIFFS.open("/system/web/uptest", "w");
+          File file = SPIFFS.open("/badge.bmp", "w");
           if (kmp(String("\r\n") + boundary, currentClient, &file)) {
             Serial.println("Read part body");
           } else {
@@ -198,6 +198,9 @@ void WebServer::doWork() {
       } else {
         Serial.println("first boundary not found");
       }
+      currentClient.write("HTTP/1.1 303 See Other\r\n");
+      currentClient.write("Location: /\r\n");
+      currentClient.write("\r\n");
     } else {
       PostPageMap::const_iterator page_it = postHandlers.find(getValue);
       if (page_it != postHandlers.end()) {
