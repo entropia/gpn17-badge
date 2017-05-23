@@ -132,7 +132,6 @@ void WebServer::doWork() {
       }
       String path = staticPath + getValue;
       if (SPIFFS.exists(path) || SPIFFS.exists(path + ".gz")) {
-        char writeBuf[WEB_SERVER_BUFFER_SIZE];
         currentClient.write("HTTP/1.1 200\r\n");
         currentClient.write("Content-Type: ");
         currentClient.write(getContentType(path).c_str());
@@ -145,16 +144,13 @@ void WebServer::doWork() {
         currentClient.write("\r\n");
         File file = SPIFFS.open(path, "r");
         path = String();
-        int pos = 0;
+        uint8_t writeBuf[WEB_SERVER_BUFFER_SIZE];
         while (file.available()) {
-          writeBuf[pos++] = char(file.read());
-          if (pos == WEB_SERVER_BUFFER_SIZE) {
-            currentClient.write(&writeBuf[0], size_t(WEB_SERVER_BUFFER_SIZE));
-            pos = 0;
+          size_t len = file.read(writeBuf, sizeof(writeBuf));
+          if (!currentClient.write(&writeBuf[0], len)) {
+            break;
           }
         }
-        // Flush the remaining bytes
-        currentClient.write(&writeBuf[0], size_t(pos));
         file.close();
       } else {
         currentClient.write("HTTP/1.1 404");
