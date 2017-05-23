@@ -31,6 +31,8 @@
 #define YELLOW  0xFFE0
 #define WHITE   0xFFFF
 
+#define DEFAULT_THEME "Light"
+
 Badge badge;
 WindowSystem* ui = new WindowSystem(&tft);
 char writeBuf[WEB_SERVER_BUFFER_SIZE];
@@ -45,7 +47,7 @@ String getConfig(String key, String def) {
     setConfig(key, def);
     return def;
   }
-  File f = SPIFFS.open(key, "r");
+  File f = SPIFFS.open("/"+key, "r");
   String ret = "";
   while(f.available()) {
     ret += char(f.read());
@@ -59,7 +61,7 @@ String getConfig(String key, String def) {
 }
 
 void setConfig(String key, String value) {
-  File f = SPIFFS.open(key, "w");
+  File f = SPIFFS.open("/"+key, "w");
   f.print(value);
   f.close();
 } 
@@ -126,9 +128,9 @@ void setup() {
       configMenu->addMenuItem(new MenuItem("Back", []() {
             ui->closeCurrent();
       }));
-      MenuItem * themeItem = new MenuItem("Theme: "+getConfig("theme", "Light"), []() {});
+      MenuItem * themeItem = new MenuItem("Theme: "+getConfig("theme", DEFAULT_THEME), []() {});
       themeItem->setTrigger([themeItem]() {
-       String current = getConfig("theme", "Light"); 
+       String current = getConfig("theme", DEFAULT_THEME); 
        autoTheme = false;
        if(current == "Light") {
         themeItem->setText("Theme: Dark");
@@ -168,7 +170,7 @@ void setup() {
       })); 
       ui->open(infoMenu); 
     }));
-    String themeConf = getConfig("theme", "Light");
+    String themeConf = getConfig("theme", DEFAULT_THEME);
     if(themeConf == "auto") {
       autoTheme = true;
     } else if(themeConf == "Light"){
