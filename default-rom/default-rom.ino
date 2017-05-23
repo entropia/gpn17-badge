@@ -128,28 +128,28 @@ void setup() {
       ui->open(notificationMenu);
     }));
     mainMenu->addMenuItem(new MenuItem("Configuration", []() {
-      Menu * configMenu = new Menu(2);
+      Menu * configMenu = new Menu();
       configMenu->addMenuItem(new MenuItem("Back", []() {
             ui->closeCurrent();
       }));
-      MenuItem * themeItem = new MenuItem("Theme:\n   "+getConfig("theme", "Light"), []() {});
+      MenuItem * themeItem = new MenuItem("Theme: "+getConfig("theme", "Light"), []() {});
       themeItem->setTrigger([themeItem]() {
        String current = getConfig("theme", "Light"); 
        autoTheme = false;
        if(current == "Light") {
-        themeItem->setText("Dark");
+        themeItem->setText("Theme: Dark");
         setConfig("theme", "Dark");
         ui->setTheme(new ThemeDark());
         isDark = true;
        } else if(current == "Dark") {
-        themeItem->setText("Auto");
+        themeItem->setText("Theme: Auto");
         setConfig("theme", "Auto");
         autoTheme = true;
        } else {
         isDark = false;
         ui->setTheme(new ThemeLight());
         setConfig("theme", "Light");
-        themeItem->setText("Light");
+        themeItem->setText("Theme: Light");
        }
       });
       configMenu->addMenuItem(themeItem);
