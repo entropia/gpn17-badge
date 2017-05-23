@@ -332,49 +332,53 @@ void initialConfig() {
       Serial.println("decoder");
       char* confNet = dec.getKey("net");
       char* confPw = dec.getKey("pw");
-      Serial.println("Open config file");
-      File wifiStore = SPIFFS.open("/wifi.conf", "w");
-      Serial.println("Write config file");
-      urlEncodeWriteKeyValue("pw", confPw, wifiStore);
-      urlEncodeWriteKeyValue("ssid", confNet, wifiStore);
-      wifiStore.close();
-      Serial.println("Done writing config");
-      WiFi.begin(confNet, confPw); // quick fix.. chnage in js
-      Serial.printf("Trying connect to %s...\n", confNet);
-      int wStat = WiFi.status();
-      int ledVal = 0;
-      bool up = true;
-      while (wStat != WL_CONNECTED) {
-        if (wStat == WL_CONNECT_FAILED) {
-          break;
+      if (confNet && confPw) {
+        Serial.println("Open config file");
+        File wifiStore = SPIFFS.open("/wifi.conf", "w");
+        Serial.println("Write config file");
+        urlEncodeWriteKeyValue("pw", confPw, wifiStore);
+        urlEncodeWriteKeyValue("ssid", confNet, wifiStore);
+        wifiStore.close();
+        Serial.println("Done writing config");
+        WiFi.begin(confNet, confPw); // quick fix.. chnage in js
+        Serial.printf("Trying connect to %s...\n", confNet);
+        int wStat = WiFi.status();
+        int ledVal = 0;
+        bool up = true;
+        while (wStat != WL_CONNECTED) {
+          if (wStat == WL_CONNECT_FAILED) {
+            break;
+          }
+          pixels.setPixelColor(1, pixels.Color(0, 0, ledVal));
+          pixels.setPixelColor(2, pixels.Color(0, 0, ledVal));
+          pixels.setPixelColor(3, pixels.Color(0, 0, ledVal));
+          pixels.setPixelColor(0, pixels.Color(0, 0, ledVal));
+          pixels.show();
+          if (ledVal == 100) {
+            up = false;
+          }
+          if (ledVal == 0) {
+            up = true;
+          }
+          if (up) {
+            ledVal++;
+          } else {
+            ledVal--;
+          }
+          delay(10);
+          wStat = WiFi.status();
+          Serial.printf("Wstat: %d\n", wStat);
         }
-        pixels.setPixelColor(1, pixels.Color(0, 0, ledVal));
-        pixels.setPixelColor(2, pixels.Color(0, 0, ledVal));
-        pixels.setPixelColor(3, pixels.Color(0, 0, ledVal));
-        pixels.setPixelColor(0, pixels.Color(0, 0, ledVal));
+        pixels.setPixelColor(1, pixels.Color(0, 0, 0));
+        pixels.setPixelColor(2, pixels.Color(0, 0, 0));
+        pixels.setPixelColor(3, pixels.Color(0, 0, 0));
+        pixels.setPixelColor(0, pixels.Color(0, 0, 0));
         pixels.show();
-        if (ledVal == 100) {
-          up = false;
-        }
-        if (ledVal == 0) {
-          up = true;
-        }
-        if (up) {
-          ledVal++;
+        if (wStat == WL_CONNECTED) {
+          currentClient.write("true");
         } else {
-          ledVal--;
+          currentClient.write("false");
         }
-        delay(10);
-        wStat = WiFi.status();
-        Serial.printf("Wstat: %d\n", wStat);
-      }
-      pixels.setPixelColor(1, pixels.Color(0, 0, 0));
-      pixels.setPixelColor(2, pixels.Color(0, 0, 0));
-      pixels.setPixelColor(3, pixels.Color(0, 0, 0));
-      pixels.setPixelColor(0, pixels.Color(0, 0, 0));
-      pixels.show();
-      if (wStat == WL_CONNECTED) {
-        currentClient.write("true");
       } else {
         currentClient.write("false");
       }
@@ -388,9 +392,13 @@ void initialConfig() {
       String bodyBuf = readAll(currentClient);
       UrlDecode nickUrlDecode(bodyBuf.c_str());
       char* nick = nickUrlDecode.getKey("nick");
-      setNick(nick);
-      delete[] nick;
-      currentClient.write("true");
+      if (nick) {
+        setNick(nick);
+        delete[] nick;
+        currentClient.write("true");
+      } else {
+        currentClient.write("false");
+      }
     }
   ));
 
@@ -401,23 +409,33 @@ void initialConfig() {
       char* host = channelAddDecode.getKey("host");
       char* url = channelAddDecode.getKey("url");
       char* fingerprint = channelAddDecode.getKey("fingerprint");
-      addChannel(host, url, fingerprint);
+      if (host && url && fingerprint) {
+        addChannel(host, url, fingerprint);
+        currentClient.write("true");
+      } else {
+        currentClient.write("false");
+      }
       delete[] host;
       delete[] url;
       delete[] fingerprint;
-      currentClient.write("true");
     }
   ));
 
   webServer.registerPost("/api/channels/delete", Page<WebServer::PostHandler>(CacheTime::NO_CACHE,
     [](Stream & currentClient) {
       String bodyBuf = readAll(currentClient);
+      Serial.print("delrecv:");
+      Serial.println(bodyBuf);
       UrlDecode channelAddDecode(bodyBuf.c_str());
       char* num = channelAddDecode.getKey("num");
-      int id = atoi(num);
-      bool success = deleteChannel(id);
-      delete[] num;
-      currentClient.print(success);
+      if (num) {
+        int id = atoi(num);
+        bool success = deleteChannel(id);
+        delete[] num;
+        currentClient.print(success);
+      } else {
+        currentClient.print(false);
+      }
     }
   ));
 
