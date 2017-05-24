@@ -33,6 +33,7 @@
 #define WHITE   0xFFFF
 
 #define DEFAULT_THEME "Light"
+#define CONFIG_PREFIX "/deflt/conf/"
 
 Badge badge;
 WindowSystem* ui = new WindowSystem(&tft);
@@ -48,11 +49,11 @@ String shareString;
 bool receiveShare = false;
 
 String getConfig(String key, String def) {
-  if(!SPIFFS.exists("/"+key)){
+  if(!SPIFFS.exists(CONFIG_PREFIX+key)){
     setConfig(key, def);
     return def;
   }
-  File f = SPIFFS.open("/"+key, "r");
+  File f = SPIFFS.open(CONFIG_PREFIX+key, "r");
   String ret = "";
   while(f.available()) {
     ret += char(f.read());
@@ -66,7 +67,7 @@ String getConfig(String key, String def) {
 }
 
 void setConfig(String key, String value) {
-  File f = SPIFFS.open("/"+key, "w");
+  File f = SPIFFS.open(CONFIG_PREFIX+key, "w");
   Serial.printf("Conf save: %s value=%s\n", key.c_str(), value.c_str());
   f.print(value);
   f.flush();
