@@ -41,7 +41,7 @@ Menu * mainMenu = new Menu();
 StatusOverlay * status = new StatusOverlay(BAT_CRITICAL, BAT_FULL);
 bool autoTheme = false;
 bool isDark = false;
-bool wifiLight = true;
+unsigned char wifiLight = 255;
 
 //Sharing
 String shareString;
@@ -167,17 +167,22 @@ void setup() {
        });
       configMenu->addMenuItem(themeItem);
 
-      MenuItem * wifiLightItem = new MenuItem("WifiLight: "+getConfig("wifilight", "on"), []() {});
+      MenuItem * wifiLightItem = new MenuItem("WifiLight: "+getConfig("wifilight", "255"), []() {});
       wifiLightItem->setTrigger([wifiLightItem]() {
-       String current = getConfig("wifilight", "on"); 
-       if(current == "off") {
-        setConfig("wifilight", "on");
-        wifiLight = true;
+       String current = getConfig("wifilight", "255"); 
+       if (current == "0") {
+        setConfig("wifilight", "255");
+       } else if(current == "255") {
+        setConfig("wifilight", "100");
+       } else if(current == "100") {
+        setConfig("wifilight", "50");
+       } else if(current == "50") {
+        setConfig("wifilight", "10");
        } else {
-        setConfig("wifilight", "off");
-        wifiLight = false;
+        setConfig("wifilight", "0");
        }
-       wifiLightItem->setText("WifiLight: "+getConfig("wifilight", "on"));
+       wifiLightItem->setText("WifiLight: "+getConfig("wifilight", "255"));
+       wifiLight = atoi(getConfig("wifilight", "255").c_str());
        });
       configMenu->addMenuItem(wifiLightItem);
 
@@ -256,8 +261,8 @@ void setup() {
       ui->setTheme(new ThemeDark());
       isDark = true;
     }
-    String wifiLightConf = getConfig("wifilight", "on");
-    wifiLight = wifiLightConf != "off";
+    String wifiLightConf = getConfig("wifilight", "255");
+    wifiLight = atoi(wifiLightConf.c_str());
     ui->open(mainMenu);
     status->updateBat(badge.getBatVoltage());
     int wStat = WiFi.status();
@@ -349,7 +354,7 @@ void loop() {
         Serial.println("");
 
         int colors[3];
-        HSVtoRGB(hash, 255, 100, colors);
+        HSVtoRGB(hash, 255, wifiLight, colors);
 
         pixels.setPixelColor(1, pixels.Color(colors[0], colors[1], colors[2]));
         pixels.setPixelColor(2, pixels.Color(colors[0], colors[1], colors[2]));
