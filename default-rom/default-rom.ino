@@ -370,36 +370,37 @@ void loop() {
         pixels.setPixelColor(0, pixels.Color(0, 0, 0));
     }
 
-
-    //IR Sharing
-    if (shareString.length() != 0) {
-      badge.setGPIO(IR_EN, HIGH);
-      Serial.println("NEC");
-      uint32_t code = 0;
-      uint8_t checksum = 0;
-      for (int i = 0; i < shareString.length(); i++){
-        checksum += shareString.charAt(i);
-        code = code | shareString.charAt(i) << (i % 4)*8;
-        if (i % 4 == 3) {
-          irsend.sendNEC(code, 32);
-          Serial.println(code, HEX);
-          code = 0;
-        }
-      }
-      if (code != 0) {
-        irsend.sendNEC(code, 32);
-        Serial.println(code, HEX);
-      }
-      Serial.print("Checksum: ");
-      Serial.println(checksum); //224
-      code = 0;
-      code = checksum << 8 | 222;
-      irsend.sendNEC(code, 32);
-      badge.setGPIO(IR_EN, LOW);
-    }
-
     lastOneSecoundTask = millis();
     pixels.show();
+  }
+
+
+  //IR Sharing
+  if (shareString.length() != 0) {
+    badge.setGPIO(IR_EN, HIGH);
+    Serial.println("NEC");
+    uint32_t code = 0;
+    uint8_t checksum = 0;
+    for (int i = 0; i < shareString.length(); i++){
+      ui->dispatchInput(badge.getJoystickState()); //Allow canceling
+      checksum += shareString.charAt(i);
+      code = code | shareString.charAt(i) << (i % 4)*8;
+      if (i % 4 == 3) {
+        irsend.sendNEC(code, 32);
+        Serial.println(code, HEX);
+        code = 0;
+      }
+    }
+    if (code != 0) {
+      irsend.sendNEC(code, 32);
+      Serial.println(code, HEX);
+    }
+    Serial.print("Checksum: ");
+    Serial.println(checksum); //224
+    code = 0;
+    code = checksum << 8 | 222;
+    irsend.sendNEC(code, 32);
+    badge.setGPIO(IR_EN, LOW);
   }
 
 
@@ -414,6 +415,7 @@ void loop() {
     uint8_t checksumRec = 0;
 
     while (!dataCompleted && receiveShare) {
+      int on_time = 0;
       decode_results  results;        // Somewhere to store the results
       if (irrecv.decode(&results)) {
         if (results.overflow) {
@@ -422,6 +424,11 @@ void loop() {
         }
         
         char * buf = reinterpret_cast<char*>(&results.value);
+
+        if (millis() - on_time > 500) {
+          pixels.setPixelColor(1, pixels.Color(0, 0, 0));
+          pixels.show();
+        }
 
         if (stringCompleted) {
           uint8_t checksum = buf[1];
@@ -435,8 +442,12 @@ void loop() {
 
           if(checksum == checksumRec) {
             dataVerified = true;
+            pixels.setPixelColor(1, pixels.Color(0, 100, 0));
+          } else {
+            pixels.setPixelColor(1, pixels.Color(100, 0, 0));
           }
-           
+          pixels.show();
+          on_time = millis();
         }
         else {
           Serial.println(buf);
