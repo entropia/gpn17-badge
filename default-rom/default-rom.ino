@@ -47,6 +47,7 @@ Menu * mainMenu = new Menu();
 StatusOverlay * status = new StatusOverlay(BAT_CRITICAL, BAT_FULL);
 bool autoTheme = false;
 bool isDark = false;
+bool wifiLight = true;
 
 String getConfig(String key, String def) {
   if(!SPIFFS.exists("/"+key)){
@@ -167,9 +168,42 @@ void setup() {
        themeItem->setText("Theme: "+getConfig("theme", DEFAULT_THEME));
        });
       configMenu->addMenuItem(themeItem);
+
+      MenuItem * wifiLightItem = new MenuItem("WifiLight: "+getConfig("wifilight", "on"), []() {});
+      wifiLightItem->setTrigger([wifiLightItem]() {
+       String current = getConfig("wifilight", "on"); 
+       if(current == "off") {
+        setConfig("wifilight", "on");
+        wifiLight = true;
+       } else {
+        setConfig("wifilight", "off");
+        wifiLight = false;
+       }
+       wifiLightItem->setText("WifiLight: "+getConfig("wifilight", "on"));
+       });
+      configMenu->addMenuItem(wifiLightItem);
+
       configMenu->addMenuItem(new MenuItem("WiFi Config", []() {
           initialConfig();
       }));
+      MenuItem * shareItem = new MenuItem("Share Channel", []() {
+        Menu * shareMenu = new Menu();
+        shareMenu->addMenuItem(new MenuItem("Back", []() {
+          ui->closeCurrent();
+        }));
+        ChannelIterator channels;
+        while(channels.next()) {
+          shareMenu->addMenuItem(new MenuItem(channels.name(), []() {
+          }));
+        }
+        ui->open(shareMenu);
+      });
+      configMenu->addMenuItem(shareItem);
+
+      MenuItem * receiveItem = new MenuItem("Receive Channel", []() {
+      });
+      configMenu->addMenuItem(receiveItem);
+
       ui->open(configMenu);
     }));
     mainMenu->addMenuItem(new MenuItem("Info", []() {
@@ -197,6 +231,8 @@ void setup() {
       ui->setTheme(new ThemeDark());
       isDark = true;
     }
+    String wifiLightConf = getConfig("wifilight", "on");
+    wifiLight = wifiLightConf != "off";
     ui->open(mainMenu);
     status->updateBat(badge.getBatVoltage());
     int wStat = WiFi.status();
@@ -276,10 +312,93 @@ void loop() {
     int wStat = WiFi.status();
     if(wStat == WL_CONNECTED) {
       status->updateWiFiState(WiFi.SSID());
+      if (wifiLight) {
+        Serial.println("MAC Address:");
+        uint8_t hash = 0;
+        uint8_t * bssid = WiFi.BSSID();  
+        for (int i = 0; i < 6; i++) {
+          hash += bssid[i];
+          Serial.print(bssid[i], HEX);
+          Serial.print(":");
+        }
+        Serial.println("");
+
+        int colors[3];
+        HSVtoRGB(hash, 255, 100, colors);
+
+        pixels.setPixelColor(1, pixels.Color(colors[0], colors[1], colors[2]));
+        pixels.setPixelColor(2, pixels.Color(colors[0], colors[1], colors[2]));
+        pixels.setPixelColor(3, pixels.Color(colors[0], colors[1], colors[2]));
+        pixels.setPixelColor(0, pixels.Color(colors[0], colors[1], colors[2]));
+      } else {
+        pixels.setPixelColor(1, pixels.Color(0, 0, 0));
+        pixels.setPixelColor(2, pixels.Color(0, 0, 0));
+        pixels.setPixelColor(3, pixels.Color(0, 0, 0));
+        pixels.setPixelColor(0, pixels.Color(0, 0, 0));
+      }
+
     } else {
       status->updateWiFiState("No WiFi");
+        pixels.setPixelColor(1, pixels.Color(0, 0, 0));
+        pixels.setPixelColor(2, pixels.Color(0, 0, 0));
+        pixels.setPixelColor(3, pixels.Color(0, 0, 0));
+        pixels.setPixelColor(0, pixels.Color(0, 0, 0));
     }
     lastOneSecoundTask = millis();
+    pixels.show();
+  }
+}
+
+
+
+void HSVtoRGB(int hue, int sat, int val, int colors[3]) {
+  // hue: 0-359, sat: 0-255, val (lightness): 0-255
+  int r, g, b, base;
+  if (sat == 0)
+  {                     // Achromatic color (gray).
+    colors[0] = val;
+    colors[1] = val;
+    colors[2] = val;
+  }
+  else 
+  {
+    base = ((255 - sat) * val) >> 8;
+    switch(hue / 60)
+    {
+      case 0:
+        r = val;
+        g = (((val - base) * hue) / 60) + base;
+        b = base;
+        break;
+      case 1:
+        r = (((val - base) * (60 - (hue % 60))) / 60) + base;
+        g = val;
+        b = base;
+        break;
+      case 2:
+        r = base;
+        g = val;
+        b = (((val - base) * (hue % 60)) / 60) + base;
+        break;
+      case 3:
+        r = base;
+        g = (((val - base) * (60 - (hue % 60))) / 60) + base;
+        b = val;
+        break;
+      case 4:
+        r = (((val - base) * (hue % 60)) / 60) + base;
+        g = base;
+        b = val;
+        break;
+      case 5:
+        r = val;
+        g = base;
+        b = (((val - base) * (60 - (hue % 60))) / 60) + base;
+        break;
+    }
+    colors[0] = r;
+    colors[1] = g;
+    colors[2] = b;
   }
 }
 
