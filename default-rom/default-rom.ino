@@ -1,7 +1,7 @@
 // vim: noai:ts=2:sw=2
 #include <rboot.h>
 
-#define DEBUG
+//#define DEBUG
 
 #include <GPNBadge.hpp>
 
@@ -88,7 +88,7 @@ void setup() {
   }
 
   badge.setBacklight(true);
-  ui->root->setBmp("/system/load.bmp", 40, 12);
+  ui->root->setBmp("/deflt/load.bmp", 40, 12);
   ui->root->setSub("");
   ui->setOverlay(status);
   ui->draw();
@@ -610,7 +610,7 @@ void initialConfig() {
   Serial.println(WiFi.softAP(ssid, pw));
   FullScreenBMPStatus* webStatus = new FullScreenBMPStatus();
   connectWizard(ssid, pw, webStatus);
-  WebServer webServer(80, "/system/web");
+  WebServer webServer(80, "/deflt/web");
   webServer.begin();
   webServer.registerPost("/api/conf/wifi", Page<WebServer::PostHandler>(CacheTime::NO_CACHE,
     [](Stream & currentClient) {
@@ -817,7 +817,7 @@ void initialConfig() {
 
 void connectWizard(char* ssid, char* pw, FullScreenBMPStatus* webStatus) {
   bool dispPw = false;
-  webStatus->setBmp("/system/wifi.bmp", 13, 6);
+  webStatus->setBmp("/deflt/wifi.bmp", 13, 6);
   webStatus->setSub(ssid);
   ui->open(webStatus);
   ui->draw();
@@ -838,10 +838,10 @@ void connectWizard(char* ssid, char* pw, FullScreenBMPStatus* webStatus) {
     if (state != JoystickState::BTN_NOTHING && state != last_state) {
       dispPw = !dispPw;
       if (dispPw) {
-        webStatus->setBmp("/system/lock.bmp", 35, 6);
+        webStatus->setBmp("/deflt/lock.bmp", 35, 6);
         webStatus->setSub(pw);
       } else {
-        webStatus->setBmp("/system/wifi.bmp", 13, 6);
+        webStatus->setBmp("/deflt/wifi.bmp", 13, 6);
         webStatus->setSub(ssid);
       }
       ui->draw();
@@ -849,7 +849,7 @@ void connectWizard(char* ssid, char* pw, FullScreenBMPStatus* webStatus) {
     }
     last_state = state;
     if (WiFi.softAPgetStationNum() > 0) {
-      webStatus->setBmp("/system/pc.bmp", 10, 9);
+      webStatus->setBmp("/deflt/pc.bmp", 10, 9);
       webStatus->setSub("10.0.0.1", 30, 52);
       ui->draw();
       break;

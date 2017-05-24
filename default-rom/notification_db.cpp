@@ -354,7 +354,7 @@ String ChannelIterator::url() {
 
 String ChannelIterator::fingerprint() {
   String fingerprint;
-  File fingerprint_file = file("fingerprint", "r");
+  File fingerprint_file = file("finpr", "r");
 
   while (fingerprint_file.available()) {
     char r = char(fingerprint_file.read());
@@ -503,7 +503,7 @@ bool getNotificationByHandle(NotificationHandle handle, Notification * notificat
 void addChannel(int id, const char * host, const char * url, const char * fingerprint) {
   String channelDir = channelsBaseDir + "/" + String(id);
   String urlPath = channelDir + "/url";
-  String fingerprintPath = channelDir + "/fingerprint";
+  String fingerprintPath = channelDir + "/finpr";
   Serial.println("Creating files: ");
   Serial.println(urlPath);
   Serial.println(fingerprintPath);
