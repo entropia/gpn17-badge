@@ -156,11 +156,18 @@
       "name": "esptool2",
       "systems": [
         {
-          "url": "https://public.electronics.fail/esptool2-1.0.0-linux64.tar.gz",
+          "url": "https://github.com/kleinmann/esptool2/releases/download/1.0.0/esptool2-1.0.0-linux64.tar.gz",
           "checksum": "SHA-256:2623da7f9eb9c4b7d96beb31c1a53f584b5d9457361a11e886e19febcab0df1e",
           "host": "x86_64-pc-linux-gnu",
           "archiveFileName": "esptool2-1.0.0-linux64.tar.gz",
           "size": "8856"
+        },
+        {
+          "url": "https://github.com/kleinmann/esptool2/releases/download/1.0.0/esptool2-1.0.0-osx.tar.gz",
+          "checksum": "SHA-256:270183465fa7d7dd6c7b77c045410a42d2882517ff7586e5c9f83ff757492d31",
+          "host": "x86_64-apple-darwin",
+          "archiveFileName": "esptool2-1.0.0-osx.tar.gz",
+          "size": "6389"
         }
       ]
     },
