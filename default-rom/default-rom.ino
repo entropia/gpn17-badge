@@ -43,6 +43,10 @@ bool autoTheme = false;
 bool isDark = false;
 bool wifiLight = true;
 
+//Sharing
+String shareString;
+bool receiveShare = false;
+
 String getConfig(String key, String def) {
   if(!SPIFFS.exists("/"+key)){
     setConfig(key, def);
@@ -187,7 +191,26 @@ void setup() {
         }));
         ChannelIterator channels;
         while(channels.next()) {
-          shareMenu->addMenuItem(new MenuItem(channels.name(), []() {
+          String fingerprint = channels.fingerprint();
+          String specificShareString = channels.host() + "\r" + channels.url() + "\r" + fingerprint + "\n";
+          String channelName = channels.name();
+          if (channelName == "") {
+            channelName = "unnamed";
+          }
+          Serial.print("Add share menu item: \"");
+          Serial.print(channelName);
+          Serial.println("\"");
+          shareMenu->addMenuItem(new MenuItem(channelName, [fingerprint, specificShareString]() {
+            Serial.println("Share:");
+            Serial.println(specificShareString);
+            ClosableTextDisplay * shareScreen = new ClosableTextDisplay();
+            shareScreen->setText(fingerprint);
+            shareString = specificShareString;
+            shareScreen->setOnClose([]() {
+              ui->closeCurrent();
+              shareString = String(); 
+            });
+            ui->open(shareScreen);
           }));
         }
         ui->open(shareMenu);
@@ -195,6 +218,14 @@ void setup() {
       configMenu->addMenuItem(shareItem);
 
       MenuItem * receiveItem = new MenuItem("Receive Channel", []() {
+          receiveShare = true;
+          ClosableTextDisplay * receiveScreen = new ClosableTextDisplay();
+          receiveScreen->setText("Receiving...");
+          receiveScreen->setOnClose([]() {
+            receiveShare = false;
+            ui->closeCurrent();
+          });
+          ui->open(receiveScreen);
       });
       configMenu->addMenuItem(receiveItem);
 
@@ -338,8 +369,125 @@ void loop() {
         pixels.setPixelColor(3, pixels.Color(0, 0, 0));
         pixels.setPixelColor(0, pixels.Color(0, 0, 0));
     }
+
+
+    //IR Sharing
+    if (shareString.length() != 0) {
+      badge.setGPIO(IR_EN, HIGH);
+      Serial.println("NEC");
+      uint32_t code = 0;
+      uint8_t checksum = 0;
+      for (int i = 0; i < shareString.length(); i++){
+        checksum += shareString.charAt(i);
+        code = code | shareString.charAt(i) << (i % 4)*8;
+        if (i % 4 == 3) {
+          irsend.sendNEC(code, 32);
+          Serial.println(code, HEX);
+          code = 0;
+        }
+      }
+      if (code != 0) {
+        irsend.sendNEC(code, 32);
+        Serial.println(code, HEX);
+      }
+      Serial.print("Checksum: ");
+      Serial.println(checksum); //224
+      code = 0;
+      code = checksum << 8 | 222;
+      irsend.sendNEC(code, 32);
+      badge.setGPIO(IR_EN, LOW);
+    }
+
     lastOneSecoundTask = millis();
     pixels.show();
+  }
+
+
+  //IR Receiving
+  if (receiveShare) {
+    badge.setGPIO(IR_EN, HIGH);
+    Serial.println("Entering receive mode");
+    String received = "";
+    bool stringCompleted = false;
+    bool dataCompleted = false;
+    bool dataVerified = false;
+    uint8_t checksumRec = 0;
+
+    while (!dataCompleted && receiveShare) {
+      decode_results  results;        // Somewhere to store the results
+      if (irrecv.decode(&results)) {
+        if (results.overflow) {
+          Serial.println("IR code too long. Edit IRremoteInt.h and increase RAWBUF");
+          return;
+        }
+        
+        char * buf = reinterpret_cast<char*>(&results.value);
+
+        if (stringCompleted) {
+          uint8_t checksum = buf[1];
+          /*Serial.print("Checksum: ");
+          Serial.println(checksum);
+
+
+          Serial.print("Received Checksum: ");
+          Serial.println(checksumRec);*/
+          dataCompleted = true;
+
+          if(checksum == checksumRec) {
+            dataVerified = true;
+          }
+           
+        }
+        else {
+          Serial.println(buf);
+          received += String(buf[0]) + buf[1] + buf[2] + buf[3];
+          checksumRec += buf[0] + buf[1] + buf[2] + buf[3];
+          if (buf[0] == '\n' || buf[1] == '\n' || buf[2] == '\n' || buf[3] == '\n') {
+            stringCompleted = true;
+          }
+        }
+        irrecv.resume();              // Prepare for the next value
+      }
+      delay(0);
+      ui->dispatchInput(badge.getJoystickState()); //Allow canceling
+    }
+
+    if (dataCompleted == true){
+      if ( dataVerified == true) {
+        Serial.print(received);
+        receiveShare = false;
+        ui->closeCurrent();
+
+        size_t firstCR = received.indexOf("\r");
+        size_t secondCR = received.indexOf("\r", firstCR + 1);
+
+        String host = received.substring(0, firstCR);
+        String url = received.substring(firstCR + 1, secondCR);
+        String fingerprint = received.substring(secondCR + 1, received.length() - 1);
+
+        Serial.println(host);
+        Serial.println(url);
+        Serial.println(fingerprint);
+
+        ClosableTextDisplay * fingerprintScreen = new ClosableTextDisplay();
+        fingerprintScreen->setText(fingerprint);
+        fingerprintScreen->setOnClose([host, url, fingerprint]() {
+
+          Menu * acceptMenu = new Menu();
+          acceptMenu->addMenuItem(new MenuItem("Accept", [host, url, fingerprint]() {
+            addChannel(host.c_str(), url.c_str(), fingerprint.c_str());
+            ui->closeCurrent();
+          }));
+          acceptMenu->addMenuItem(new MenuItem("Decline", []() {
+            ui->closeCurrent();
+          }));
+          ui->open(acceptMenu);
+        });
+        ui->open(fingerprintScreen);
+      }
+    }
+    badge.setGPIO(IR_EN, LOW);
+    Serial.println("Exiting receive mode");
   }
 }
 
