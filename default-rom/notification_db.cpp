@@ -88,7 +88,7 @@ void pullNotifications() {
   }
 
   syncStatesWithData();
-  recalculateStates();
+  recalculateStates([](){});
 
 }
 
@@ -186,11 +186,12 @@ void deleteTimestampFiles() {
   }
 }
 
-void recalculateStates() {
+void recalculateStates(std::function<void()> inbetween) {
   Serial.println("recalculateStates()");
   ChannelIterator channelIterator;
 
   while(channelIterator.next()){
+    inbetween();
     uint32_t current_server_timestamp = 0;
     {
       if (!SPIFFS.exists(channelIterator.filename("timestamp"))) {

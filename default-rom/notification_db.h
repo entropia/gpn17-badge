@@ -5,6 +5,7 @@
 #include <FS.h>
 #include <ESP8266WiFi.h>
 #include <WiFiClientSecure.h>
+#include <functional>
 
 struct Notification {
   int id;
@@ -98,7 +99,7 @@ void pullNotifications();
 
 void syncStatesWithData();
 
-void recalculateStates();
+void recalculateStates(std::function<void()> inbetween);
 
 bool getNotificationByHandle(NotificationHandle handle, Notification * notification);
 

@@ -336,7 +336,10 @@ void loop() {
     lastNotificationPull = millis();
   }
   if (millis() - lastOneSecoundTask > 1000) {
-    recalculateStates();
+    recalculateStates([](){
+      ui->dispatchInput(badge.getJoystickState());
+      ui->draw();
+    });
     if (ennotif) {
       NotificationIterator notit(NotificationFilter::NOT_NOTIFIED);
       if (notit.next()) {
