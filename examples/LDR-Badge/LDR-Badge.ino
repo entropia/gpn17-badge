@@ -87,19 +87,20 @@ void setup() {
 
 void loop() {
   tft.fillScreen(BLACK);
-  tft.setCursor(19,16);
+  tft.setCursor(19, 16);
   tft.print("Luxmeter");
   tft.setCursor(0, 50);
 
   float ldrVolt = getLDRVoltage();
 
-  float resistorVolt = 3.3 - ldrVolt;
-  float ldrResistance = ldrVolt / resistorVolt * 4750;
-  float lux = 12518931 * pow(ldrResistance, -1.405);
+  float resistorVolt = 3.0 - ldrVolt;
+  float ldrResistance = ldrVolt / resistorVolt * 100000.0;
+  double lux = 586.032385310019 * pow(ldrResistance, -1.35814136900819);
 
-  tft.print("V=");tft.print(ldrVolt); tft.println("V");
-  tft.print("R=");tft.print(ldrResistance,1); tft.println("Ohm");
-  tft.print("lx=");tft.print(lux,1); tft.println("lx");
+
+  tft.print("V="); tft.print(ldrVolt, 4); tft.println("V");
+  tft.print("R="); tft.print(ldrResistance, 1); tft.println("Ohm");
+  tft.print("lx="); tft.print(lux, 1); tft.println("lx");
   tft.writeFramebuffer();
   delay(1);
 }
@@ -159,10 +160,12 @@ float getLDRLvl() {
 
 float getLDRVoltage() {
   float ldr = getLDRLvl();
+
   float ldrVolt = (-9.4300168971096241 * pow(ldr, 0)
                    + 1.0877899879077804 * pow(ldr, 1)
                    + -0.00019748711244579100 * pow(ldr, 2)
-                   + 0.00000013832688622212447 * pow(ldr, 3)) / 1000;
+                   + 0.00000013832688622212447 * pow(ldr, 3)) / 1000 + 0.002;
+
   return ldrVolt;
 }
 
