@@ -33,6 +33,10 @@ https://github.com/entropia/Adafruit-GFX-Library
 ## Display-lib
 https://github.com/antonxy/TFT_ILI9163C
 
+By default this lib allocates a framebuffer.
+If your rom is unstable because of little ram you can disable the framebuffer by commenting out `#define FRAMEBUFFER` in the `TFT_ILI9163C.h` file.
+This should especially be done for the default rom.
+
 ## Arduino-lib
 https://github.com/entropia/gpn17-badge-arduinolib
 
