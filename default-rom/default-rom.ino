@@ -606,16 +606,23 @@ void initialConfig() {
   delay(100);
   WiFi.mode(WIFI_AP_STA);
   WiFi.softAPConfig(IPAddress (10, 0, 0, 1), IPAddress(10, 0, 0, 1), IPAddress(255, 255, 255, 0));
-  char pw[20];
+  char randpw[20];
   char ssid[20];
-  sprintf(pw, "%d", random(10000000, 100000000)); // TODO richtig machen
+  int seed = millis();
+  for (int i = 0; i < 10; ++i) {
+    seed += badge.getBatLvl();
+    seed += badge.getLDRLvl();
+  }
+  randomSeed(seed);
+  sprintf(randpw, "%d", random(10000000, 100000000)); // TODO richtig machen
   sprintf(ssid, "ESP%d", ESP.getChipId());
+  String pw = getConfig("configpw", String(randpw));
 #ifdef DEBUG
-  sprintf(pw, "%s", "hallohallo");
+  pw = "hallohallo";
 #endif
-  Serial.println(WiFi.softAP(ssid, pw));
+  Serial.println(WiFi.softAP(ssid, pw.c_str()));
   FullScreenBMPStatus* webStatus = new FullScreenBMPStatus();
-  connectWizard(ssid, pw, webStatus);
+  connectWizard(ssid, pw.c_str(), webStatus);
   WebServer webServer(80, "/deflt/web");
   webServer.begin();
   webServer.registerPost("/api/conf/wifi", Page<WebServer::PostHandler>(CacheTime::NO_CACHE,
@@ -814,14 +821,14 @@ void initialConfig() {
 
   while (true) {
     if (WiFi.softAPgetStationNum() == 0) {
-      connectWizard(ssid, pw, webStatus);
+      connectWizard(ssid, pw.c_str(), webStatus);
     }
     webServer.doWork();
   }
   ui->closeCurrent();
 }
 
-void connectWizard(char* ssid, char* pw, FullScreenBMPStatus* webStatus) {
+void connectWizard(const char* ssid, const char* pw, FullScreenBMPStatus* webStatus) {
   bool dispPw = false;
   webStatus->setBmp("/deflt/wifi.bmp", 13, 6);
   webStatus->setSub(ssid);
