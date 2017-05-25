@@ -384,7 +384,6 @@ NotificationIterator::NotificationIterator(NotificationFilter filter)
 
 bool NotificationIterator::nextStatesFile() {
   if (channels.next()) {
-    Serial.print("NI: next state file: ");
     Serial.println(channels.filename("states"));
     File state_file = channels.file("states", "r+");
     notificationStateIterator = NotificationStateIterator(state_file);
