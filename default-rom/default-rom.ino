@@ -50,6 +50,8 @@ unsigned char wifiLight = 255;
 String shareString;
 bool receiveShare = false;
 
+bool ennotif = true;
+
 String getConfig(String key, String def) {
   if(!SPIFFS.exists(CONFIG_PREFIX+key)){
     setConfig(key, def);
@@ -189,6 +191,19 @@ void setup() {
        });
       configMenu->addMenuItem(wifiLightItem);
 
+      MenuItem * ennotifItem= new MenuItem("Notifications: "+getConfig("ennotif", "on"), []() {});
+      ennotifItem->setTrigger([ennotifItem]() {
+       String current = getConfig("ennotif", "on"); 
+       if (current == "on") {
+        setConfig("ennotif", "off");
+       }  else {
+        setConfig("ennotif", "on");
+       }
+       ennotifItem->setText("Notifications: "+getConfig("ennotif", "on"));
+       ennotif = getConfig("wifilight", "on") == "on";
+       });
+      configMenu->addMenuItem(ennotifItem);
+
       configMenu->addMenuItem(new MenuItem("WiFi Config", []() {
           initialConfig();
       }));
@@ -266,6 +281,7 @@ void setup() {
     }
     String wifiLightConf = getConfig("wifilight", "255");
     wifiLight = atoi(wifiLightConf.c_str());
+    ennotif = getConfig("wifilight", "on") == "on";
     ui->open(mainMenu);
     status->updateBat(badge.getBatVoltage());
     int wStat = WiFi.status();
@@ -321,19 +337,21 @@ void loop() {
   }
   if (millis() - lastOneSecoundTask > 1000) {
     recalculateStates();
-    NotificationIterator notit(NotificationFilter::NOT_NOTIFIED);
-    if (notit.next()) {
-      Notification noti = notit.getNotification();
-      notit.setCurrentNotificationState(NotificationState::NOTIFIED);
-      NotificationScreen * notification = new NotificationScreen(String(noti.summary), String(noti.location), String(noti.description));
-      ui->open(notification);
-      badge.setVibrator(true);
-      delay(200);
-      badge.setVibrator(false);
-      delay(300);
-      badge.setVibrator(true);
-      delay(400);
-      badge.setVibrator(false);
+    if (ennotif) {
+      NotificationIterator notit(NotificationFilter::NOT_NOTIFIED);
+      if (notit.next()) {
+        Notification noti = notit.getNotification();
+        notit.setCurrentNotificationState(NotificationState::NOTIFIED);
+        NotificationScreen * notification = new NotificationScreen(String(noti.summary), String(noti.location), String(noti.description));
+        ui->open(notification);
+        badge.setVibrator(true);
+        delay(200);
+        badge.setVibrator(false);
+        delay(300);
+        badge.setVibrator(true);
+        delay(400);
+        badge.setVibrator(false);
+      }
     }
     Serial.printf("Free heap: %d\n", ESP.getFreeHeap());
     if(batAvg == -1) {
