@@ -28,10 +28,19 @@ Have fun!
 Teilnehmerbadge mit vielen Funktionen für die GPN 17.
 
 ## Display-lib
-https://github.com/Jan--Henrik/TFT_ILI9163C
+https://github.com/entropia/Adafruit-GFX-Library
+
+## Arduino-lib
+https://github.com/entropia/gpn17-badge-arduinolib
+
+## UI-lib
+https://github.com/entropia/gpn17-badge-ui
 
 ## Infrared-lib
 https://github.com/markszabo/IRremoteESP8266
 
 ## Neopixel-lib
 https://github.com/adafruit/Adafruit_NeoPixel
+
+## Notification Server
+https://github.com/entropia/gpn17-badge-notification-server
