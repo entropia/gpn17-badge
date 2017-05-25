@@ -1,5 +1,4 @@
 // vim: noai:ts=2:sw=2
-#include <rboot.h>
 
 //#define DEBUG
 
@@ -24,9 +23,6 @@
 
 #include "rboot.h"
 #include "rboot-api.h"
-
-const char* ssid = "entropia"; // Put your SSID here
-const char* password = "pw"; // Put your PASSWORD here
 
 // Color definitions
 #define BLACK   0x0000
