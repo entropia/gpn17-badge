@@ -210,6 +210,9 @@ void setup() {
       configMenu->addMenuItem(new MenuItem("WiFi Config", []() {
           initialConfig();
       }));
+      configMenu->addMenuItem(new MenuItem("Refresh notifications", []() {
+          lastNotificationPull=0;
+      }));
       MenuItem * shareItem = new MenuItem("Share Channel", []() {
         Menu * shareMenu = new Menu();
         shareMenu->addMenuItem(new MenuItem("Back", []() {
