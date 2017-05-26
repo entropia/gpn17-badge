@@ -4,7 +4,7 @@ GPN Badge (Gulasch Push Notifications)
 HowTo SetUp arduino:
 - Install the newest arduino Version (tested with 1.8.2) from the [Arduino website](http://www.arduino.cc/en/main/software).
 - Start Arduino and open Preferences window.
-- Enter ```http://public.electronics.fail/package_gpnbadge_index.json``` into *Additional Board Manager URLs* field. You can add multiple URLs, separating them with commas.
+- Enter ```https://rawgit.com/entropia/gpn17-badge/master/arduino/package_gpnbadge_index.json``` into *Additional Board Manager URLs* field. You can add multiple URLs, separating them with commas.
 - Open Boards Manager from Tools > Board menu and install *gpnbadge* platform (and don't forget to select the GPN Badge board from Tools > Board menu after installation).
 
 To use multirom ability, please add 
