@@ -288,6 +288,10 @@ void setup() {
     String wifiLightConf = getConfig("wifilight", "255");
     wifiLight = atoi(wifiLightConf.c_str());
     ennotif = getConfig("ennotif", "on") == "on";
+
+    int waitforwifi=0;
+    while(WiFi.status()!=WL_CONNECTED && waitforwifi++<10) delay(500);
+
     ui->open(mainMenu);
     status->updateBat(badge.getBatVoltage());
     int wStat = WiFi.status();
@@ -634,7 +638,7 @@ bool connectBadge() {
   configString = String();
   char* ssid = confParse.getKey("ssid");
   char* pw = confParse.getKey("pw");
-  Serial.printf("Connecting ti wifi '%s' with password '%s'...\n", ssid, pw);
+  Serial.printf("Connecting to wifi '%s' with password '%s'...\n", ssid, pw);
   unsigned long startTime = millis();
   WiFi.begin(ssid, pw);
   delete[] pw;
