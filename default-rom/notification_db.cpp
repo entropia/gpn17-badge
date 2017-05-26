@@ -5,6 +5,7 @@
 #include <algorithm>
 
 unsigned long lastNotificationPull = 0;
+long serverTimestamp = 0;
 
 void pullNotifications() {
   Serial.println("pullNotifications()");
@@ -206,6 +207,7 @@ void recalculateStates(std::function<void()> inbetween) {
       current_server_timestamp = (millis()/1000 - local_timestamp) + server_timestamp;
       Serial.print("calculated server ts: ");
       Serial.println(current_server_timestamp);
+      serverTimestamp = current_server_timestamp;
     }
     {
       File states_file = channelIterator.file("states", "r+");

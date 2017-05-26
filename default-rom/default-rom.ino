@@ -13,6 +13,9 @@
 #define BADGE_PULL_INTERVAL 5*60*1000
 #endif
 
+#define TIMEZONE_OFFSET 2 //hours
+#include <time.h>
+
 #include <BadgeUI.h>
 #include <UIThemes.h>
 #include "url-encode.h"
@@ -335,6 +338,16 @@ void loop() {
       ui->dispatchInput(badge.getJoystickState());
       ui->draw();
     });
+
+    // calculate current time
+    if (serverTimestamp > 0) {
+      time_t currentts = (time_t) serverTimestamp + TIMEZONE_OFFSET*3600;
+      struct tm *datetime = localtime(&currentts);
+      status->updateClock(datetime->tm_hour, datetime->tm_min);
+      
+    } else {
+      status->updateClock(99,99);
+    }
     if (ennotif) {
       NotificationIterator notit(NotificationFilter::NOT_NOTIFIED);
       if (notit.next()) {
