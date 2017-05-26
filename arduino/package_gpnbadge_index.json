@@ -10,7 +10,7 @@
     {
       "category": "ESP8266-GPN",
       "name": "gpnbadge",
-      "url": "https://rawgit.com/entropia/gpn17-badge/master/arduino/package_gpnbadge_index.json",
+      "url": "https://github.com/entropia/gpn17-badge/blob/master/arduino/gpnbadge-2.4.0.zip?raw=true",
       "checksum": "SHA-256:2c5eb14431beb8165cc8d28376db91d981ff70651270570554157a208ad3e797",
       "help": {
         "online": "https://entropia.de/GPN17:Badge"
