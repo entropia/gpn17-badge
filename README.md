@@ -27,11 +27,27 @@ Have fun!
 ## Beschreibung
 Teilnehmerbadge mit vielen Funktionen für die GPN 17.
 
+## Grafik-lib
+https://github.com/entropia/Adafruit-GFX-Library
+
 ## Display-lib
-https://github.com/Jan--Henrik/TFT_ILI9163C
+https://github.com/antonxy/TFT_ILI9163C
+
+By default this lib allocates a framebuffer.
+If your rom is unstable because of little ram you can disable the framebuffer by commenting out `#define FRAMEBUFFER` in the `TFT_ILI9163C.h` file.
+This should especially be done for the default rom.
+
+## Arduino-lib
+https://github.com/entropia/gpn17-badge-arduinolib
+
+## UI-lib
+https://github.com/entropia/gpn17-badge-ui
 
 ## Infrared-lib
 https://github.com/markszabo/IRremoteESP8266
 
 ## Neopixel-lib
 https://github.com/adafruit/Adafruit_NeoPixel
+
+## Notification Server
+https://github.com/entropia/gpn17-badge-notification-server
