@@ -301,7 +301,6 @@ void setup() {
 unsigned long lastOneSecoundTask = 0;
 uint16_t lightAvg = 0;
 int16_t batAvg = -1;
-uint16_t pollDelay = 0;
 
 void loop() {
   lightAvg = .99f*lightAvg + .01f*badge.getLDRLvl(); 
@@ -322,18 +321,12 @@ void loop() {
   }
   ui->dispatchInput(badge.getJoystickState());
   ui->draw();
-  if (millis() - lastNotificationPull > BADGE_PULL_INTERVAL + pollDelay) {
+  if (millis() - lastNotificationPull > BADGE_PULL_INTERVAL) {
     if(connectBadge()) {
-      pollDelay = 0;
       status->updateWiFiState("Polling...");
       ui->draw();
       pullNotifications();
       Serial.println("Iterate notifications: ");
-    } else {
-      if(pollDelay < 5*60*1000) {
-        Serial.println("Delaying poll by one minute...");
-        pollDelay+=60*1000;
-      }
     }
     lastNotificationPull = millis();
   }
