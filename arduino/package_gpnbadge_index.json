@@ -168,6 +168,13 @@
           "host": "x86_64-apple-darwin",
           "archiveFileName": "esptool2-1.0.0-osx.tar.gz",
           "size": "6389"
+        },
+        {
+          "url": "https://github.com/bleeptrack/esptool2/releases/download/1.0.0/esptool2-1.0.0-win32.zip",
+          "checksum": "SHA-256:26e7549650bb7d65830432656beb619017fe7feffb2a97d5001416820ecbd7a4",
+          "host": "i686-mingw32",
+          "archiveFileName": "esptool2-1.0.0-win32.zip",
+          "size": "17733"
         }
       ]
     },
