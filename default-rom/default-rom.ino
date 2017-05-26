@@ -124,9 +124,7 @@ void setup() {
 
   if (SPIFFS.exists("/wifi.conf")) {
     Serial.print("Found wifi config");
-    if(connectBadge()) {
-      pullNotifications();
-    }
+    connectBadge();
     mainMenu->addMenuItem(new MenuItem("Badge", []() {
       FullScreenBMPDisplay* badge_screen = new FullScreenBMPDisplay();
       badge_screen->setBmp("/badge.bmp");
@@ -292,6 +290,9 @@ void setup() {
     int wStat = WiFi.status();
     if(wStat == WL_CONNECTED) {
       status->updateWiFiState(WiFi.SSID());
+      ui->draw();
+      pullNotifications();
+      lastNotificationPull = millis();
     } else {
       status->updateWiFiState("No WiFi");
     }
