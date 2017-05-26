@@ -200,7 +200,7 @@ void setup() {
         setConfig("ennotif", "on");
        }
        ennotifItem->setText("Notifications: "+getConfig("ennotif", "on"));
-       ennotif = getConfig("wifilight", "on") == "on";
+       ennotif = getConfig("ennotif", "on") == "on";
        });
       configMenu->addMenuItem(ennotifItem);
 
@@ -281,7 +281,7 @@ void setup() {
     }
     String wifiLightConf = getConfig("wifilight", "255");
     wifiLight = atoi(wifiLightConf.c_str());
-    ennotif = getConfig("wifilight", "on") == "on";
+    ennotif = getConfig("ennotif", "on") == "on";
     ui->open(mainMenu);
     status->updateBat(badge.getBatVoltage());
     int wStat = WiFi.status();
@@ -354,7 +354,13 @@ void loop() {
         badge.setVibrator(true);
         delay(400);
         badge.setVibrator(false);
+        delay(300);
+        badge.setVibrator(true);
+        delay(1000);
+        badge.setVibrator(false);
       }
+    } else {
+      Serial.println("Noitif disabled");
     }
     Serial.printf("Free heap: %d\n", ESP.getFreeHeap());
     if(batAvg == -1) {
