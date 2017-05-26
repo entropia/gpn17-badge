@@ -45,6 +45,8 @@ StatusOverlay * status = new StatusOverlay(BAT_CRITICAL, BAT_FULL);
 bool autoTheme = false;
 bool isDark = false;
 unsigned char wifiLight = 255;
+int wifi_hue = 0;
+int wifi_hue_target = 0;
 
 //Sharing
 String shareString;
@@ -383,31 +385,37 @@ void loop() {
         }
         Serial.println("");
 
-        int colors[3];
-        HSVtoRGB(hash, 255, wifiLight, colors);
-
-        pixels.setPixelColor(1, pixels.Color(colors[0], colors[1], colors[2]));
-        pixels.setPixelColor(2, pixels.Color(colors[0], colors[1], colors[2]));
-        pixels.setPixelColor(3, pixels.Color(colors[0], colors[1], colors[2]));
-        pixels.setPixelColor(0, pixels.Color(colors[0], colors[1], colors[2]));
-      } else {
-        pixels.setPixelColor(1, pixels.Color(0, 0, 0));
-        pixels.setPixelColor(2, pixels.Color(0, 0, 0));
-        pixels.setPixelColor(3, pixels.Color(0, 0, 0));
-        pixels.setPixelColor(0, pixels.Color(0, 0, 0));
+        wifi_hue_target = hash * 10;
       }
 
     } else {
       status->updateWiFiState("No WiFi");
-        pixels.setPixelColor(1, pixels.Color(0, 0, 0));
-        pixels.setPixelColor(2, pixels.Color(0, 0, 0));
-        pixels.setPixelColor(3, pixels.Color(0, 0, 0));
-        pixels.setPixelColor(0, pixels.Color(0, 0, 0));
     }
 
     lastOneSecoundTask = millis();
     pixels.show();
   }
+
+  if (wifiLight) {
+    if (wifi_hue < wifi_hue_target) {
+      wifi_hue++;
+    } else if (wifi_hue > wifi_hue_target) {
+      wifi_hue--;
+    }
+    int colors[3];
+    HSVtoRGB(wifi_hue/10, 255, wifiLight, colors);
+
+    pixels.setPixelColor(1, pixels.Color(colors[0], colors[1], colors[2]));
+    pixels.setPixelColor(2, pixels.Color(colors[0], colors[1], colors[2]));
+    pixels.setPixelColor(3, pixels.Color(colors[0], colors[1], colors[2]));
+    pixels.setPixelColor(0, pixels.Color(colors[0], colors[1], colors[2]));
+  } else {
+    pixels.setPixelColor(1, pixels.Color(0, 0, 0));
+    pixels.setPixelColor(2, pixels.Color(0, 0, 0));
+    pixels.setPixelColor(3, pixels.Color(0, 0, 0));
+    pixels.setPixelColor(0, pixels.Color(0, 0, 0));
+  }
+  pixels.show();
 
 
   //IR Sharing
