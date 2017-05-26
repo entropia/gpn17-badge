@@ -8,16 +8,16 @@
   "websiteURL": "https://github.com/entropia/gpn17-badge",
   "platforms": [
     {
-      "category": "ESP8266",
+      "category": "ESP8266-GPN",
       "name": "gpnbadge",
-      "url": "https://public.electronics.fail/gpnbadge-2.3.0.zip",
-      "checksum": "SHA-256:b406c671194a41d69829aa8260f2cade7902314961a7ab7b749d6b1b3f0e0647",
+      "url": "https://public.electronics.fail/gpnbadge-2.4.0.zip",
+      "checksum": "SHA-256:2c5eb14431beb8165cc8d28376db91d981ff70651270570554157a208ad3e797",
       "help": {
         "online": "https://entropia.de/GPN17:Badge"
       },
-      "version": "2.3.0",
+      "version": "2.4.0",
       "architecture": "esp8266",
-      "archiveFileName": "gpnbadge-2.3.0.zip",
+      "archiveFileName": "gpnbadge-2.4.0.zip",
       "boards": [
         {
           "name": "Generic ESP8266 Module"
@@ -31,27 +31,27 @@
       ],
       "toolsDependencies": [
         {
-          "packager": "esp8266",
+          "packager": "gpnbadge",
           "version": "0.4.9",
           "name": "esptool"
         },
         {
-          "packager": "esp8266",
+          "packager": "gpnbadge",
           "version": "1.0.0",
           "name": "esptool2"
         },
         {
-          "packager": "esp8266",
+          "packager": "gpnbadge",
           "version": "1.20.0-26-gb404fb9-2",
           "name": "xtensa-lx106-elf-gcc"
         },
         {
-          "packager": "esp8266",
+          "packager": "gpnbadge",
           "version": "0.1.2",
           "name": "mkspiffs"
         }
       ],
-      "size": "8604813"
+      "size": "14036411"
     }
   ],
   "tools": [
@@ -168,13 +168,6 @@
           "host": "x86_64-apple-darwin",
           "archiveFileName": "esptool2-1.0.0-osx.tar.gz",
           "size": "6389"
-        },
-        {
-          "url": "https://github.com/bleeptrack/esptool2/releases/download/1.0.0/esptool2-1.0.0-win32.zip",
-          "checksum": "SHA-256:26e7549650bb7d65830432656beb619017fe7feffb2a97d5001416820ecbd7a4",
-          "host": "i686-mingw32",
-          "archiveFileName": "esptool2-1.0.0-win32.zip",
-          "size": "17733"
         }
       ]
     },
@@ -228,7 +221,7 @@
     }
   ],
   "email": "gpn-badge@lists.entropia.de",
-  "name": "esp8266"
+  "name": "gpnbadge"
 }
 ]
 }
