@@ -23,6 +23,8 @@ For this, in addition to esptool also Richard Burtons esptool2 ist downloaded an
 
 Have fun!
 
+## In need for a example ROM?
+Look for the "Sensors"-example.
 
 ## Beschreibung
 Teilnehmerbadge mit vielen Funktionen für die GPN 17.
