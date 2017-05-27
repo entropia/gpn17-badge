@@ -10,7 +10,7 @@ HowTo SetUp arduino:
 To use multirom ability, please add 
 ```#include "rboot.h"```
 to each of your sketches. This replaces the cache function in the libmain.a
-Please not: For the moment, rboot is configured as following:
+Please note: For the moment, rboot is configured as following:
 
 - 4 ROMs / 1MB each
 - default boot ROM: 1 
