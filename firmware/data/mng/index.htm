@@ -1,0 +1,87 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+  <title>GPN Badge</title>
+  <script type="text/javascript" src="mng/graphs.js"></script>
+  <script type="text/javascript">
+    var heap,temp,digi;
+    var reloadPeriod = 1000;
+    var running = false;
+
+    function loadValues(){
+      if(!running) return;
+      var xh = new XMLHttpRequest();
+      xh.onreadystatechange = function(){
+        if (xh.readyState == 4){
+          if(xh.status == 200) {
+            var res = JSON.parse(xh.responseText);
+            heap.add(res.heap);
+            temp.add(res.analog);
+            digi.add(res.gpio);
+            if(running) setTimeout(loadValues, reloadPeriod);
+          } else running = false;
+        }
+      };
+      xh.open("GET", "/all", true);
+      xh.send(null);
+    };
+
+    function run(){
+      if(!running){
+        running = true;
+        loadValues();
+      }
+    }
+
+    function onBodyLoad(){
+
+      heap = createGraph(document.getElementById("heap"), "Current Heap", 100, 125, 0, 30000, true, "orange");
+      temp = createGraph(document.getElementById("analog"), "Analog Input", 100, 128, 0, 1023, false, "cyan");
+
+      run();
+    }
+  </script>
+</head>
+<body id="index" style="margin:0; padding:0;" onload="onBodyLoad()">
+  <div id="intro">
+
+<h2>GPN Badge File Editor</h2>
+This can be used to edit files, eg. configs, in the Badges local file system. <br>
+You can also upload new files, like pictures or configs for upcoming events.<br>
+<br>
+The save a change, press STRG+S.<br>
+<br>
+Have fun!<br>
+<br>
+
+
+<style type="text/css">
+.my_content_container a {
+    border-bottom: 1px solid #777777;
+    border-left: 1px solid #000000;
+    border-right: 1px solid #333333;
+    border-top: 1px solid #000000;
+    color: #000000;
+    display: block;
+    height: 2.5em;
+    padding: 0 1em;
+    width: 10em;
+    text-decoration: none;
+}
+// :hover and :active styles left as an exercise for the reader.
+</style>
+
+<div class="my_content_container">
+    <a href="/edit">Open JavaScript Editor</a>
+</div>
+
+
+
+
+  </div>
+
+  <div id="heap"></div>
+</body>
+</html>
