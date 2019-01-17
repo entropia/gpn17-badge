@@ -13,6 +13,9 @@
 #define BADGE_PULL_INTERVAL 5*60*1000
 #endif
 
+#define TIMEZONE_OFFSET 2 //hours
+#include <time.h>
+
 #include <BadgeUI.h>
 #include <UIThemes.h>
 #include "url-encode.h"
@@ -121,9 +124,7 @@ void setup() {
 
   if (SPIFFS.exists("/wifi.conf")) {
     Serial.print("Found wifi config");
-    if(connectBadge()) {
-      pullNotifications();
-    }
+    connectBadge();
     mainMenu->addMenuItem(new MenuItem("Badge", []() {
       FullScreenBMPDisplay* badge_screen = new FullScreenBMPDisplay();
       badge_screen->setBmp("/badge.bmp");
@@ -209,6 +210,9 @@ void setup() {
       configMenu->addMenuItem(new MenuItem("WiFi Config", []() {
           initialConfig();
       }));
+      configMenu->addMenuItem(new MenuItem("Refresh notifications", []() {
+          lastNotificationPull=0;
+      }));
       MenuItem * shareItem = new MenuItem("Share Channel", []() {
         Menu * shareMenu = new Menu();
         shareMenu->addMenuItem(new MenuItem("Back", []() {
@@ -284,11 +288,18 @@ void setup() {
     String wifiLightConf = getConfig("wifilight", "255");
     wifiLight = atoi(wifiLightConf.c_str());
     ennotif = getConfig("ennotif", "on") == "on";
+
+    int waitforwifi=0;
+    while(WiFi.status()!=WL_CONNECTED && waitforwifi++<10) delay(500);
+
     ui->open(mainMenu);
     status->updateBat(badge.getBatVoltage());
     int wStat = WiFi.status();
     if(wStat == WL_CONNECTED) {
       status->updateWiFiState(WiFi.SSID());
+      ui->draw();
+      pullNotifications();
+      lastNotificationPull = millis();
     } else {
       status->updateWiFiState("No WiFi");
     }
@@ -335,6 +346,16 @@ void loop() {
       ui->dispatchInput(badge.getJoystickState());
       ui->draw();
     });
+
+    // calculate current time
+    if (serverTimestamp > 0) {
+      time_t currentts = (time_t) serverTimestamp + TIMEZONE_OFFSET*3600;
+      struct tm *datetime = localtime(&currentts);
+      status->updateClock(datetime->tm_hour, datetime->tm_min);
+      
+    } else {
+      status->updateClock(99,99);
+    }
     if (ennotif) {
       NotificationIterator notit(NotificationFilter::NOT_NOTIFIED);
       if (notit.next()) {
@@ -617,7 +638,7 @@ bool connectBadge() {
   configString = String();
   char* ssid = confParse.getKey("ssid");
   char* pw = confParse.getKey("pw");
-  Serial.printf("Connecting ti wifi '%s' with password '%s'...\n", ssid, pw);
+  Serial.printf("Connecting to wifi '%s' with password '%s'...\n", ssid, pw);
   unsigned long startTime = millis();
   WiFi.begin(ssid, pw);
   delete[] pw;

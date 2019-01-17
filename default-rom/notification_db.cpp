@@ -5,6 +5,7 @@
 #include <algorithm>
 
 unsigned long lastNotificationPull = 0;
+long serverTimestamp = 0;
 
 void pullNotifications() {
   Serial.println("pullNotifications()");
@@ -16,6 +17,12 @@ void pullNotifications() {
     Serial.println(channelIterator.filename(""));
 
     String host = channelIterator.host();
+    int port = 443;
+    int portidx = host.indexOf(":");
+    if (portidx != -1 ) {
+      port = host.substring(portidx+1).toInt();
+      host=host.substring(0,portidx);
+    }
     String url = channelIterator.url();
     String fingerprint = channelIterator.fingerprint();
 
@@ -24,8 +31,10 @@ void pullNotifications() {
 
     WiFiClientSecure client;
     Serial.print("connecting to ");
-    Serial.println(host);
-    if (!client.connect(host.c_str(), 443)) {
+    Serial.print(host);
+    Serial.print(" port ");
+    Serial.println(port);
+    if (!client.connect(host.c_str(), port)) {
       Serial.println("connection failed");
       continue;
     }
@@ -206,6 +215,7 @@ void recalculateStates(std::function<void()> inbetween) {
       current_server_timestamp = (millis()/1000 - local_timestamp) + server_timestamp;
       Serial.print("calculated server ts: ");
       Serial.println(current_server_timestamp);
+      serverTimestamp = current_server_timestamp;
     }
     {
       File states_file = channelIterator.file("states", "r+");
