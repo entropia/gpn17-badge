@@ -92,6 +92,7 @@ private:
 };
 
 extern unsigned long lastNotificationPull;
+extern long serverTimestamp;
 
 void deleteTimestampFiles();
 
